@@ -27,15 +27,12 @@ class AdaptiveCardState extends State<AdaptiveCard> {
 
   _ReferenceResolver _referenceResolver;
 
-  /// Only built once.
-  _AdaptiveElement elementWidget;
 
   @override
   void initState() {
     super.initState();
     _referenceResolver = _ReferenceResolver(widget.hostConfig);
     /// TODO no need to pass atomicIdGenerator because it is not re constructed every time
-    elementWidget = getElement(widget.map, _referenceResolver, stateSetter, _AtomicIdGenerator());
 
   }
 
@@ -45,7 +42,7 @@ class AdaptiveCardState extends State<AdaptiveCard> {
   }
   @override
   Widget build(BuildContext context) {
-    return elementWidget.generateWidget();
+    return getElement(widget.map, _referenceResolver, stateSetter, _AtomicIdGenerator()).generateWidget();
   }
 }
 
@@ -57,12 +54,16 @@ typedef void OnShowCard(_AdaptiveElement elementToShow);
 /// Elements are *not* rebuilt when setState is called.
 ///
 abstract class _AdaptiveElement {
-  _AdaptiveElement(this.adaptiveMap, this.resolver, this.stateSetter, this.idGenerator);
+  _AdaptiveElement(this.adaptiveMap, this.resolver, this.stateSetter, this.idGenerator) {
+    loadId();
+  }
 
 
   final Map adaptiveMap;
   final _ReferenceResolver resolver;
   final _AtomicIdGenerator idGenerator;
+
+  String id;
 
   /// Because some widgets (looking at you ShowCardAction) need to set the state
   /// all elements get a way to set the state.
@@ -70,9 +71,12 @@ abstract class _AdaptiveElement {
 
   Widget generateWidget();
 
-  String get id {
-    if(adaptiveMap.containsKey("id")) return adaptiveMap["id"];
-    return idGenerator.getId();
+  void loadId() {
+    if(adaptiveMap.containsKey("id")) {
+      id = adaptiveMap["id"];
+    } else {
+      id = idGenerator.getId();
+    }
   }
 
 
@@ -86,40 +90,40 @@ abstract class _AdaptiveElement {
   @override
   int get hashCode => id.hashCode;
 
-
-
-
 }
 
-
 /// This element also takes actions
-class _AdaptiveCardElement extends _AdaptiveElement {
+class _AdaptiveCardElement extends _AdaptiveElement{
   _AdaptiveCardElement(Map adaptiveMap, _ReferenceResolver resolver, stateSetter, _AtomicIdGenerator idGenerator)
-      : super(adaptiveMap, resolver, stateSetter, idGenerator);
-
-
+      : super(adaptiveMap, resolver, stateSetter, idGenerator) {
+    state = _stateStore.getState(id);
+    if(state == null) {
+      state = _AdaptiveCardState();
+    }
+  }
+  _AdaptiveCardState state;
 
   @override
   Widget generateWidget() {
     List<Widget> widgetChildren = children.map((element) => element.generateWidget()).toList();
     widgetChildren.addAll(actions.map((action) => action.generateWidget()).toList());
-    if(currentShowingCard != null) {
-      widgetChildren.add(currentShowingCard.generateWidget());
+    if(state.currentShowingCard != null) {
+      widgetChildren.add(state.currentShowingCard.generateWidget());
     }
     return Column(
       children: widgetChildren,
     );
   }
 
-  _AdaptiveElement currentShowingCard;
 
   /// This is called when an [_AdaptiveActionShowCard] triggers it.
   void showCard(_AdaptiveElement element) {
-    if(currentShowingCard == element) {
-      currentShowingCard = null;
+    if(state.currentShowingCard == element) {
+      state.currentShowingCard = null;
     } else {
-      currentShowingCard = element;
+      state.currentShowingCard = element;
     }
+    _stateStore.saveState(id, state);
     stateSetter();
   }
 
@@ -134,6 +138,11 @@ class _AdaptiveCardElement extends _AdaptiveElement {
       return [];
     }
   }
+
+}
+
+class _AdaptiveCardState extends _ElementState {
+  _AdaptiveElement currentShowingCard;
 
 }
 
@@ -166,10 +175,7 @@ class _AdaptiveTextBlock extends _AdaptiveElement {
 class _AdaptiveContainer extends _AdaptiveElement {
   _AdaptiveContainer(Map adaptiveMap, _ReferenceResolver resolver,
       stateSetter, _AtomicIdGenerator idGenerator)
-      : super(adaptiveMap, resolver, stateSetter, idGenerator) {
-    children = List<Map>.from(adaptiveMap["items"]);
-  }
-
+      : super(adaptiveMap, resolver, stateSetter, idGenerator);
 
 
 
@@ -179,8 +185,8 @@ class _AdaptiveContainer extends _AdaptiveElement {
     );
   }
 
+  List<Map> get children => List<Map>.from(adaptiveMap["items"]);
 
-  List<Map> children;
 }
 
 
@@ -226,6 +232,8 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
 
   @override
   Widget generateWidget() {
+    // Event if not displayed, build to have stable ids
+    _AdaptiveElement it = card;
     return MaterialButton(
       onPressed: () {
         onShowCard(card);
@@ -341,9 +349,28 @@ class _AtomicIdGenerator {
 
 
   String getId() {
-    String id =  "$_idPrefix.index";
+    String id =  "$_idPrefix.$index";
     index++;
     return id;
   }
 
+}
+
+
+abstract class _ElementState {
+
+}
+_StateStore _stateStore = _StateStore();
+
+class _StateStore {
+
+  Map<String, _ElementState> states = {};
+
+  _ElementState getState(String id) {
+    return states[id];
+  }
+
+  void saveState(String id, _ElementState state) {
+    states[id] = state;
+  }
 }
