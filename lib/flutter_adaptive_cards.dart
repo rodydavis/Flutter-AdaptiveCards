@@ -222,9 +222,6 @@ abstract class _AdaptiveAction extends _AdaptiveElement {
 
 class _AdaptiveActionShowCard extends _AdaptiveAction {
 
-
-
-
   _AdaptiveActionShowCard(Map adaptiveMap, _ReferenceResolver resolver, stateSetter,
       _AtomicIdGenerator idGenerator, this.onShowCard) : super(adaptiveMap, resolver, stateSetter, idGenerator);
 
@@ -233,7 +230,7 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
   @override
   Widget generateWidget() {
     // Event if not displayed, build to have stable ids
-    _AdaptiveElement it = card;
+    Widget it = card.generateWidget();
     return MaterialButton(
       onPressed: () {
         onShowCard(card);

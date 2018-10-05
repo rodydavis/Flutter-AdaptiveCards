@@ -33,8 +33,8 @@
       "type": "Action.ShowCard",
       "title": "Show Card",
       "card": {
-        "type": "Container",
-        "items": [
+        "type": "AdaptiveCard",
+        "body": [
           {
             "type": "Input.Text",
             "placeholder": "enter comment",
@@ -48,6 +48,30 @@
             "weight": "bolder",
             "size": "medium"
         }
+        ],
+        "actions": [
+        {
+              "type": "Action.ShowCard",
+              "title": "Show Card",
+              "card": {
+                "type": "AdaptiveCard",
+                "body": [
+                  {
+                    "type": "Input.Text",
+                    "placeholder": "enter comment",
+                    "style": "text",
+                    "maxLength": 0,
+                    "id": "CommentVal"
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "Publish Adaptive Card schema",
+                    "weight": "bolder",
+                    "size": "medium"
+                }
+                ]
+              }
+            }
         ]
       }
     }
