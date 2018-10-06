@@ -48,6 +48,10 @@ class AdaptiveCardState extends State<AdaptiveCard> {
 
   }
 
+  void openUrl() {
+
+  }
+
   Future<DateTime> pickDate() {
     DateTime initialDate = DateTime.now();
     return showDatePicker(context: context, initialDate: initialDate, firstDate: initialDate, lastDate: DateTime.now().add(Duration(days: 365)));
@@ -379,6 +383,31 @@ class _AdaptiveImage extends _AdaptiveElement {
 
 }
 
+class _AdaptiveImageSet extends _AdaptiveElement {
+  _AdaptiveImageSet(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+  List<_AdaptiveImage> images;
+
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    images = List<Map>.from(adaptiveMap["images"])
+        .map((child) => _AdaptiveImage(child, resolver, widgetState, idGenerator)).toList();
+
+  }
+
+  @override
+  Widget generateWidget() {
+    return GridView.extent(
+      maxCrossAxisExtent: 200.0,
+      children: images.map((img) => img.generateWidget()).toList(),
+    );
+  }
+
+}
+
 
 
 
@@ -468,7 +497,6 @@ class _AdaptiveDateInput extends _AdaptiveInput {
 abstract class _AdaptiveAction extends _AdaptiveElement {
   _AdaptiveAction(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, widgetState, idGenerator);
 
-
   String get title => adaptiveMap["title"];
 
 }
@@ -529,6 +557,21 @@ class _AdaptiveActionSubmit extends _AdaptiveAction {
       child: Text(title),
     );
   }
+}
+
+class _AdaptiveActionOpenUrl extends _AdaptiveAction {
+  _AdaptiveActionOpenUrl(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+  @override
+  Widget generateWidget() {
+    return RaisedButton(
+      onPressed: () {
+        widgetState.openUrl();
+      },
+      child: Text(title),
+    );
+  }
 
 }
 
@@ -572,6 +615,8 @@ _AdaptiveElement getElement(Map<String, dynamic> map, _ReferenceResolver resolve
       return _AdaptiveDateInput(map, resolver, widgetState, idGenerator);
     case "FactSet":
       return _AdaptiveFactSet(map, resolver, widgetState, idGenerator);
+    case "ImageSet":
+      return _AdaptiveImageSet(map, resolver, widgetState, idGenerator);
   }
   throw StateError("Could not find: $stringType");
 }
@@ -585,11 +630,11 @@ _AdaptiveAction getAction(Map<String, dynamic> map, _ReferenceResolver resolver,
     case "Action.ShowCard":
       return _AdaptiveActionShowCard(map, resolver, widgetState, idGenerator, adaptiveCardElement);
     case "Action.OpenUrl":
-      return null;
+      return _AdaptiveActionOpenUrl(map, resolver, widgetState, idGenerator);
     case "Action.Submit":
       return _AdaptiveActionSubmit(map, resolver, widgetState, idGenerator);
   }
-  return null;
+  throw StateError("Could not find: $stringType");
 }
 
 
