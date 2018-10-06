@@ -35,20 +35,27 @@ class AdaptiveCardState extends State<AdaptiveCard> {
     super.initState();
     _referenceResolver = _ReferenceResolver(widget.hostConfig);
     /// TODO no need to pass atomicIdGenerator because it is not re constructed every time
-    _adaptiveElement = getElement(widget.map, _referenceResolver, stateSetter, _AtomicIdGenerator());
+    _adaptiveElement = getElement(widget.map, _referenceResolver, this, _AtomicIdGenerator());
 
   }
 
 
-  void stateSetter() {
+  void rebuild() {
     setState((){});
+  }
+
+  void submit() {
+
   }
 
   @override
   Widget build(BuildContext context) {
-    return _adaptiveElement.generateWidget();
+    return Card(
+      child: _adaptiveElement.generateWidget(),
+    );
   }
 }
+
 
 
 
@@ -58,7 +65,7 @@ typedef void OnShowCard(_AdaptiveElement elementToShow);
 /// Elements are *not* re constructed when setState is called.
 ///
 abstract class _AdaptiveElement {
-  _AdaptiveElement(this.adaptiveMap, this.resolver, this.stateSetter, this.idGenerator) {
+  _AdaptiveElement(this.adaptiveMap, this.resolver, this.widgetState, this.idGenerator) {
     loadTree();
   }
 
@@ -71,7 +78,7 @@ abstract class _AdaptiveElement {
 
   /// Because some widgets (looking at you ShowCardAction) need to set the state
   /// all elements get a way to set the state.
-  final VoidCallback stateSetter;
+  final AdaptiveCardState widgetState;
 
   Widget generateWidget();
 
@@ -101,8 +108,8 @@ abstract class _AdaptiveElement {
 
 /// This element also takes actions
 class _AdaptiveCardElement extends _AdaptiveElement{
-  _AdaptiveCardElement(Map adaptiveMap, _ReferenceResolver resolver, stateSetter, _AtomicIdGenerator idGenerator)
-      : super(adaptiveMap, resolver, stateSetter, idGenerator);
+  _AdaptiveCardElement(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
 
   _AdaptiveElement currentShowingCard;
 
@@ -114,11 +121,11 @@ class _AdaptiveCardElement extends _AdaptiveElement{
   void loadTree() {
     super.loadTree();
     children = List<Map>.from(adaptiveMap["body"])
-        .map((map) => getElement(map, resolver, stateSetter, idGenerator)).toList();
+        .map((map) => getElement(map, resolver, widgetState, idGenerator)).toList();
 
     if(adaptiveMap.containsKey("actions")) {
     actions =  List<Map>.from(adaptiveMap["actions"])
-        .map((map) => getAction(map, resolver, stateSetter, showCard, idGenerator)).toList();
+        .map((map) => getAction(map, resolver, widgetState, showCard, idGenerator)).toList();
     } else {
     actions =  [];
     }
@@ -133,6 +140,7 @@ class _AdaptiveCardElement extends _AdaptiveElement{
     }
     return Column(
       children: widgetChildren,
+      crossAxisAlignment: CrossAxisAlignment.start,
     );
   }
 
@@ -144,17 +152,14 @@ class _AdaptiveCardElement extends _AdaptiveElement{
     } else {
       currentShowingCard = element;
     }
-    stateSetter();
+    widgetState.rebuild();
   }
-
-
-
 
 }
 
 
 class _AdaptiveTextBlock extends _AdaptiveElement {
-  _AdaptiveTextBlock(Map adaptiveMap, _ReferenceResolver resolver, stateSetter, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, stateSetter, idGenerator);
+  _AdaptiveTextBlock(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, widgetState, idGenerator);
 
 
   Widget generateWidget() {
@@ -178,8 +183,8 @@ class _AdaptiveTextBlock extends _AdaptiveElement {
 
 class _AdaptiveContainer extends _AdaptiveElement {
   _AdaptiveContainer(Map adaptiveMap, _ReferenceResolver resolver,
-      stateSetter, _AtomicIdGenerator idGenerator)
-      : super(adaptiveMap, resolver, stateSetter, idGenerator);
+      widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
 
 
   List<_AdaptiveElement> children;
@@ -187,7 +192,7 @@ class _AdaptiveContainer extends _AdaptiveElement {
   @override
   void loadTree() {
     super.loadTree();
-    children = List<Map>.from(adaptiveMap["items"]).map((child) => getElement(child, resolver, stateSetter, idGenerator)).toList();
+    children = List<Map>.from(adaptiveMap["items"]).map((child) => getElement(child, resolver, widgetState, idGenerator)).toList();
 
   }
 
@@ -197,34 +202,126 @@ class _AdaptiveContainer extends _AdaptiveElement {
     );
   }
 
+}
+
+
+class _AdaptiveColumnSet extends _AdaptiveElement {
+
+  _AdaptiveColumnSet(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+
+  List<_AdaptiveColumn> columns;
+
+  @override
+  void loadTree() {
+    super.loadTree();
+
+    // TODO handle case where there are no children elegantly
+    columns = List<Map>.from(adaptiveMap["columns"]).map((child) => _AdaptiveColumn(child, resolver, widgetState, idGenerator)).toList();
+
+  }
+
+  @override
+  Widget generateWidget() {
+   return Row(
+      children: columns.map((it) => it.generateWidget()).toList(),
+     mainAxisAlignment: MainAxisAlignment.start,
+     crossAxisAlignment: CrossAxisAlignment.center,
+   );
+  }
+
+
 
 }
+
+class _AdaptiveColumn extends _AdaptiveElement {
+  _AdaptiveColumn(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+
+  List<_AdaptiveElement> items;
+
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    items = List<Map>.from(adaptiveMap["items"]).map((child) => getElement(child, resolver, widgetState, idGenerator)).toList();
+  }
+
+  @override
+  Widget generateWidget() {
+    return Column(
+      children: items.map((it) => it.generateWidget()).toList(),
+    );
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /// Text input elements
 
 abstract class _AdaptiveInput extends _AdaptiveElement {
-  _AdaptiveInput(Map adaptiveMap, _ReferenceResolver resolver, stateSetter, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, stateSetter, idGenerator);
+  _AdaptiveInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+
+  void appendInput(Map map);
+
+
+
 }
 
 class _AdaptiveTextInput extends _AdaptiveInput {
-  _AdaptiveTextInput(Map adaptiveMap, _ReferenceResolver resolver, stateSetter, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, stateSetter, idGenerator);
+  _AdaptiveTextInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+
+  TextEditingController controller = TextEditingController();
 
 
 
 
   @override
   Widget generateWidget() {
-    return TextField();
+    return TextField(
+      controller: controller,
+    );
+  }
+
+  @override
+  void appendInput(Map map) {
+    map[id] = controller.value;
   }
 
 }
 
 
+
+
+
+
+
+
+
+
+
+
 /// Actions
 
 abstract class _AdaptiveAction extends _AdaptiveElement {
-  _AdaptiveAction(Map adaptiveMap, _ReferenceResolver resolver, stateSetter, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, stateSetter, idGenerator);
+  _AdaptiveAction(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, widgetState, idGenerator);
 
 
   String get title => adaptiveMap["title"];
@@ -233,8 +330,8 @@ abstract class _AdaptiveAction extends _AdaptiveElement {
 
 class _AdaptiveActionShowCard extends _AdaptiveAction {
 
-  _AdaptiveActionShowCard(Map adaptiveMap, _ReferenceResolver resolver, stateSetter,
-      _AtomicIdGenerator idGenerator, this.onShowCard) : super(adaptiveMap, resolver, stateSetter, idGenerator);
+  _AdaptiveActionShowCard(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
+      _AtomicIdGenerator idGenerator, this.onShowCard) : super(adaptiveMap, resolver, widgetState, idGenerator);
 
 
 
@@ -246,7 +343,7 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
   @override
   void loadTree() {
     super.loadTree();
-    card = getElement(adaptiveMap["card"], resolver, stateSetter, idGenerator);
+    card = getElement(adaptiveMap["card"], resolver, widgetState, idGenerator);
 
   }
 
@@ -265,22 +362,43 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
 }
 
 class _AdaptiveActionSubmit extends _AdaptiveAction {
-  _AdaptiveActionSubmit(Map adaptiveMap, _ReferenceResolver resolver, stateSetter, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, stateSetter, idGenerator);
+
+  _AdaptiveActionSubmit(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, widgetState, idGenerator);
 
 
 
   @override
   Widget generateWidget() {
-    // TODO: implement generateWidget
+    return MaterialButton(
+      onPressed: () {
+        widgetState.submit();
+      },
+      child: Text(title),
+    );
   }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /// This returns an [_AdaptiveElement] with the correct type.
 ///
 /// It looks at the [type] property and decides which object to construct
 _AdaptiveElement getElement(Map<String, dynamic> map, _ReferenceResolver resolver,
-    VoidCallback stateSetter, _AtomicIdGenerator idGenerator) {
+    AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator) {
 
   String stringType = map["type"];
   // Because enum dont allow ".", we have to remove them to make a nice match.
@@ -290,20 +408,22 @@ _AdaptiveElement getElement(Map<String, dynamic> map, _ReferenceResolver resolve
   _AdaptiveCardType type = _AdaptiveCardType.values.firstWhere((it) => it.toString() == "$_AdaptiveCardType.$cleanedType");
   switch(type) {
     case _AdaptiveCardType.Container:
-      return _AdaptiveContainer(map, resolver, stateSetter, idGenerator);
+      return _AdaptiveContainer(map, resolver, widgetState, idGenerator);
     case _AdaptiveCardType.TextBlock:
-      return _AdaptiveTextBlock(map, resolver, stateSetter, idGenerator);
+      return _AdaptiveTextBlock(map, resolver, widgetState, idGenerator);
     case _AdaptiveCardType.InputText:
-      return _AdaptiveTextInput(map, resolver, stateSetter, idGenerator);
+      return _AdaptiveTextInput(map, resolver, widgetState, idGenerator);
     case _AdaptiveCardType.AdaptiveCard:
-      return _AdaptiveCardElement(map, resolver, stateSetter, idGenerator);
+      return _AdaptiveCardElement(map, resolver, widgetState, idGenerator);
+    case _AdaptiveCardType.AdaptiveColumnSet:
+      return _AdaptiveColumnSet(map, resolver, widgetState, idGenerator);
   }
   return null;
 }
 
 // TODO this is code duplication, maybe better way to do this
 _AdaptiveAction getAction(Map<String, dynamic> map, _ReferenceResolver resolver,
-    VoidCallback stateSetter, OnShowCard onShowCard, _AtomicIdGenerator idGenerator) {
+    AdaptiveCardState widgetState, OnShowCard onShowCard, _AtomicIdGenerator idGenerator) {
   String stringType = map["type"];
   // Because enum dont allow ".", we have to remove them to make a nice match.
   String cleanedType = stringType.replaceAll(".", "");
@@ -312,7 +432,7 @@ _AdaptiveAction getAction(Map<String, dynamic> map, _ReferenceResolver resolver,
   _AdaptiveActionType type = _AdaptiveActionType.values.firstWhere((it) => it.toString() == "$_AdaptiveActionType.$cleanedType");
   switch(type) {
     case _AdaptiveActionType.ActionShowCard:
-      return _AdaptiveActionShowCard(map, resolver, stateSetter, idGenerator, onShowCard);
+      return _AdaptiveActionShowCard(map, resolver, widgetState, idGenerator, onShowCard);
     case _AdaptiveActionType.ActionSubmit:
       return null;
     case _AdaptiveActionType.ActionOpenUrl:
@@ -328,6 +448,7 @@ enum _AdaptiveCardType {
   Container,
   InputText,
   AdaptiveCard,
+  AdaptiveColumnSet,
 }
 
 enum _AdaptiveActionType {
@@ -357,6 +478,8 @@ class _ReferenceResolver {
 ///
 /// A new instance of this class is used every build time to ensure that all ids
 /// are different but same objects maintain their ids.
+///
+/// TODO replace with UUID
 class _AtomicIdGenerator {
 
   int index = 0;

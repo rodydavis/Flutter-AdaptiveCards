@@ -53,10 +53,14 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: new AppBar(
         title: new Text("Example"),
       ),
+      backgroundColor: Colors.grey,
       body: new Center(
         child: adaptiveMap == null || hostConfig == null ? Container(
-          width: 100.0, height: 100.0, color: Colors.red,) : AdaptiveCard
-            .fromMap(adaptiveMap, hostConfig),
+          width: 100.0, height: 100.0, color: Colors.red,) : Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: AdaptiveCard
+              .fromMap(adaptiveMap, hostConfig),
+          ),
       ),
     );
   }
