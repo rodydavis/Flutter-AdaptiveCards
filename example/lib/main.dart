@@ -35,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    rootBundle.loadString("lib/easy_card").then((string) {
+    rootBundle.loadString("lib/activity_update").then((string) {
       setState(() {
         adaptiveMap = json.decode(string);
       });

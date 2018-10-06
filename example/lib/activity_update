@@ -57,27 +57,6 @@
           "type": "TextBlock",
           "text": "Now that we have defined the main rules and features of the format, we need to produce a schema and publish it to GitHub. The schema will be the starting point of our reference documentation.",
           "wrap": true
-        },
-        {
-          "type": "FactSet",
-          "facts": [
-            {
-              "title": "Board:",
-              "value": "Adaptive Card"
-            },
-            {
-              "title": "List:",
-              "value": "Backlog"
-            },
-            {
-              "title": "Assigned to:",
-              "value": "Matt Hidinger"
-            },
-            {
-              "title": "Due date:",
-              "value": "Not set"
-            }
-          ]
         }
       ]
     }

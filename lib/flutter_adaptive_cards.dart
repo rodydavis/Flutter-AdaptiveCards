@@ -259,6 +259,19 @@ class _AdaptiveColumn extends _AdaptiveElement {
 
 
 
+class _AdaptiveImage extends _AdaptiveElement {
+  _AdaptiveImage(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+  @override
+  Widget generateWidget() {
+    return Image.network(url);
+  }
+
+
+  String get url => adaptiveMap["url"];
+
+}
 
 
 
@@ -401,61 +414,41 @@ _AdaptiveElement getElement(Map<String, dynamic> map, _ReferenceResolver resolve
     AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator) {
 
   String stringType = map["type"];
-  // Because enum dont allow ".", we have to remove them to make a nice match.
-  String cleanedType = stringType.replaceAll(".", "");
-  // TODO optimize, probably do not want to iterate over all enums every time, probably store them in
-  // TODO a map and acess them in O(1)
-  _AdaptiveCardType type = _AdaptiveCardType.values.firstWhere((it) => it.toString() == "$_AdaptiveCardType.$cleanedType");
-  switch(type) {
-    case _AdaptiveCardType.Container:
+
+  switch(stringType) {
+    case "Container":
       return _AdaptiveContainer(map, resolver, widgetState, idGenerator);
-    case _AdaptiveCardType.TextBlock:
+    case "TextBlock":
       return _AdaptiveTextBlock(map, resolver, widgetState, idGenerator);
-    case _AdaptiveCardType.InputText:
+    case "Input.Text":
       return _AdaptiveTextInput(map, resolver, widgetState, idGenerator);
-    case _AdaptiveCardType.AdaptiveCard:
+    case "AdaptiveCard":
       return _AdaptiveCardElement(map, resolver, widgetState, idGenerator);
-    case _AdaptiveCardType.AdaptiveColumnSet:
+    case "ColumnSet":
       return _AdaptiveColumnSet(map, resolver, widgetState, idGenerator);
+    case "Image":
+      return _AdaptiveImage(map, resolver, widgetState, idGenerator);
   }
-  return null;
+  throw StateError("Could not find: $stringType");
 }
 
-// TODO this is code duplication, maybe better way to do this
 _AdaptiveAction getAction(Map<String, dynamic> map, _ReferenceResolver resolver,
     AdaptiveCardState widgetState, OnShowCard onShowCard, _AtomicIdGenerator idGenerator) {
+
   String stringType = map["type"];
-  // Because enum dont allow ".", we have to remove them to make a nice match.
-  String cleanedType = stringType.replaceAll(".", "");
-  // TODO optimize, probably do not want to iterate over all enums every time, probably store them in
-  // TODO a map and acess them in O(1)
-  _AdaptiveActionType type = _AdaptiveActionType.values.firstWhere((it) => it.toString() == "$_AdaptiveActionType.$cleanedType");
-  switch(type) {
-    case _AdaptiveActionType.ActionShowCard:
+
+  switch(stringType) {
+    case "Action.ShowCard":
       return _AdaptiveActionShowCard(map, resolver, widgetState, idGenerator, onShowCard);
-    case _AdaptiveActionType.ActionSubmit:
+    case "Action.OpenUrl":
       return null;
-    case _AdaptiveActionType.ActionOpenUrl:
-      return null;
+    case "Action.Submit":
+      return _AdaptiveActionSubmit(map, resolver, widgetState, idGenerator);
   }
   return null;
 }
 
 
-
-enum _AdaptiveCardType {
-  TextBlock,
-  Container,
-  InputText,
-  AdaptiveCard,
-  AdaptiveColumnSet,
-}
-
-enum _AdaptiveActionType {
-  ActionShowCard,
-  ActionSubmit,
-  ActionOpenUrl,
-}
 
 
 class _ReferenceResolver {
