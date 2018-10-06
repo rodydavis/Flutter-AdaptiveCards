@@ -57,6 +57,11 @@ class AdaptiveCardState extends State<AdaptiveCard> {
     return showDatePicker(context: context, initialDate: initialDate, firstDate: initialDate, lastDate: DateTime.now().add(Duration(days: 365)));
   }
 
+  Future<TimeOfDay> pickTime() {
+    TimeOfDay initialTimeOfDay = TimeOfDay.now();
+    return showTimePicker(context: context, initialTime: initialTimeOfDay);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -352,6 +357,7 @@ class _AdaptiveFact extends _AdaptiveElement {
 
   @override
   Widget generateWidget() {
+    //TODO can facts be stand alone?
     throw StateError("The widget should be built by _AdaptiveFactSet");
   }
 
@@ -438,12 +444,30 @@ class _AdaptiveTextInput extends _AdaptiveInput {
 
   TextEditingController controller = TextEditingController();
 
+  @override
+  Widget generateWidget() {
+    return TextField(
+      controller: controller,
+    );
+  }
 
+  @override
+  void appendInput(Map map) {
+    map[id] = controller.value;
+  }
 
+}
+
+class _AdaptiveNumberInput extends _AdaptiveInput {
+  _AdaptiveNumberInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+  TextEditingController controller = TextEditingController();
 
   @override
   Widget generateWidget() {
     return TextField(
+      keyboardType: TextInputType.number,
       controller: controller,
     );
   }
@@ -478,6 +502,132 @@ class _AdaptiveDateInput extends _AdaptiveInput {
     map[id] = selectedDateTime.toIso8601String();
   }
 
+}
+
+class _AdaptiveTimeInput extends _AdaptiveInput {
+  _AdaptiveTimeInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+
+  TimeOfDay selectedTime;
+
+  @override
+  Widget generateWidget() {
+    return RaisedButton(
+      onPressed: () async {
+        selectedTime = await widgetState.pickTime();
+        widgetState.rebuild();
+      },
+      child: Text(selectedTime == null ? "Pick a date" : selectedTime.toString()),
+    );
+  }
+
+  @override
+  void appendInput(Map map) {
+    map[id] = selectedTime.toString();
+  }
+
+}
+
+class _AdaptiveToggle extends _AdaptiveInput {
+  _AdaptiveToggle(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+  bool value = false;
+
+  @override
+  Widget generateWidget() {
+    return Switch(
+      value: value,
+      onChanged: (newValue) {
+        value = newValue;
+        widgetState.rebuild();
+      },
+    );
+  }
+
+  @override
+  void appendInput(Map map) {
+    map[id] = value;
+  }
+
+}
+
+class _AdaptiveChoiceSet extends _AdaptiveInput {
+  _AdaptiveChoiceSet(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+
+  List<_AdaptiveChoice> choices;
+
+  _AdaptiveChoice _selectedChoice;
+  @override
+  void loadTree() {
+    super.loadTree();
+    choices = List<Map>.from(adaptiveMap["choices"])
+        .map((child) => _AdaptiveChoice(child, resolver, widgetState, idGenerator)).toList();
+  }
+
+  @override
+  void appendInput(Map map) {
+    map[id] = _selectedChoice.id;
+  }
+
+  @override
+  Widget generateWidget() {
+    return isCompact? _buildCompact(): _buildExpanded();
+  }
+
+  Widget _buildCompact() {
+    return PopupMenuButton<_AdaptiveChoice>(itemBuilder: (BuildContext context) {
+      return choices.map((choice) => PopupMenuItem<_AdaptiveChoice>(
+          child: Text(choice.title),
+      )).toList();
+    },
+    onSelected: (choice){
+      _selectedChoice = choice;
+    },
+    );
+  }
+
+  Widget _buildExpanded() {
+
+  }
+
+  bool get isCompact {
+    if(!adaptiveMap.containsKey("style")) return false;
+    if(adaptiveMap["style"] == "compact") return true;
+    if(adaptiveMap["style"] == "expanded") return false;
+    throw StateError("The style of the ChoiceSet needs to be either compact or expanded");
+  }
+
+}
+
+class _AdaptiveChoice extends _AdaptiveInput {
+  _AdaptiveChoice(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+  String title;
+  String value;
+
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    title = adaptiveMap["title"];
+    value = adaptiveMap["value"];
+  }
+
+  @override
+  Widget generateWidget() {
+    //TODO can facts be stand alone?
+    throw StateError("The widget should be built by _AdaptiveFactSet");
+  }
+
+  @override
+  void appendInput(Map map) {
+    // TODO: implement appendInput
+  }
 
 }
 
@@ -603,20 +753,30 @@ _AdaptiveElement getElement(Map<String, dynamic> map, _ReferenceResolver resolve
       return _AdaptiveContainer(map, resolver, widgetState, idGenerator);
     case "TextBlock":
       return _AdaptiveTextBlock(map, resolver, widgetState, idGenerator);
-    case "Input.Text":
-      return _AdaptiveTextInput(map, resolver, widgetState, idGenerator);
     case "AdaptiveCard":
       return _AdaptiveCardElement(map, resolver, widgetState, idGenerator);
     case "ColumnSet":
       return _AdaptiveColumnSet(map, resolver, widgetState, idGenerator);
     case "Image":
       return _AdaptiveImage(map, resolver, widgetState, idGenerator);
-    case "Input.Date":
-      return _AdaptiveDateInput(map, resolver, widgetState, idGenerator);
     case "FactSet":
       return _AdaptiveFactSet(map, resolver, widgetState, idGenerator);
     case "ImageSet":
       return _AdaptiveImageSet(map, resolver, widgetState, idGenerator);
+    case "Input.Text":
+      return _AdaptiveTextInput(map, resolver, widgetState, idGenerator);
+    case "Input.Number":
+      return _AdaptiveNumberInput(map, resolver, widgetState, idGenerator);
+    case "Input.Date":
+      return _AdaptiveDateInput(map, resolver, widgetState, idGenerator);
+    case "Input.Time":
+      return _AdaptiveTimeInput(map, resolver, widgetState, idGenerator);
+    case "Input.Toggle":
+      return _AdaptiveToggle(map, resolver, widgetState, idGenerator);
+    case "Input.ChoiceSet":
+      return _AdaptiveChoiceSet(map, resolver, widgetState, idGenerator);
+    case "Input.Choice":
+      return _AdaptiveChoice(map, resolver, widgetState, idGenerator);
   }
   throw StateError("Could not find: $stringType");
 }
