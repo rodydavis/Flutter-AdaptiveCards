@@ -27,12 +27,15 @@ class AdaptiveCardState extends State<AdaptiveCard> {
 
   _ReferenceResolver _referenceResolver;
 
+  _AdaptiveElement _adaptiveElement;
+
 
   @override
   void initState() {
     super.initState();
     _referenceResolver = _ReferenceResolver(widget.hostConfig);
     /// TODO no need to pass atomicIdGenerator because it is not re constructed every time
+    _adaptiveElement = getElement(widget.map, _referenceResolver, stateSetter, _AtomicIdGenerator());
 
   }
 
@@ -40,9 +43,10 @@ class AdaptiveCardState extends State<AdaptiveCard> {
   void stateSetter() {
     setState((){});
   }
+
   @override
   Widget build(BuildContext context) {
-    return getElement(widget.map, _referenceResolver, stateSetter, _AtomicIdGenerator()).generateWidget();
+    return _adaptiveElement.generateWidget();
   }
 }
 
@@ -51,11 +55,11 @@ class AdaptiveCardState extends State<AdaptiveCard> {
 typedef void OnShowCard(_AdaptiveElement elementToShow);
 
 
-/// Elements are *not* rebuilt when setState is called.
+/// Elements are *not* re constructed when setState is called.
 ///
 abstract class _AdaptiveElement {
   _AdaptiveElement(this.adaptiveMap, this.resolver, this.stateSetter, this.idGenerator) {
-    loadId();
+    loadTree();
   }
 
 
@@ -79,6 +83,9 @@ abstract class _AdaptiveElement {
     }
   }
 
+  void loadTree() {
+    loadId();
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -95,20 +102,34 @@ abstract class _AdaptiveElement {
 /// This element also takes actions
 class _AdaptiveCardElement extends _AdaptiveElement{
   _AdaptiveCardElement(Map adaptiveMap, _ReferenceResolver resolver, stateSetter, _AtomicIdGenerator idGenerator)
-      : super(adaptiveMap, resolver, stateSetter, idGenerator) {
-    state = _stateStore.getState(id);
-    if(state == null) {
-      state = _AdaptiveCardState();
+      : super(adaptiveMap, resolver, stateSetter, idGenerator);
+
+  _AdaptiveElement currentShowingCard;
+
+  List<_AdaptiveElement> children;
+
+  List<_AdaptiveAction> actions;
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    children = List<Map>.from(adaptiveMap["body"])
+        .map((map) => getElement(map, resolver, stateSetter, idGenerator)).toList();
+
+    if(adaptiveMap.containsKey("actions")) {
+    actions =  List<Map>.from(adaptiveMap["actions"])
+        .map((map) => getAction(map, resolver, stateSetter, showCard, idGenerator)).toList();
+    } else {
+    actions =  [];
     }
   }
-  _AdaptiveCardState state;
 
   @override
   Widget generateWidget() {
     List<Widget> widgetChildren = children.map((element) => element.generateWidget()).toList();
     widgetChildren.addAll(actions.map((action) => action.generateWidget()).toList());
-    if(state.currentShowingCard != null) {
-      widgetChildren.add(state.currentShowingCard.generateWidget());
+    if(currentShowingCard != null) {
+      widgetChildren.add(currentShowingCard.generateWidget());
     }
     return Column(
       children: widgetChildren,
@@ -118,39 +139,22 @@ class _AdaptiveCardElement extends _AdaptiveElement{
 
   /// This is called when an [_AdaptiveActionShowCard] triggers it.
   void showCard(_AdaptiveElement element) {
-    if(state.currentShowingCard == element) {
-      state.currentShowingCard = null;
+    if(currentShowingCard == element) {
+      currentShowingCard = null;
     } else {
-      state.currentShowingCard = element;
+      currentShowingCard = element;
     }
-    _stateStore.saveState(id, state);
     stateSetter();
   }
 
-  List<_AdaptiveElement> get children => List<Map>.from(adaptiveMap["body"])
-      .map((map) => getElement(map, resolver, stateSetter, idGenerator)).toList();
 
-  List<_AdaptiveAction> get actions {
-    if(adaptiveMap.containsKey("actions")) {
-      return List<Map>.from(adaptiveMap["actions"])
-        .map((map) => getAction(map, resolver, stateSetter, showCard, idGenerator)).toList();
-    } else {
-      return [];
-    }
-  }
+
 
 }
 
-class _AdaptiveCardState extends _ElementState {
-  _AdaptiveElement currentShowingCard;
-
-}
 
 class _AdaptiveTextBlock extends _AdaptiveElement {
   _AdaptiveTextBlock(Map adaptiveMap, _ReferenceResolver resolver, stateSetter, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, stateSetter, idGenerator);
-
-
-
 
 
   Widget generateWidget() {
@@ -178,14 +182,21 @@ class _AdaptiveContainer extends _AdaptiveElement {
       : super(adaptiveMap, resolver, stateSetter, idGenerator);
 
 
+  List<_AdaptiveElement> children;
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    children = List<Map>.from(adaptiveMap["items"]).map((child) => getElement(child, resolver, stateSetter, idGenerator)).toList();
+
+  }
 
   Widget generateWidget() {
     return Column(
-      children: children.map((child) => getElement(child, resolver, stateSetter, idGenerator).generateWidget()).toList(),
+      children: children.map((it) => it.generateWidget()).toList(),
     );
   }
 
-  List<Map> get children => List<Map>.from(adaptiveMap["items"]);
 
 }
 
@@ -225,12 +236,22 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
   _AdaptiveActionShowCard(Map adaptiveMap, _ReferenceResolver resolver, stateSetter,
       _AtomicIdGenerator idGenerator, this.onShowCard) : super(adaptiveMap, resolver, stateSetter, idGenerator);
 
+
+
+  _AdaptiveElement card;
+
   final OnShowCard onShowCard;
+
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    card = getElement(adaptiveMap["card"], resolver, stateSetter, idGenerator);
+
+  }
 
   @override
   Widget generateWidget() {
-    // Event if not displayed, build to have stable ids
-    Widget it = card.generateWidget();
     return MaterialButton(
       onPressed: () {
         onShowCard(card);
@@ -239,9 +260,7 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
     );
   }
 
-  _AdaptiveElement get card {
-    return getElement(adaptiveMap["card"], resolver, stateSetter, idGenerator);
-  }
+
 
 }
 
@@ -353,21 +372,3 @@ class _AtomicIdGenerator {
 
 }
 
-
-abstract class _ElementState {
-
-}
-_StateStore _stateStore = _StateStore();
-
-class _StateStore {
-
-  Map<String, _ElementState> states = {};
-
-  _ElementState getState(String id) {
-    return states[id];
-  }
-
-  void saveState(String id, _ElementState state) {
-    states[id] = state;
-  }
-}
