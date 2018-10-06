@@ -48,6 +48,11 @@ class AdaptiveCardState extends State<AdaptiveCard> {
 
   }
 
+  Future<DateTime> pickDate() {
+    DateTime initialDate = DateTime.now();
+    return showDatePicker(context: context, initialDate: initialDate, firstDate: initialDate, lastDate: DateTime.now().add(Duration(days: 365)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -117,6 +122,8 @@ class _AdaptiveCardElement extends _AdaptiveElement{
 
   List<_AdaptiveAction> actions;
 
+  Axis actionsOrientation;
+
   @override
   void loadTree() {
     super.loadTree();
@@ -129,18 +136,41 @@ class _AdaptiveCardElement extends _AdaptiveElement{
     } else {
     actions =  [];
     }
+
+    String stringAxis = resolver.resolve("actions", "actionsOrientation");
+    if(stringAxis == "Horizontal") actionsOrientation = Axis.horizontal;
+    else if(stringAxis == "Vertical") actionsOrientation = Axis.vertical;
   }
 
   @override
   Widget generateWidget() {
     List<Widget> widgetChildren = children.map((element) => element.generateWidget()).toList();
-    widgetChildren.addAll(actions.map((action) => action.generateWidget()).toList());
+
+    // Adds the actions
+    List<Widget> actionWidgets = actions.map((action) => action.generateWidget()).toList();
+    Widget actionWidget;
+    if(actionsOrientation == Axis.vertical) {
+      actionWidget = Column(
+        children: actionWidgets,
+        mainAxisAlignment: MainAxisAlignment.start,
+      );
+    } else {
+      actionWidget = Row(
+        children: actionWidgets,
+        crossAxisAlignment: CrossAxisAlignment.start,
+      );
+    }
+    widgetChildren.add(actionWidget);
+
     if(currentShowingCard != null) {
       widgetChildren.add(currentShowingCard.generateWidget());
     }
-    return Column(
-      children: widgetChildren,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: widgetChildren,
+        crossAxisAlignment: CrossAxisAlignment.start,
+      ),
     );
   }
 
@@ -169,12 +199,12 @@ class _AdaptiveTextBlock extends _AdaptiveElement {
   String get text => adaptiveMap["text"];
 
   double get fontSize {
-    int size = resolver.resolve("fontSizes", adaptiveMap["size"]);
+    int size = resolver.resolve("fontSizes", adaptiveMap["size"]?? "default");
     return size.toDouble();
   }
 
   FontWeight get fontWeight {
-    int weight = resolver.resolve("fontWeights", adaptiveMap["weight"]) ;
+    int weight = resolver.resolve("fontWeights", adaptiveMap["weight"]?? "default") ;
     return FontWeight.values.firstWhere((possibleWeight) => possibleWeight.toString() == "FontWeight.w$weight");
   }
 
@@ -197,8 +227,11 @@ class _AdaptiveContainer extends _AdaptiveElement {
   }
 
   Widget generateWidget() {
-    return Column(
-      children: children.map((it) => it.generateWidget()).toList(),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: children.map((it) => it.generateWidget()).toList(),
+      ),
     );
   }
 
@@ -231,8 +264,6 @@ class _AdaptiveColumnSet extends _AdaptiveElement {
    );
   }
 
-
-
 }
 
 class _AdaptiveColumn extends _AdaptiveElement {
@@ -252,11 +283,69 @@ class _AdaptiveColumn extends _AdaptiveElement {
   Widget generateWidget() {
     return Column(
       children: items.map((it) => it.generateWidget()).toList(),
+      crossAxisAlignment: CrossAxisAlignment.start,
     );
   }
 
 }
 
+
+class _AdaptiveFactSet extends _AdaptiveElement {
+  _AdaptiveFactSet(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+
+  List<_AdaptiveFact> facts;
+
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    facts = List<Map>.from(adaptiveMap["facts"]).map((child) => _AdaptiveFact(child, resolver, widgetState, idGenerator)).toList();
+  }
+
+  @override
+  Widget generateWidget() {
+    return Row(
+      children: [
+        Column(
+          children: facts.map((fact) => Text(fact.title, style: TextStyle(fontWeight: FontWeight.bold),)).toList(),
+          crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        SizedBox(width: 8.0,),
+        Column(
+          children: facts.map((fact) => Text(fact.value)).toList(),
+          crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+      ],
+      crossAxisAlignment: CrossAxisAlignment.start,
+    );
+  }
+
+}
+
+class _AdaptiveFact extends _AdaptiveElement {
+  _AdaptiveFact(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+
+  String title;
+  String value;
+
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    title = adaptiveMap["title"];
+    value = adaptiveMap["value"];
+  }
+
+  @override
+  Widget generateWidget() {
+    throw StateError("The widget should be built by _AdaptiveFactSet");
+  }
+
+}
 
 
 class _AdaptiveImage extends _AdaptiveElement {
@@ -265,11 +354,22 @@ class _AdaptiveImage extends _AdaptiveElement {
 
   @override
   Widget generateWidget() {
-    return Image.network(url);
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: CircleAvatar(backgroundImage: NetworkImage(url), radius: size / 2,),
+    );
   }
 
 
   String get url => adaptiveMap["url"];
+
+  double get size {
+    String sizeDescription = adaptiveMap["size"];
+    if(sizeDescription == null) sizeDescription = "auto";
+
+    int size = resolver.resolve("imageSizes", sizeDescription?? "default");
+    return size.toDouble();
+  }
 
 }
 
@@ -320,6 +420,32 @@ class _AdaptiveTextInput extends _AdaptiveInput {
 
 }
 
+class _AdaptiveDateInput extends _AdaptiveInput {
+  _AdaptiveDateInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+
+  DateTime selectedDateTime;
+
+  @override
+  Widget generateWidget() {
+    return RaisedButton(
+      onPressed: () async {
+        selectedDateTime = await widgetState.pickDate();
+        widgetState.rebuild();
+      },
+      child: Text(selectedDateTime == null ? "Pick a date" : selectedDateTime.toIso8601String()),
+    );
+  }
+
+  @override
+  void appendInput(Map map) {
+    map[id] = selectedDateTime.toIso8601String();
+  }
+
+
+}
+
 
 
 
@@ -362,7 +488,7 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
 
   @override
   Widget generateWidget() {
-    return MaterialButton(
+    return RaisedButton(
       onPressed: () {
         onShowCard(card);
       },
@@ -382,7 +508,7 @@ class _AdaptiveActionSubmit extends _AdaptiveAction {
 
   @override
   Widget generateWidget() {
-    return MaterialButton(
+    return RaisedButton(
       onPressed: () {
         widgetState.submit();
       },
@@ -428,6 +554,10 @@ _AdaptiveElement getElement(Map<String, dynamic> map, _ReferenceResolver resolve
       return _AdaptiveColumnSet(map, resolver, widgetState, idGenerator);
     case "Image":
       return _AdaptiveImage(map, resolver, widgetState, idGenerator);
+    case "Input.Date":
+      return _AdaptiveDateInput(map, resolver, widgetState, idGenerator);
+    case "FactSet":
+      return _AdaptiveFactSet(map, resolver, widgetState, idGenerator);
   }
   throw StateError("Could not find: $stringType");
 }
@@ -460,6 +590,10 @@ class _ReferenceResolver {
 
   dynamic resolve(String key, String value) {
     return hostConfig[key][value];
+  }
+
+  dynamic get(String key) {
+    return hostConfig[key];
   }
 
 }
