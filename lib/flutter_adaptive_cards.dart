@@ -64,7 +64,6 @@ class AdaptiveCardState extends State<AdaptiveCard> {
 
 
 
-typedef void OnShowCard(_AdaptiveElement elementToShow);
 
 
 /// Elements are *not* re constructed when setState is called.
@@ -116,30 +115,35 @@ class _AdaptiveCardElement extends _AdaptiveElement{
   _AdaptiveCardElement(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap, resolver, widgetState, idGenerator);
 
-  _AdaptiveElement currentShowingCard;
+  _AdaptiveActionShowCard currentlyActiveShowCardAction;
 
   List<_AdaptiveElement> children;
 
-  List<_AdaptiveAction> actions;
+  List<_AdaptiveAction> allActions;
+
+  List<_AdaptiveActionShowCard> showCardActions;
 
   Axis actionsOrientation;
 
   @override
   void loadTree() {
     super.loadTree();
-    children = List<Map>.from(adaptiveMap["body"])
-        .map((map) => getElement(map, resolver, widgetState, idGenerator)).toList();
 
     if(adaptiveMap.containsKey("actions")) {
-    actions =  List<Map>.from(adaptiveMap["actions"])
-        .map((map) => getAction(map, resolver, widgetState, showCard, idGenerator)).toList();
+      allActions =  List<Map>.from(adaptiveMap["actions"]).map((map) => getAction(map, resolver, widgetState, this, idGenerator)).toList();
+      showCardActions = List<_AdaptiveActionShowCard>.from(allActions.where((action) => action is _AdaptiveActionShowCard).toList());
     } else {
-    actions =  [];
+      allActions =  [];
+      showCardActions = [];
     }
 
     String stringAxis = resolver.resolve("actions", "actionsOrientation");
     if(stringAxis == "Horizontal") actionsOrientation = Axis.horizontal;
     else if(stringAxis == "Vertical") actionsOrientation = Axis.vertical;
+
+
+    children = List<Map>.from(adaptiveMap["body"]).map((map) => getElement(map, resolver, widgetState, idGenerator)).toList();
+
   }
 
   @override
@@ -147,7 +151,7 @@ class _AdaptiveCardElement extends _AdaptiveElement{
     List<Widget> widgetChildren = children.map((element) => element.generateWidget()).toList();
 
     // Adds the actions
-    List<Widget> actionWidgets = actions.map((action) => action.generateWidget()).toList();
+    List<Widget> actionWidgets = allActions.map((action) => action.generateWidget()).toList();
     Widget actionWidget;
     if(actionsOrientation == Axis.vertical) {
       actionWidget = Column(
@@ -162,8 +166,8 @@ class _AdaptiveCardElement extends _AdaptiveElement{
     }
     widgetChildren.add(actionWidget);
 
-    if(currentShowingCard != null) {
-      widgetChildren.add(currentShowingCard.generateWidget());
+    if(currentlyActiveShowCardAction != null) {
+      widgetChildren.add(currentlyActiveShowCardAction.card.generateWidget());
     }
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -176,12 +180,14 @@ class _AdaptiveCardElement extends _AdaptiveElement{
 
 
   /// This is called when an [_AdaptiveActionShowCard] triggers it.
-  void showCard(_AdaptiveElement element) {
-    if(currentShowingCard == element) {
-      currentShowingCard = null;
+  void showCard(_AdaptiveActionShowCard showCardAction) {
+    if(currentlyActiveShowCardAction == showCardAction) {
+      currentlyActiveShowCardAction = null;
     } else {
-      currentShowingCard = element;
+      currentlyActiveShowCardAction = showCardAction;
     }
+    showCardAction.expanded = !showCardAction.expanded;
+    showCardActions.where((it) =>  it != showCardAction).forEach((it) => (){it.expanded = false;}());
     widgetState.rebuild();
   }
 
@@ -470,14 +476,15 @@ abstract class _AdaptiveAction extends _AdaptiveElement {
 class _AdaptiveActionShowCard extends _AdaptiveAction {
 
   _AdaptiveActionShowCard(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator, this.onShowCard) : super(adaptiveMap, resolver, widgetState, idGenerator);
+      _AtomicIdGenerator idGenerator, this._adaptiveCardElement) : super(adaptiveMap, resolver, widgetState, idGenerator);
 
 
 
   _AdaptiveElement card;
 
-  final OnShowCard onShowCard;
+  final _AdaptiveCardElement _adaptiveCardElement;
 
+  bool expanded = false;
 
   @override
   void loadTree() {
@@ -486,13 +493,20 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
 
   }
 
+
   @override
   Widget generateWidget() {
     return RaisedButton(
       onPressed: () {
-        onShowCard(card);
+        _adaptiveCardElement.showCard(this);
       },
-      child: Text(title),
+      child: Row(
+        children: <Widget>[
+          Text(title),
+          expanded? Icon(Icons.keyboard_arrow_up): Icon(Icons.keyboard_arrow_down),
+        ],
+      ),
+
     );
   }
 
@@ -563,13 +577,13 @@ _AdaptiveElement getElement(Map<String, dynamic> map, _ReferenceResolver resolve
 }
 
 _AdaptiveAction getAction(Map<String, dynamic> map, _ReferenceResolver resolver,
-    AdaptiveCardState widgetState, OnShowCard onShowCard, _AtomicIdGenerator idGenerator) {
+    AdaptiveCardState widgetState, _AdaptiveCardElement adaptiveCardElement, _AtomicIdGenerator idGenerator) {
 
   String stringType = map["type"];
 
   switch(stringType) {
     case "Action.ShowCard":
-      return _AdaptiveActionShowCard(map, resolver, widgetState, idGenerator, onShowCard);
+      return _AdaptiveActionShowCard(map, resolver, widgetState, idGenerator, adaptiveCardElement);
     case "Action.OpenUrl":
       return null;
     case "Action.Submit":
