@@ -9,14 +9,15 @@ class LoadingAdaptiveCard extends StatefulWidget {
 
   final String assetPath;
 
-  const LoadingAdaptiveCard(this.assetPath);
+  const LoadingAdaptiveCard(this.assetPath, {Key key}) : super(key: key);
+
 
 
   @override
   _LoadingAdaptiveCardState createState() => new _LoadingAdaptiveCardState();
 }
 
-class _LoadingAdaptiveCardState extends State<LoadingAdaptiveCard> {
+class _LoadingAdaptiveCardState extends State<LoadingAdaptiveCard> with AutomaticKeepAliveClientMixin<LoadingAdaptiveCard>{
 
 
   Map adaptiveMap;
@@ -39,12 +40,19 @@ class _LoadingAdaptiveCardState extends State<LoadingAdaptiveCard> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
-    return adaptiveMap == null || hostConfig == null ? Container(
-      width: 100.0, height: 100.0, color: Colors.red,) : Padding(
+    if(adaptiveMap == null || hostConfig == null) {
+      return SizedBox();
+    }
+    return Padding(
       padding: const EdgeInsets.all(8.0),
       child: AdaptiveCard
           .fromMap(adaptiveMap, hostConfig),
     );
   }
+
+
 }

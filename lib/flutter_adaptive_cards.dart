@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class AdaptiveCard extends StatefulWidget {
 
@@ -214,6 +215,7 @@ class _AdaptiveTextBlock extends _AdaptiveElement {
   int maxLines;
   double topSpacing;
   bool separator;
+  MarkdownStyleSheet markdownStyleSheet;
 
   @override
   void loadTree() {
@@ -225,6 +227,7 @@ class _AdaptiveTextBlock extends _AdaptiveElement {
     maxLines = loadMaxLines();
     topSpacing = resolver.resolveSpacing(adaptiveMap["spacing"]);
     separator = adaptiveMap["separator"]?? false;
+    markdownStyleSheet = loadMarkdownStyleSheet();
   }
 
   Widget generateWidget() {
@@ -234,6 +237,10 @@ class _AdaptiveTextBlock extends _AdaptiveElement {
         Align(
           alignment: horizontalAlignment,
           child: Text(text, style: TextStyle(fontWeight: fontWeight, fontSize:fontSize, color: color), maxLines: maxLines,)
+         /* child: MarkdownBody(
+            data: text,
+            styleSheet: markdownStyleSheet,
+          )*/
         ),
       ],
     );
@@ -261,6 +268,19 @@ class _AdaptiveTextBlock extends _AdaptiveElement {
     if(!wrap) return 1;
     // can be null, but that's okay for the text widget.
     return adaptiveMap["maxLines"];
+  }
+
+  /// Markdown still has some problems
+  MarkdownStyleSheet loadMarkdownStyleSheet() {
+    TextStyle style = TextStyle(fontWeight: fontWeight, fontSize:fontSize, color: color);
+    return MarkdownStyleSheet(
+      a: style,
+      blockquote: style,
+      code: style,
+      em: style,
+      strong: style.copyWith(fontWeight: FontWeight.bold),
+      p: style,
+    );
   }
 
 

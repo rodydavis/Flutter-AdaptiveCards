@@ -53,6 +53,7 @@ flutter:
     - lib/text_block/example7
     - lib/text_block/example8
     - lib/text_block/example9
+    - lib/text_block/example10
 
   # To add assets to your application, add an assets section, like this:
   # assets:
