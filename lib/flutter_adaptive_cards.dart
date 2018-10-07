@@ -270,7 +270,7 @@ class _AdaptiveTextBlock extends _AdaptiveElement {
     return adaptiveMap["maxLines"];
   }
 
-  /// Markdown still has some problems
+  /// TODO Markdown still has some problems
   MarkdownStyleSheet loadMarkdownStyleSheet() {
     TextStyle style = TextStyle(fontWeight: fontWeight, fontSize:fontSize, color: color);
     return MarkdownStyleSheet(
