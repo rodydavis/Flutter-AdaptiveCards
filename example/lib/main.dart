@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:example/text_block/text_block_examples_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
@@ -15,6 +16,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: new MyHomePage(),
+      routes: {
+        "TextBlock": (context) => TextBlockPage(),
+      },
     );
   }
 }
@@ -27,40 +31,20 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-
-  Map adaptiveMap;
-  Map hostConfig;
-
-
-  @override
-  void initState() {
-    super.initState();
-    rootBundle.loadString("lib/activity_update").then((string) {
-      setState(() {
-        adaptiveMap = json.decode(string);
-      });
-    });
-    rootBundle.loadString("lib/host_config").then((string) {
-      setState(() {
-        hostConfig = json.decode(string);
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Example"),
       ),
-      backgroundColor: Colors.grey,
-      body: new Center(
-        child: adaptiveMap == null || hostConfig == null ? Container(
-          width: 100.0, height: 100.0, color: Colors.red,) : Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: AdaptiveCard
-              .fromMap(adaptiveMap, hostConfig),
+      body: ListView(
+        children: <Widget>[
+          RaisedButton(onPressed: () {
+            Navigator.pushNamed(context, "TextBlock");
+          },
+          child: Text("TextBlock"),
           ),
+        ],
       ),
     );
   }

@@ -44,6 +44,15 @@ flutter:
     - lib/adaptive_card_string
     - lib/host_config
     - lib/activity_update
+    - lib/text_block/example1
+    - lib/text_block/example2
+    - lib/text_block/example3
+    - lib/text_block/example4
+    - lib/text_block/example5
+    - lib/text_block/example6
+    - lib/text_block/example7
+    - lib/text_block/example8
+    - lib/text_block/example9
 
   # To add assets to your application, add an assets section, like this:
   # assets:

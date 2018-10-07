@@ -207,21 +207,65 @@ class _AdaptiveTextBlock extends _AdaptiveElement {
   _AdaptiveTextBlock(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, widgetState, idGenerator);
 
 
+  FontWeight fontWeight;
+  double fontSize;
+  Color color;
+  Alignment horizontalAlignment;
+  int maxLines;
+  double topSpacing;
+  bool separator;
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    fontSize = resolver.resolveFontSize(adaptiveMap["size"]);
+    fontWeight = resolver.resolveFontWeight(adaptiveMap["weight"]);
+    color = resolver.resolveColor(adaptiveMap["color"], adaptiveMap["isSubtle"]);
+    horizontalAlignment = loadAlignment();
+    maxLines = loadMaxLines();
+    topSpacing = resolver.resolveSpacing(adaptiveMap["spacing"]);
+    separator = adaptiveMap["separator"]?? false;
+  }
+
   Widget generateWidget() {
-    return Text(text, style: TextStyle(fontWeight: fontWeight, fontSize:fontSize),);
+    return Column(
+      children: <Widget>[
+        separator? Divider(height: topSpacing,): SizedBox(height: topSpacing,),
+        Align(
+          alignment: horizontalAlignment,
+          child: Text(text, style: TextStyle(fontWeight: fontWeight, fontSize:fontSize, color: color), maxLines: maxLines,)
+        ),
+      ],
+    );
   }
 
   String get text => adaptiveMap["text"];
 
-  double get fontSize {
-    int size = resolver.resolve("fontSizes", adaptiveMap["size"]?? "default");
-    return size.toDouble();
+  Alignment loadAlignment() {
+    String alignmentString = adaptiveMap["horizontalAlignment"]?? "left";
+    switch(alignmentString) {
+      case "left":
+        return Alignment.centerLeft;
+      case "center":
+        return Alignment.center;
+      case "right":
+        return Alignment.centerRight;
+      default:
+        return Alignment.centerLeft;
+    }
   }
 
-  FontWeight get fontWeight {
-    int weight = resolver.resolve("fontWeights", adaptiveMap["weight"]?? "default") ;
-    return FontWeight.values.firstWhere((possibleWeight) => possibleWeight.toString() == "FontWeight.w$weight");
+  /// This also takes care of the wrap property, because maxLines = 1 => no wrap
+  int loadMaxLines() {
+    bool wrap = adaptiveMap["wrap"] ?? true;
+    if(!wrap) return 1;
+    // can be null, but that's okay for the text widget.
+    return adaptiveMap["maxLines"];
   }
+
+
+
+  
 
 
 }
@@ -237,7 +281,11 @@ class _AdaptiveContainer extends _AdaptiveElement {
   @override
   void loadTree() {
     super.loadTree();
-    children = List<Map>.from(adaptiveMap["items"]).map((child) => getElement(child, resolver, widgetState, idGenerator)).toList();
+    children = List<Map>.from(adaptiveMap["items"]).map((child) {
+      // The container needs to set the style in every iteration
+      resolver.setContainerStyle(adaptiveMap["style"]);
+      return getElement(child, resolver, widgetState, idGenerator);
+    }).toList();
 
   }
 
@@ -799,13 +847,17 @@ _AdaptiveAction getAction(Map<String, dynamic> map, _ReferenceResolver resolver,
 
 
 
-
+/// Resolves values based on the host config.
+///
+/// All values can also be null, in that case the default is used
 class _ReferenceResolver {
 
 
   _ReferenceResolver(this.hostConfig);
 
   final Map hostConfig;
+  
+  String _currentStyle;
 
   dynamic resolve(String key, String value) {
     return hostConfig[key][value];
@@ -813,6 +865,52 @@ class _ReferenceResolver {
 
   dynamic get(String key) {
     return hostConfig[key];
+  }
+
+  FontWeight resolveFontWeight(String value) {
+    int weight = resolve("fontWeights", value?? "default") ;
+    return FontWeight.values.firstWhere((possibleWeight) => possibleWeight.toString() == "FontWeight.w$weight");
+  }
+
+  double resolveFontSize(String value) {
+    int size = resolve("fontSizes", value?? "default");
+    return size.toDouble();
+  }
+
+  /// Resolves a color from the host config
+  ///
+  /// Typically one of the following colors:
+  /// - default
+  /// - dark
+  /// - light
+  /// - accent
+  /// - good
+  /// - warning
+  /// - attention
+  Color resolveColor(String color, bool isSubtle) {
+    String myColor = color?? "default";
+    String subtleOrDefault = isSubtle ?? false? "subtle" : "default";
+    _currentStyle = _currentStyle ?? "default";
+    String colorValue = hostConfig["containerStyles"][_currentStyle]["foregroundColors"][myColor][subtleOrDefault];
+    return new Color(int.parse(colorValue.substring(1, 7), radix: 16) + 0xFF000000);
+  }
+
+  /// This is to correctly resolve corresponding styles in a container
+  /// 
+  /// Before a container loads its children it first needs to set its style here
+  /// IMPORTANT, is needs to be called after every child iteration because a container down the tree might have 
+  /// overwritten it for its portion
+  void setContainerStyle(String style) {
+    assert(style == null ||style == "default" || style == "emphasis");
+    String myStyle = style?? "default";
+    _currentStyle = myStyle;
+  }
+
+  double resolveSpacing(String spacing) {
+    String mySpacing = spacing?? "default";
+    if(mySpacing == "none") return 0.0;
+    int intSpacing = hostConfig["spacing"][mySpacing];
+    return intSpacing.toDouble();
   }
 
 }
