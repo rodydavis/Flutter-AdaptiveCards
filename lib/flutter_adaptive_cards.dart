@@ -230,6 +230,7 @@ class _AdaptiveTextBlock extends _AdaptiveElement {
     markdownStyleSheet = loadMarkdownStyleSheet();
   }
 
+  // TODO create own widget that parses _basic_ markdown. This might help: https://docs.flutter.io/flutter/widgets/Wrap-class.html
   Widget generateWidget() {
     return Column(
       children: <Widget>[
