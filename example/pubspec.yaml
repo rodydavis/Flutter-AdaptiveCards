@@ -74,6 +74,8 @@ flutter:
     - lib/column/example4
     - lib/column/example5
     - lib/fact_set/example1
+    - lib/image_set/example1
+    - lib/image_set/example2
 
 
   # To add assets to your application, add an assets section, like this:
