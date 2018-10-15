@@ -315,6 +315,8 @@ class _AdaptiveContainer extends _AdaptiveElement {
 
   _AdaptiveAction action;
 
+  Color backgroundColor;
+
   @override
   void loadTree() {
     super.loadTree();
@@ -327,18 +329,22 @@ class _AdaptiveContainer extends _AdaptiveElement {
     if(adaptiveMap.containsKey("selectAction")) {
       action = getAction(adaptiveMap["selectAction"], resolver, widgetState, null, idGenerator);
     }
-
-
+    String colorString = resolver.hostConfig["containerStyles"]
+    [adaptiveMap["style"]?? "default"]["backgroundColor"];
+    backgroundColor = _parseColor(colorString);
 
   }
 
   Widget generateWidget() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: InkWell(
-        onTap: action?.onTapped,
-        child: Column(
-          children: children.map((it) => it.generateWidget()).toList(),
+    return Container(
+      color: backgroundColor,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: InkWell(
+          onTap: action?.onTapped,
+          child: Column(
+            children: children.map((it) => it.generateWidget()).toList(),
+          ),
         ),
       ),
     );
@@ -995,7 +1001,6 @@ class _ReferenceResolver {
     int size = resolve("fontSizes", value?? "default");
     return size.toDouble();
   }
-
   /// Resolves a color from the host config
   ///
   /// Typically one of the following colors:
@@ -1011,7 +1016,7 @@ class _ReferenceResolver {
     String subtleOrDefault = isSubtle ?? false? "subtle" : "default";
     _currentStyle = _currentStyle ?? "default";
     String colorValue = hostConfig["containerStyles"][_currentStyle]["foregroundColors"][myColor][subtleOrDefault];
-    return new Color(int.parse(colorValue.substring(1, 7), radix: 16) + 0xFF000000);
+    return _parseColor(colorValue);
   }
 
   /// This is to correctly resolve corresponding styles in a container
@@ -1032,6 +1037,17 @@ class _ReferenceResolver {
     return intSpacing.toDouble();
   }
 
+}
+
+Color _parseColor(String colorValue) {
+  // No alpha
+  if(colorValue.length == 7) {
+    return Color(int.parse(colorValue.substring(1, 7), radix: 16) + 0xFF000000);
+  } else if(colorValue.length == 9) {
+    return Color(int.parse(colorValue.substring(1, 9), radix: 16));
+  } else {
+    throw StateError("$colorValue is not a valid color");
+  }
 }
 
 /// Some elements always need an id to function
