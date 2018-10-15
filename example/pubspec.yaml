@@ -54,6 +54,12 @@ flutter:
     - lib/text_block/example8
     - lib/text_block/example9
     - lib/text_block/example10
+    - lib/image/example1
+    - lib/image/example2
+    - lib/image/example3
+    - lib/image/example4
+    - lib/image/example5
+    - lib/image/example6
 
   # To add assets to your application, add an assets section, like this:
   # assets:

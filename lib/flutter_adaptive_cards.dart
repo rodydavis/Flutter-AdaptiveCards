@@ -203,8 +203,28 @@ class _AdaptiveCardElement extends _AdaptiveElement{
 
 }
 
+abstract class _SeparatorElementMixin {
 
-class _AdaptiveTextBlock extends _AdaptiveElement {
+  double topSpacing;
+  bool separator;
+
+  void loadSeparator(_ReferenceResolver resolver, Map adaptiveMap ) {
+    topSpacing = resolver.resolveSpacing(adaptiveMap["spacing"]);
+    separator = adaptiveMap["separator"]?? false;
+  }
+
+  Widget wrapInSeparator(Widget child) {
+    return Column(
+      children: <Widget>[
+        separator? Divider(height: topSpacing,): SizedBox(height: topSpacing,),
+        child,
+      ],
+    );
+  }
+
+}
+
+class _AdaptiveTextBlock extends _AdaptiveElement with _SeparatorElementMixin {
   _AdaptiveTextBlock(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, widgetState, idGenerator);
 
 
@@ -213,8 +233,6 @@ class _AdaptiveTextBlock extends _AdaptiveElement {
   Color color;
   Alignment horizontalAlignment;
   int maxLines;
-  double topSpacing;
-  bool separator;
   MarkdownStyleSheet markdownStyleSheet;
 
   @override
@@ -225,25 +243,21 @@ class _AdaptiveTextBlock extends _AdaptiveElement {
     color = resolver.resolveColor(adaptiveMap["color"], adaptiveMap["isSubtle"]);
     horizontalAlignment = loadAlignment();
     maxLines = loadMaxLines();
-    topSpacing = resolver.resolveSpacing(adaptiveMap["spacing"]);
-    separator = adaptiveMap["separator"]?? false;
     markdownStyleSheet = loadMarkdownStyleSheet();
+    loadSeparator(resolver, adaptiveMap);
   }
 
   // TODO create own widget that parses _basic_ markdown. This might help: https://docs.flutter.io/flutter/widgets/Wrap-class.html
   Widget generateWidget() {
-    return Column(
-      children: <Widget>[
-        separator? Divider(height: topSpacing,): SizedBox(height: topSpacing,),
+    return wrapInSeparator(
         Align(
-          alignment: horizontalAlignment,
-          child: Text(text, style: TextStyle(fontWeight: fontWeight, fontSize:fontSize, color: color), maxLines: maxLines,)
-         /* child: MarkdownBody(
-            data: text,
-            styleSheet: markdownStyleSheet,
-          )*/
-        ),
-      ],
+            alignment: horizontalAlignment,
+            child: Text(text, style: TextStyle(fontWeight: fontWeight, fontSize:fontSize, color: color), maxLines: maxLines,)
+          /* child: MarkdownBody(
+        data: text,
+        styleSheet: markdownStyleSheet,
+      )*/
+        )
     );
   }
 
@@ -342,7 +356,7 @@ class _AdaptiveColumnSet extends _AdaptiveElement {
   @override
   Widget generateWidget() {
    return Row(
-      children: columns.map((it) => it.generateWidget()).toList(),
+     children: columns.map((it) => Flexible(child: it.generateWidget())).toList(),
      mainAxisAlignment: MainAxisAlignment.start,
      crossAxisAlignment: CrossAxisAlignment.center,
    );
@@ -433,27 +447,88 @@ class _AdaptiveFact extends _AdaptiveElement {
 }
 
 
-class _AdaptiveImage extends _AdaptiveElement {
+class _AdaptiveImage extends _AdaptiveElement with _SeparatorElementMixin{
   _AdaptiveImage(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap, resolver, widgetState, idGenerator);
 
+
+  Alignment horizontalAlignment;
+  bool isPerson;
+  Tuple<double, double> size;
+
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    horizontalAlignment = loadAlignment();
+    isPerson = loadIsPerson();
+    size = loadSize();
+    loadSeparator(resolver, adaptiveMap);
+  }
+
   @override
   Widget generateWidget() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: CircleAvatar(backgroundImage: NetworkImage(url), radius: size / 2,),
+
+    //TODO alt text
+    Widget image = ConstrainedBox(
+      constraints: BoxConstraints(
+          minWidth: size.a,
+          minHeight: size.a,
+          maxHeight: size.b,
+          maxWidth: size.b
+      ),
+      child: Image(image: NetworkImage(url)),
+    );
+    if(isPerson) {
+      image = ClipOval(
+        clipper: FullCircleClipper(),
+        child: image,
+      );
+    }
+
+
+    return wrapInSeparator(
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Align(
+            alignment: horizontalAlignment,
+            child: image,
+          ),
+        )
     );
   }
 
+  Alignment loadAlignment() {
+    String alignmentString = adaptiveMap["horizontalAlignment"]?? "left";
+    switch(alignmentString) {
+      case "left":
+        return Alignment.centerLeft;
+      case "center":
+        return Alignment.center;
+      case "right":
+        return Alignment.centerRight;
+      default:
+        return Alignment.centerLeft;
+    }
+  }
+
+  bool loadIsPerson() {
+    if(adaptiveMap["style"] == null || adaptiveMap["style"] == "default") return false;
+    return true;
+  }
 
   String get url => adaptiveMap["url"];
 
-  double get size {
+  Tuple<double, double> loadSize() {
     String sizeDescription = adaptiveMap["size"];
     if(sizeDescription == null) sizeDescription = "auto";
 
+    if(sizeDescription == "auto") return Tuple(0.0, double.infinity);
+    if(sizeDescription == "stretch") return Tuple(double.infinity, double.infinity);
+
+
     int size = resolver.resolve("imageSizes", sizeDescription?? "default");
-    return size.toDouble();
+    return Tuple(size.toDouble(), size.toDouble());
   }
 
 }
@@ -478,6 +553,7 @@ class _AdaptiveImageSet extends _AdaptiveElement {
     return GridView.extent(
       maxCrossAxisExtent: 200.0,
       children: images.map((img) => img.generateWidget()).toList(),
+      shrinkWrap: true,
     );
   }
 
@@ -960,3 +1036,22 @@ class _AtomicIdGenerator {
 
 }
 
+class Tuple<A, B> {
+
+  final A a;
+  final B b;
+
+  Tuple(this.a, this.b);
+}
+
+
+class FullCircleClipper extends CustomClipper<Rect> {
+  @override
+  Rect getClip(Size size) {
+    return Rect.fromLTWH(0.0, 0.0, size.width, size.height);
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Rect> oldClipper) => false;
+
+}

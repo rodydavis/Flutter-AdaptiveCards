@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:example/image/image_examples_page.dart';
 import 'package:example/text_block/text_block_examples_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
       home: new MyHomePage(),
       routes: {
         "TextBlock": (context) => TextBlockPage(),
+        "Image": (context) => ImagePage(),
       },
     );
   }
@@ -43,6 +45,11 @@ class _MyHomePageState extends State<MyHomePage> {
             Navigator.pushNamed(context, "TextBlock");
           },
           child: Text("TextBlock"),
+          ),
+          RaisedButton(onPressed: () {
+            Navigator.pushNamed(context, "Image");
+          },
+            child: Text("Image"),
           ),
         ],
       ),
