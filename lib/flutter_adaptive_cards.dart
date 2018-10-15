@@ -413,11 +413,8 @@ class _AdaptiveColumn extends _AdaptiveElement with _SeparatorElementMixin,
   List<_AdaptiveElement> items;
   //TODO implement
   double width;
-/*
-  if(adaptiveMap.containsKey("style")) {
-  resolver.setContainerStyle(adaptiveMap["style"]);
-  }
-*/
+
+  //TODO fix style (column/example3)
   @override
   void loadTree() {
     super.loadTree();
@@ -444,7 +441,7 @@ class _AdaptiveColumn extends _AdaptiveElement with _SeparatorElementMixin,
 }
 
 
-class _AdaptiveFactSet extends _AdaptiveElement {
+class _AdaptiveFactSet extends _AdaptiveElement with _SeparatorElementMixin{
   _AdaptiveFactSet(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap, resolver, widgetState, idGenerator);
 
@@ -456,23 +453,26 @@ class _AdaptiveFactSet extends _AdaptiveElement {
   void loadTree() {
     super.loadTree();
     facts = List<Map>.from(adaptiveMap["facts"]).map((child) => _AdaptiveFact(child, resolver, widgetState, idGenerator)).toList();
+    loadSeparator(resolver, adaptiveMap);
   }
 
   @override
   Widget generateWidget() {
-    return Row(
-      children: [
-        Column(
-          children: facts.map((fact) => Text(fact.title, style: TextStyle(fontWeight: FontWeight.bold),)).toList(),
+    return wrapInSeparator(
+        Row(
+          children: [
+            Column(
+              children: facts.map((fact) => Text(fact.title, style: TextStyle(fontWeight: FontWeight.bold),)).toList(),
+              crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            SizedBox(width: 8.0,),
+            Column(
+              children: facts.map((fact) => Text(fact.value)).toList(),
+              crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+          ],
           crossAxisAlignment: CrossAxisAlignment.start,
-        ),
-        SizedBox(width: 8.0,),
-        Column(
-          children: facts.map((fact) => Text(fact.value)).toList(),
-          crossAxisAlignment: CrossAxisAlignment.start,
-        ),
-      ],
-      crossAxisAlignment: CrossAxisAlignment.start,
+        )
     );
   }
 
