@@ -53,6 +53,7 @@
       <excludeFolder url="file://$MODULE_DIR$/example/ios/Runner/Base.lproj/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/ios/Runner/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/ios/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/example/lib/column_set/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/container/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/image/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/packages" />

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:uuid/uuid.dart';
 
 class AdaptiveCard extends StatefulWidget {
 
@@ -208,7 +209,7 @@ abstract class _SeparatorElementMixin {
   double topSpacing;
   bool separator;
 
-  void loadSeparator(_ReferenceResolver resolver, Map adaptiveMap ) {
+  void loadSeparator(_ReferenceResolver resolver, Map adaptiveMap) {
     topSpacing = resolver.resolveSpacing(adaptiveMap["spacing"]);
     separator = adaptiveMap["separator"]?? false;
   }
@@ -221,6 +222,28 @@ abstract class _SeparatorElementMixin {
       ],
     );
   }
+}
+
+abstract class _TappableElementMixin {
+
+  _AdaptiveAction action;
+
+  void loadTappable(_ReferenceResolver resolver, Map adaptiveMap, AdaptiveCardState widgetState,
+      _AdaptiveCardElement adaptiveCardElement, _AtomicIdGenerator idGenerator) {
+    if(adaptiveMap.containsKey("selectAction")) {
+      action = getAction(adaptiveMap["selectAction"],
+          resolver, widgetState, adaptiveCardElement, idGenerator);
+
+    }
+  }
+
+  Widget wrapInTappable(Widget child) {
+    return InkWell(
+      onTap: action?.onTapped,
+      child: child,
+    );
+  }
+
 
 }
 
@@ -298,14 +321,11 @@ class _AdaptiveTextBlock extends _AdaptiveElement with _SeparatorElementMixin {
     );
   }
 
-
-
-
-
-
 }
 
-class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin{
+// TODO implement verticalContentAlignment
+class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin,
+    _TappableElementMixin{
   _AdaptiveContainer(Map adaptiveMap, _ReferenceResolver resolver,
       widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap, resolver, widgetState, idGenerator);
@@ -326,14 +346,13 @@ class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin{
       return getElement(child, resolver, widgetState, idGenerator);
     }).toList();
 
-    if(adaptiveMap.containsKey("selectAction")) {
-      action = getAction(adaptiveMap["selectAction"], resolver, widgetState, null, idGenerator);
-    }
+
     String colorString = resolver.hostConfig["containerStyles"]
     [adaptiveMap["style"]?? "default"]["backgroundColor"];
     backgroundColor = _parseColor(colorString);
 
     loadSeparator(resolver, adaptiveMap);
+    loadTappable(resolver, adaptiveMap, widgetState, null, idGenerator);
 
   }
 
@@ -343,12 +362,9 @@ class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin{
           color: backgroundColor,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: InkWell(
-              onTap: action?.onTapped,
-              child: Column(
-                children: children.map((it) => it.generateWidget()).toList(),
-              ),
-            ),
+            child: wrapInTappable(Column(
+              children: children.map((it) => it.generateWidget()).toList(),
+            )),
           ),
         )
     );
@@ -358,19 +374,18 @@ class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin{
 
 
 class _AdaptiveColumnSet extends _AdaptiveElement {
-
   _AdaptiveColumnSet(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap, resolver, widgetState, idGenerator);
-
 
   List<_AdaptiveColumn> columns;
 
   @override
   void loadTree() {
     super.loadTree();
-
     // TODO handle case where there are no children elegantly
-    columns = List<Map>.from(adaptiveMap["columns"]).map((child) => _AdaptiveColumn(child, resolver, widgetState, idGenerator)).toList();
+    columns = List<Map>.from(adaptiveMap["columns"])
+        .map((child) => _AdaptiveColumn(child, resolver, widgetState, idGenerator))
+        .toList();
 
   }
 
