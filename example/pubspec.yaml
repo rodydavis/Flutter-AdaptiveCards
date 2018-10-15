@@ -60,6 +60,11 @@ flutter:
     - lib/image/example4
     - lib/image/example5
     - lib/image/example6
+    - lib/container/example1
+    - lib/container/example2
+    - lib/container/example3
+    - lib/container/example4
+    - lib/container/example5
 
   # To add assets to your application, add an assets section, like this:
   # assets:

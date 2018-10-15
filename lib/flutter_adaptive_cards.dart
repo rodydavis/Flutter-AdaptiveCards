@@ -46,11 +46,11 @@ class AdaptiveCardState extends State<AdaptiveCard> {
   }
 
   void submit() {
-
+    print("Submit");
   }
 
   void openUrl() {
-
+    print("Open url");
   }
 
   Future<DateTime> pickDate() {
@@ -300,7 +300,7 @@ class _AdaptiveTextBlock extends _AdaptiveElement with _SeparatorElementMixin {
 
 
 
-  
+
 
 
 }
@@ -313,6 +313,8 @@ class _AdaptiveContainer extends _AdaptiveElement {
 
   List<_AdaptiveElement> children;
 
+  _AdaptiveAction action;
+
   @override
   void loadTree() {
     super.loadTree();
@@ -322,13 +324,22 @@ class _AdaptiveContainer extends _AdaptiveElement {
       return getElement(child, resolver, widgetState, idGenerator);
     }).toList();
 
+    if(adaptiveMap.containsKey("selectAction")) {
+      action = getAction(adaptiveMap["selectAction"], resolver, widgetState, null, idGenerator);
+    }
+
+
+
   }
 
   Widget generateWidget() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: children.map((it) => it.generateWidget()).toList(),
+      child: InkWell(
+        onTap: action?.onTapped,
+        child: Column(
+          children: children.map((it) => it.generateWidget()).toList(),
+        ),
       ),
     );
   }
@@ -794,6 +805,8 @@ abstract class _AdaptiveAction extends _AdaptiveElement {
 
   String get title => adaptiveMap["title"];
 
+  void onTapped();
+
 }
 
 class _AdaptiveActionShowCard extends _AdaptiveAction {
@@ -820,9 +833,7 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
   @override
   Widget generateWidget() {
     return RaisedButton(
-      onPressed: () {
-        _adaptiveCardElement.showCard(this);
-      },
+      onPressed: onTapped,
       child: Row(
         children: <Widget>[
           Text(title),
@@ -833,6 +844,12 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
     );
   }
 
+  @override
+  void onTapped() {
+    if(_adaptiveCardElement != null) {
+      _adaptiveCardElement.showCard(this);
+    }
+  }
 
 
 }
@@ -846,11 +863,14 @@ class _AdaptiveActionSubmit extends _AdaptiveAction {
   @override
   Widget generateWidget() {
     return RaisedButton(
-      onPressed: () {
-        widgetState.submit();
-      },
+      onPressed: onTapped,
       child: Text(title),
     );
+  }
+
+  @override
+  void onTapped() {
+    widgetState.submit();
   }
 }
 
@@ -861,13 +881,15 @@ class _AdaptiveActionOpenUrl extends _AdaptiveAction {
   @override
   Widget generateWidget() {
     return RaisedButton(
-      onPressed: () {
-        widgetState.openUrl();
-      },
+      onPressed: onTapped,
       child: Text(title),
     );
   }
 
+  @override
+  void onTapped() {
+    widgetState.openUrl();
+  }
 }
 
 
@@ -953,7 +975,7 @@ class _ReferenceResolver {
   _ReferenceResolver(this.hostConfig);
 
   final Map hostConfig;
-  
+
   String _currentStyle;
 
   dynamic resolve(String key, String value) {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:example/container/container_examples_page.dart';
 import 'package:example/image/image_examples_page.dart';
 import 'package:example/text_block/text_block_examples_page.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
       routes: {
         "TextBlock": (context) => TextBlockPage(),
         "Image": (context) => ImagePage(),
+        "Container": (context) => ContainerPage(),
       },
     );
   }
@@ -50,6 +52,11 @@ class _MyHomePageState extends State<MyHomePage> {
             Navigator.pushNamed(context, "Image");
           },
             child: Text("Image"),
+          ),
+          RaisedButton(onPressed: () {
+            Navigator.pushNamed(context, "Container");
+          },
+            child: Text("Container"),
           ),
         ],
       ),
