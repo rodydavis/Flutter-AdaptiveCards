@@ -5,6 +5,7 @@ import 'package:example/column_set/column_set_examples_page.dart';
 import 'package:example/container/container_examples_page.dart';
 import 'package:example/fact_set/fact_set_examples_page.dart';
 import 'package:example/image/image_examples_page.dart';
+import 'package:example/image_set/image_set_examples_page.dart';
 import 'package:example/text_block/text_block_examples_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         "ColumnSet": (context) => ColumnSetPage(),
         "Column": (context) => ColumnPage(),
         "FactSet": (context) => FactSetPage(),
+        "ImageSet": (context) => ImageSetPage(),
       },
     );
   }
@@ -78,6 +80,11 @@ class _MyHomePageState extends State<MyHomePage> {
             Navigator.pushNamed(context, "FactSet");
           },
             child: Text("FactSet"),
+          ),
+          RaisedButton(onPressed: () {
+            Navigator.pushNamed(context, "ImageSet");
+          },
+            child: Text("ImageSet"),
           ),
         ],
       ),
