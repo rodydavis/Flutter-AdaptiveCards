@@ -243,8 +243,14 @@ abstract class _TappableElementMixin {
       child: child,
     );
   }
-
-
+}
+abstract class _ChildStylerMixin {
+  void styleChild(Map adaptiveMap, _ReferenceResolver resolver) {
+    // The container needs to set the style in every iteration
+    if(adaptiveMap.containsKey("style")) {
+      resolver.setContainerStyle(adaptiveMap["style"]);
+    }
+  }
 }
 
 class _AdaptiveTextBlock extends _AdaptiveElement with _SeparatorElementMixin {
@@ -325,7 +331,7 @@ class _AdaptiveTextBlock extends _AdaptiveElement with _SeparatorElementMixin {
 
 // TODO implement verticalContentAlignment
 class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin,
-    _TappableElementMixin{
+    _TappableElementMixin, _ChildStylerMixin{
   _AdaptiveContainer(Map adaptiveMap, _ReferenceResolver resolver,
       widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap, resolver, widgetState, idGenerator);
@@ -341,8 +347,7 @@ class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin,
   void loadTree() {
     super.loadTree();
     children = List<Map>.from(adaptiveMap["items"]).map((child) {
-      // The container needs to set the style in every iteration
-      resolver.setContainerStyle(adaptiveMap["style"]);
+      styleChild(adaptiveMap, resolver);
       return getElement(child, resolver, widgetState, idGenerator);
     }).toList();
 
@@ -400,24 +405,39 @@ class _AdaptiveColumnSet extends _AdaptiveElement {
 
 }
 
-class _AdaptiveColumn extends _AdaptiveElement {
+class _AdaptiveColumn extends _AdaptiveElement with _SeparatorElementMixin,
+    _TappableElementMixin, _ChildStylerMixin{
   _AdaptiveColumn(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, widgetState, idGenerator);
 
 
   List<_AdaptiveElement> items;
-
-
+  //TODO implement
+  double width;
+/*
+  if(adaptiveMap.containsKey("style")) {
+  resolver.setContainerStyle(adaptiveMap["style"]);
+  }
+*/
   @override
   void loadTree() {
     super.loadTree();
-    items = List<Map>.from(adaptiveMap["items"]).map((child) => getElement(child, resolver, widgetState, idGenerator)).toList();
+    items = List<Map>.from(adaptiveMap["items"]).map((child) {
+      styleChild(adaptiveMap, resolver);
+      return getElement(child, resolver, widgetState, idGenerator);
+    }).toList();
+    loadSeparator(resolver, adaptiveMap);
+    loadTappable(resolver, adaptiveMap, widgetState, null, idGenerator);
   }
 
   @override
   Widget generateWidget() {
-    return Column(
-      children: items.map((it) => it.generateWidget()).toList(),
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return wrapInTappable(
+      wrapInSeparator(
+          Column(
+            children: items.map((it) => it.generateWidget()).toList(),
+            crossAxisAlignment: CrossAxisAlignment.start,
+          )
+      )
     );
   }
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:example/column/column_examples_page.dart';
 import 'package:example/column_set/column_set_examples_page.dart';
 import 'package:example/container/container_examples_page.dart';
 import 'package:example/image/image_examples_page.dart';
@@ -23,7 +24,8 @@ class MyApp extends StatelessWidget {
         "TextBlock": (context) => TextBlockPage(),
         "Image": (context) => ImagePage(),
         "Container": (context) => ContainerPage(),
-        "ColumnSet": (context) => ColumnSetPage()
+        "ColumnSet": (context) => ColumnSetPage(),
+        "Column": (context) => ColumnPage(),
       },
     );
   }
@@ -64,6 +66,11 @@ class _MyHomePageState extends State<MyHomePage> {
             Navigator.pushNamed(context, "ColumnSet");
           },
             child: Text("ColumnSet"),
+          ),
+          RaisedButton(onPressed: () {
+            Navigator.pushNamed(context, "Column");
+          },
+            child: Text("Column"),
           ),
         ],
       ),
