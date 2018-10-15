@@ -305,7 +305,7 @@ class _AdaptiveTextBlock extends _AdaptiveElement with _SeparatorElementMixin {
 
 }
 
-class _AdaptiveContainer extends _AdaptiveElement {
+class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin{
   _AdaptiveContainer(Map adaptiveMap, _ReferenceResolver resolver,
       widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap, resolver, widgetState, idGenerator);
@@ -333,20 +333,24 @@ class _AdaptiveContainer extends _AdaptiveElement {
     [adaptiveMap["style"]?? "default"]["backgroundColor"];
     backgroundColor = _parseColor(colorString);
 
+    loadSeparator(resolver, adaptiveMap);
+
   }
 
   Widget generateWidget() {
-    return Container(
-      color: backgroundColor,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: InkWell(
-          onTap: action?.onTapped,
-          child: Column(
-            children: children.map((it) => it.generateWidget()).toList(),
+    return wrapInSeparator(
+        Container(
+          color: backgroundColor,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: InkWell(
+              onTap: action?.onTapped,
+              child: Column(
+                children: children.map((it) => it.generateWidget()).toList(),
+              ),
+            ),
           ),
-        ),
-      ),
+        )
     );
   }
 

@@ -19,8 +19,8 @@
       <file leaf-file-name="flutter_adaptive_cards.dart" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/flutter_adaptive_cards.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="686">
-              <caret line="333" column="45" lean-forward="false" selection-start-line="333" selection-start-column="45" selection-end-line="333" selection-end-column="45" />
+            <state relative-caret-position="186">
+              <caret line="340" column="27" lean-forward="true" selection-start-line="340" selection-start-column="27" selection-end-line="340" selection-end-column="27" />
               <folding>
                 <element signature="e#32#52#0" expanded="true" />
               </folding>
@@ -552,7 +552,14 @@
       <option name="project" value="LOCAL" />
       <updated>1539609776518</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="container action and background color implementation. Fixed rgb/argb bug">
+      <created>1539611363782</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1539611363782</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -635,7 +642,8 @@
     <MESSAGE value="added choice set" />
     <MESSAGE value="implemented the text element" />
     <MESSAGE value="added container examples" />
-    <option name="LAST_COMMIT_MESSAGE" value="added container examples" />
+    <MESSAGE value="container action and background color implementation. Fixed rgb/argb bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="container action and background color implementation. Fixed rgb/argb bug" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -876,6 +884,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="469">
           <caret line="1222" column="11" lean-forward="false" selection-start-line="1222" selection-start-column="11" selection-end-line="1222" selection-end-column="11" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1009,8 +1018,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/flutter_adaptive_cards.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="686">
-          <caret line="333" column="45" lean-forward="false" selection-start-line="333" selection-start-column="45" selection-end-line="333" selection-end-column="45" />
+        <state relative-caret-position="186">
+          <caret line="340" column="27" lean-forward="true" selection-start-line="340" selection-start-column="27" selection-end-line="340" selection-end-column="27" />
           <folding>
             <element signature="e#32#52#0" expanded="true" />
           </folding>
