@@ -2,11 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="45ba069b-51a4-44d7-afd1-30822f91c9e3" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/example/lib/action_open_url/action_open_url_examples_page.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/lib/action_open_url/example1" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example/lib/action_open_url/example2" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/lib/action_submit/action_submit_examples_page.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/lib/action_submit/example1" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/example/pubspec.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/pubspec.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/flutter_adaptive_cards.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/flutter_adaptive_cards.dart" afterDir="false" />
     </list>
@@ -23,8 +24,8 @@
       <file leaf-file-name="flutter_adaptive_cards.dart" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/flutter_adaptive_cards.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="575">
-              <caret line="981" column="51" selection-start-line="981" selection-start-column="51" selection-end-line="981" selection-end-column="51" />
+            <state relative-caret-position="-69">
+              <caret line="965" column="3" selection-start-line="965" selection-start-column="3" selection-end-line="965" selection-end-column="3" />
               <folding>
                 <element signature="e#32#52#0" expanded="true" />
               </folding>
@@ -32,47 +33,38 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="raised_button.dart" pinned="false" current-in-tab="false">
-        <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/material/raised_button.dart">
+      <file leaf-file-name="app_bar.dart" pinned="false" current-in-tab="false">
+        <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/material/app_bar.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="16">
-              <caret line="84" column="15" selection-start-line="84" selection-start-column="15" selection-end-line="84" selection-end-column="15" />
+            <state relative-caret-position="521">
+              <caret line="978" column="29" lean-forward="true" selection-start-line="978" selection-start-column="29" selection-end-line="978" selection-end-column="29" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="button_theme.dart" pinned="false" current-in-tab="false">
-        <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/material/button_theme.dart">
+      <file leaf-file-name="sliver_persistent_header.dart" pinned="false" current-in-tab="false">
+        <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/rendering/sliver_persistent_header.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="297">
-              <caret line="171" column="6" selection-start-line="171" selection-start-column="6" selection-end-line="171" selection-end-column="6" />
+            <state relative-caret-position="381">
+              <caret line="505" column="81" selection-start-line="505" selection-start-column="81" selection-end-line="505" selection-end-column="81" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="button.dart" pinned="false" current-in-tab="false">
-        <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/material/button.dart">
+      <file leaf-file-name="change_notifier.dart" pinned="false" current-in-tab="false">
+        <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/foundation/change_notifier.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1815">
-              <caret line="33" column="8" selection-start-line="33" selection-start-column="8" selection-end-line="33" selection-end-column="8" />
+            <state relative-caret-position="605">
+              <caret line="210" column="8" selection-start-line="210" selection-start-column="8" selection-end-line="210" selection-end-column="8" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pubspec.yaml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/example/pubspec.yaml">
+      <file leaf-file-name="example1" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/example/lib/action_submit/example1">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
-              <caret line="78" column="34" selection-start-line="78" selection-start-column="34" selection-end-line="78" selection-end-column="34" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="action_open_url_examples_page.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/example/lib/action_open_url/action_open_url_examples_page.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="224">
-              <caret line="15" column="50" selection-start-line="15" selection-start-column="50" selection-end-line="15" selection-end-column="50" />
+            <state relative-caret-position="192">
+              <caret line="12" column="47" selection-start-line="12" selection-start-column="47" selection-end-line="12" selection-end-column="47" />
             </state>
           </provider>
         </entry>
@@ -80,8 +72,8 @@
       <file leaf-file-name="main.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/example/lib/main.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1296">
-              <caret line="93" column="39" selection-start-line="93" selection-start-column="39" selection-end-line="93" selection-end-column="39" />
+            <state relative-caret-position="383">
+              <caret line="95" column="42" lean-forward="true" selection-start-line="95" selection-start-column="42" selection-end-line="95" selection-end-column="42" />
             </state>
           </provider>
         </entry>
@@ -153,8 +145,10 @@
         <option value="$PROJECT_DIR$/example/lib/image/example6" />
         <option value="$PROJECT_DIR$/example/lib/action_open_url/example1" />
         <option value="$PROJECT_DIR$/example/lib/action_open_url/example2" />
-        <option value="$PROJECT_DIR$/example/pubspec.yaml" />
         <option value="$PROJECT_DIR$/example/lib/action_open_url/action_open_url_examples_page.dart" />
+        <option value="$PROJECT_DIR$/example/lib/action_submit/example1" />
+        <option value="$PROJECT_DIR$/example/lib/action_submit/action_submit_examples_page.dart" />
+        <option value="$PROJECT_DIR$/example/pubspec.yaml" />
         <option value="$PROJECT_DIR$/example/lib/main.dart" />
         <option value="$PROJECT_DIR$/lib/flutter_adaptive_cards.dart" />
       </list>
@@ -185,7 +179,7 @@
     </navigator>
     <panes>
       <pane id="AndroidView" />
-      <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -209,7 +203,7 @@
               <item name="flutter-adaptive-cards" type="462c0819:PsiDirectoryNode" />
               <item name="example" type="462c0819:PsiDirectoryNode" />
               <item name="lib" type="462c0819:PsiDirectoryNode" />
-              <item name="action_open_url" type="462c0819:PsiDirectoryNode" />
+              <item name="action_submit" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="flutter-adaptive-cards" type="b2602c69:ProjectViewProjectNode" />
@@ -232,11 +226,11 @@
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="SearchEverywhereHistoryKey" value="drag&#9;FILE&#9;file://F:/flutter_test/flutter/packages/flutter/lib/src/gestures/multidrag.dart&#10;align&#9;null&#9;null&#10;text&#9;FILE&#9;file://D:/flutter/packages/flutter/lib/src/widgets/text.dart" />
+    <property name="SearchEverywhereHistoryKey" value="sliverapp&#9;null&#9;null&#10;heroes&#9;FILE&#9;file://F:/flutter_test/flutter/packages/flutter/lib/src/widgets/heroes.dart&#10;heroes.&#9;FILE&#9;file://F:/flutter_test/flutter/packages/flutter/lib/src/widgets/heroes.dart&#10;drag&#9;FILE&#9;file://F:/flutter_test/flutter/packages/flutter/lib/src/gestures/multidrag.dart&#10;align&#9;null&#9;null&#10;text&#9;FILE&#9;file://D:/flutter/packages/flutter/lib/src/widgets/text.dart" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
@@ -246,6 +240,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="F:\AndroidStudioProjects\flutter-adaptive-cards\example\lib" />
       <recent name="F:\AndroidStudioProjects\flutter-adaptive-cards\example\lib\action_open_url" />
       <recent name="F:\AndroidStudioProjects\flutter-adaptive-cards\example\lib\image" />
       <recent name="F:\AndroidStudioProjects\flutter-adaptive-cards\example\lib\text_block" />
@@ -480,7 +475,9 @@
       <workItem from="1539668337330" duration="508000" />
       <workItem from="1539712293233" duration="721000" />
       <workItem from="1539757117201" duration="436000" />
-      <workItem from="1539764620394" duration="2432000" />
+      <workItem from="1539764620394" duration="2737000" />
+      <workItem from="1539769088082" duration="287000" />
+      <workItem from="1539770538675" duration="2030000" />
     </task>
     <task id="LOCAL-00001" summary="made the states work">
       <created>1538758081046</created>
@@ -559,11 +556,18 @@
       <option name="project" value="LOCAL" />
       <updated>1539767728464</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="added the icon to the Action.OpenUrl">
+      <created>1539768289727</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1539768289727</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="27079000" />
+    <option name="totallyTimeSpent" value="29701000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -591,7 +595,7 @@
       <window_info anchor="bottom" id="Run" order="2" weight="0.32897604" />
       <window_info anchor="bottom" id="CheckStyle" order="8" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.33006537" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2867804" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.29317698" />
       <window_info anchor="right" id="Google Cloud Storage" order="4" />
       <window_info anchor="right" id="Theme Preview" order="3" />
       <window_info id="Favorites" order="2" side_tool="true" />
@@ -604,7 +608,7 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="right" id="Properties" order="3" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32897604" />
     </layout>
     <layout-to-restore>
       <window_info id="Designer" order="2" />
@@ -658,70 +662,15 @@
     <MESSAGE value="added a todo" />
     <MESSAGE value="implemented imageset image sizes" />
     <MESSAGE value="added seperator to image set" />
-    <option name="LAST_COMMIT_MESSAGE" value="added seperator to image set" />
+    <MESSAGE value="added the icon to the Action.OpenUrl" />
+    <option name="LAST_COMMIT_MESSAGE" value="added the icon to the Action.OpenUrl" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="53" />
+      <option name="time" value="55" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/example/lib/easy_card">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="320">
-          <caret line="20" column="17" selection-start-line="20" selection-start-column="17" selection-end-line="20" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://F:/flutter_test/flutter/bin/cache/pkg/sky_engine/lib/core/errors.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="8304">
-          <caret line="521" column="2" selection-start-line="521" selection-start-column="2" selection-end-line="521" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://F:/flutter_test/flutter/bin/cache/pkg/sky_engine/lib/core/date_time.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9648">
-          <caret line="605" column="9" selection-start-line="605" selection-start-column="9" selection-end-line="605" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/painting/basic_types.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="921">
-          <caret line="156" column="5" selection-start-line="156" selection-start-column="5" selection-end-line="156" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/material/date_picker.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="16768">
-          <caret line="1070" column="17" selection-start-line="1070" selection-start-column="17" selection-end-line="1070" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/example/lib/activity_update">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="656">
-          <caret line="41" column="36" selection-start-line="41" selection-start-column="36" selection-end-line="41" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://F:/flutter_test/flutter/bin/cache/pkg/sky_engine/lib/core/map.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="464">
-          <caret line="31" column="15" selection-start-line="31" selection-start-column="15" selection-end-line="31" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/widgets/framework.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="3692" column="40" selection-start-line="3692" selection-start-column="40" selection-end-line="3692" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/example/lib/text_block/example1">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="528">
@@ -963,27 +912,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/example/pubspec.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="78" column="34" selection-start-line="78" selection-start-column="34" selection-end-line="78" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/example/lib/action_open_url/action_open_url_examples_page.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="224">
-          <caret line="15" column="50" selection-start-line="15" selection-start-column="50" selection-end-line="15" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/example/lib/main.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1296">
-          <caret line="93" column="39" selection-start-line="93" selection-start-column="39" selection-end-line="93" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/example/lib/action_open_url/example2">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="304">
@@ -1019,10 +947,90 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/example/lib/action_submit/action_submit_examples_page.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="208">
+          <caret line="14" column="48" selection-start-line="14" selection-start-column="48" selection-end-line="14" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/lib/action_open_url/action_open_url_examples_page.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="15" column="50" selection-start-line="15" selection-start-column="50" selection-end-line="15" selection-end-column="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/widgets/framework.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="297">
+          <caret line="2633" column="48" lean-forward="true" selection-start-line="2633" selection-start-column="2" selection-end-line="2633" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/widgets/heroes.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="704">
+          <caret line="208" column="21" lean-forward="true" selection-start-line="208" selection-start-column="21" selection-end-line="208" selection-end-column="21" />
+          <folding>
+            <element signature="e#0#24950#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/pubspec.yaml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="429">
+          <caret line="80" column="32" selection-start-line="80" selection-start-column="32" selection-end-line="80" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/lib/main.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="383">
+          <caret line="95" column="42" lean-forward="true" selection-start-line="95" selection-start-column="42" selection-end-line="95" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/lib/action_submit/example1">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="192">
+          <caret line="12" column="47" selection-start-line="12" selection-start-column="47" selection-end-line="12" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/foundation/change_notifier.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="605">
+          <caret line="210" column="8" selection-start-line="210" selection-start-column="8" selection-end-line="210" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/rendering/sliver_persistent_header.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="381">
+          <caret line="505" column="81" selection-start-line="505" selection-start-column="81" selection-end-line="505" selection-end-column="81" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/widgets/sliver_persistent_header.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="333">
+          <caret line="333" column="81" lean-forward="true" selection-start-line="333" selection-start-column="36" selection-end-line="333" selection-end-column="81" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://F:/flutter_test/flutter/packages/flutter/lib/src/material/app_bar.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="521">
+          <caret line="978" column="29" lean-forward="true" selection-start-line="978" selection-start-column="29" selection-end-line="978" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/lib/flutter_adaptive_cards.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="575">
-          <caret line="981" column="51" selection-start-line="981" selection-start-column="51" selection-end-line="981" selection-end-column="51" />
+        <state relative-caret-position="-69">
+          <caret line="965" column="3" selection-start-line="965" selection-start-column="3" selection-end-line="965" selection-end-column="3" />
           <folding>
             <element signature="e#32#52#0" expanded="true" />
           </folding>

@@ -46,8 +46,14 @@ class AdaptiveCardState extends State<AdaptiveCard> {
     setState((){});
   }
 
-  void submit() {
-    print("Submit");
+  void submit(Map map) {
+    _adaptiveElement.visitChildren((element) {
+      print("visiting ${element.runtimeType}");
+      if(element is _AdaptiveInput) {
+        element.appendInput(map);
+      }
+    });
+    print(map);
   }
 
   void openUrl(String url) {
@@ -73,7 +79,8 @@ class AdaptiveCardState extends State<AdaptiveCard> {
 }
 
 
-
+/// The visitor
+typedef _AdaptiveElementVisitor = void Function(_AdaptiveElement element);
 
 
 
@@ -107,6 +114,11 @@ abstract class _AdaptiveElement {
 
   void loadTree() {
     loadId();
+  }
+
+  /// Visits the children
+  void visitChildren(_AdaptiveElementVisitor visitor) {
+    visitor(this);
   }
 
   @override
@@ -201,6 +213,15 @@ class _AdaptiveCardElement extends _AdaptiveElement{
     showCardActions.where((it) =>  it != showCardAction).forEach((it) => (){it.expanded = false;}());
     widgetState.rebuild();
   }
+
+  @override
+  void visitChildren(_AdaptiveElementVisitor visitor) {
+    visitor(this);
+    children.forEach((it) => it.visitChildren(visitor));
+    allActions.forEach((it) => it.visitChildren(visitor));
+    showCardActions.forEach((it) => it.visitChildren(visitor));
+  }
+
 
 }
 
@@ -375,6 +396,14 @@ class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin,
     );
   }
 
+  @override
+  void visitChildren(_AdaptiveElementVisitor visitor) {
+    visitor(this);
+    children.forEach((it) => it.visitChildren(visitor));
+    action.visitChildren(visitor);
+  }
+
+
 }
 
 
@@ -402,6 +431,13 @@ class _AdaptiveColumnSet extends _AdaptiveElement {
      crossAxisAlignment: CrossAxisAlignment.center,
    );
   }
+
+  @override
+  void visitChildren(_AdaptiveElementVisitor visitor) {
+    visitor(this);
+    columns.forEach((it) => it.visitChildren(visitor));
+  }
+
 
 }
 
@@ -437,6 +473,13 @@ class _AdaptiveColumn extends _AdaptiveElement with _SeparatorElementMixin,
       )
     );
   }
+
+  @override
+  void visitChildren(_AdaptiveElementVisitor visitor) {
+    visitor(this);
+    items.forEach((it) => it.visitChildren(visitor));
+  }
+
 
 }
 
@@ -475,6 +518,13 @@ class _AdaptiveFactSet extends _AdaptiveElement with _SeparatorElementMixin{
         )
     );
   }
+
+  @override
+  void visitChildren(_AdaptiveElementVisitor visitor) {
+    visitor(this);
+    facts.forEach((it) => it.visitChildren(visitor));
+  }
+
 
 }
 
@@ -649,6 +699,13 @@ class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin{
     maybeSize = size.toDouble();
   }
 
+  @override
+  void visitChildren(_AdaptiveElementVisitor visitor) {
+    visitor(this);
+    images.forEach((it) => it.visitChildren(visitor));
+  }
+
+
 }
 
 
@@ -690,7 +747,7 @@ class _AdaptiveTextInput extends _AdaptiveInput {
 
   @override
   void appendInput(Map map) {
-    map[id] = controller.value;
+    map[id] = controller.text;
   }
 
 }
@@ -838,6 +895,13 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
     throw StateError("The style of the ChoiceSet needs to be either compact or expanded");
   }
 
+  @override
+  void visitChildren(_AdaptiveElementVisitor visitor) {
+    visitor(this);
+    choices.forEach((it) => it.visitChildren(visitor));
+  }
+
+
 }
 
 class _AdaptiveChoice extends _AdaptiveInput {
@@ -874,9 +938,37 @@ class _AdaptiveChoice extends _AdaptiveInput {
 
 
 
+/*
+abstract class _IconButtonMixin {
+
+  String iconUrl;
 
 
+  void loadSeparator(_ReferenceResolver resolver, Map adaptiveMap) {
+    iconUrl = adaptiveMap["iconUrl"];
+  }
 
+  Widget getButton(String text) {
+    Widget result =  RaisedButton(
+      onPressed: onTapped,
+      child: Text(title),
+    );
+
+    if(iconUrl != null) {
+      result = RaisedButton.icon(
+        onPressed: onTapped,
+        icon: Image.network(iconUrl, height: 36.0,),
+        label: Text(title),
+      );
+    }
+    return result;
+  }
+}*/
+
+abstract class Test extends _AdaptiveElement {
+  Test(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, widgetState, idGenerator);
+
+}
 
 
 /// Actions
@@ -932,6 +1024,11 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
     }
   }
 
+  @override
+  void visitChildren(_AdaptiveElementVisitor visitor) {
+    card.visitChildren(visitor);
+  }
+
 
 }
 
@@ -940,6 +1037,14 @@ class _AdaptiveActionSubmit extends _AdaptiveAction {
   _AdaptiveActionSubmit(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator) : super(adaptiveMap, resolver, widgetState, idGenerator);
 
 
+  Map data;
+
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    data = adaptiveMap["data"]?? {};
+  }
 
   @override
   Widget generateWidget() {
@@ -951,7 +1056,7 @@ class _AdaptiveActionSubmit extends _AdaptiveAction {
 
   @override
   void onTapped() {
-    widgetState.submit();
+    widgetState.submit(data);
   }
 }
 

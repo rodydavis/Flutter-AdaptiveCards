@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:example/action_open_url/action_open_url_examples_page.dart';
+import 'package:example/action_submit/action_submit_examples_page.dart';
 import 'package:example/column/column_examples_page.dart';
 import 'package:example/column_set/column_set_examples_page.dart';
 import 'package:example/container/container_examples_page.dart';
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         "FactSet": (context) => FactSetPage(),
         "ImageSet": (context) => ImageSetPage(),
         "Action.OpenUrl": (context) => ActionOpenUrlPage(),
+        "Action.Submit": (context) => ActionSubmitPage(),
       },
     );
   }
@@ -92,6 +94,11 @@ class _MyHomePageState extends State<MyHomePage> {
             Navigator.pushNamed(context, "Action.OpenUrl");
           },
             child: Text("Action.OpenUrl"),
+          ),
+          RaisedButton(onPressed: () {
+            Navigator.pushNamed(context, "Action.Submit");
+          },
+            child: Text("Action.Submit"),
           ),
         ],
       ),
