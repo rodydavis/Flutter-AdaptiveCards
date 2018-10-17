@@ -50,8 +50,8 @@ class AdaptiveCardState extends State<AdaptiveCard> {
     print("Submit");
   }
 
-  void openUrl() {
-    print("Open url");
+  void openUrl(String url) {
+    print("Open url: $url");
   }
 
   Future<DateTime> pickDate() {
@@ -959,17 +959,36 @@ class _AdaptiveActionOpenUrl extends _AdaptiveAction {
   _AdaptiveActionOpenUrl(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap, resolver, widgetState, idGenerator);
 
+  String url;
+  String iconUrl;
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    url = adaptiveMap["url"];
+    iconUrl = adaptiveMap["iconUrl"];
+  }
+
   @override
   Widget generateWidget() {
-    return RaisedButton(
+    Widget result =  RaisedButton(
       onPressed: onTapped,
       child: Text(title),
     );
+
+    if(iconUrl != null) {
+      result = RaisedButton.icon(
+          onPressed: onTapped,
+          icon: Image.network(iconUrl, height: 36.0,),
+          label: Text(title),
+      );
+    }
+    return result;
   }
 
   @override
   void onTapped() {
-    widgetState.openUrl();
+    widgetState.openUrl(url);
   }
 }
 

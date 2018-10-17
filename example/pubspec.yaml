@@ -76,6 +76,8 @@ flutter:
     - lib/fact_set/example1
     - lib/image_set/example1
     - lib/image_set/example2
+    - lib/action_open_url/example1
+    - lib/action_open_url/example2
 
 
   # To add assets to your application, add an assets section, like this:
