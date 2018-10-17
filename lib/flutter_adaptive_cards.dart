@@ -53,7 +53,7 @@ class AdaptiveCardState extends State<AdaptiveCard> {
         element.appendInput(map);
       }
     });
-    print(map);
+    Scaffold.of(context).showSnackBar(SnackBar(content: Text(map.toString())));
   }
 
   void openUrl(String url) {
