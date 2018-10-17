@@ -588,7 +588,7 @@ class _AdaptiveImage extends _AdaptiveElement with _SeparatorElementMixin{
 
 }
 
-class _AdaptiveImageSet extends _AdaptiveElement {
+class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin{
   _AdaptiveImageSet(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap, resolver, widgetState, idGenerator);
 
@@ -605,18 +605,21 @@ class _AdaptiveImageSet extends _AdaptiveElement {
         .map((child) => _AdaptiveImage(child, resolver, widgetState, idGenerator)).toList();
 
     loadSize();
+    loadSeparator(resolver, adaptiveMap);
 
   }
 
   @override
   Widget generateWidget() {
-    return LayoutBuilder(builder: (context, constraints) {
-      return Wrap(
-        //maxCrossAxisExtent: 200.0,
-        children: images.map((img) => SizedBox(width: calculateSize(constraints), child: img.generateWidget())).toList(),
-        //shrinkWrap: true,
-      );
-    });
+    return wrapInSeparator(
+        LayoutBuilder(builder: (context, constraints) {
+          return Wrap(
+            //maxCrossAxisExtent: 200.0,
+            children: images.map((img) => SizedBox(width: calculateSize(constraints), child: img.generateWidget())).toList(),
+            //shrinkWrap: true,
+          );
+        })
+    );
   }
 
   double calculateSize(BoxConstraints constraints) {
