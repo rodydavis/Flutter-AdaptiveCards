@@ -595,6 +595,7 @@ class _AdaptiveImageSet extends _AdaptiveElement {
   List<_AdaptiveImage> images;
 
   String imageSize;
+  double maybeSize;
 
 
   @override
@@ -602,31 +603,47 @@ class _AdaptiveImageSet extends _AdaptiveElement {
     super.loadTree();
     images = List<Map>.from(adaptiveMap["images"])
         .map((child) => _AdaptiveImage(child, resolver, widgetState, idGenerator)).toList();
-    // TODO implement auto, strech and sizes. Look at image class for reference
-    // maybe mixing, maybe same constrained box, maybe size calculation
-    /*if(sizeDescription == "auto") return Tuple(0.0, double.infinity);
-    if(sizeDescription == "stretch") return Tuple(double.infinity, double.infinity);
-    int size = resolver.resolve("imageSizes", sizeDescription?? "default");*/
+
+    loadSize();
+
   }
 
   @override
   Widget generateWidget() {
     return LayoutBuilder(builder: (context, constraints) {
-      // Display a maximum of 5 children
-      double imageWidth;
-      if(images.length >= 5) {
-        imageWidth = constraints.maxWidth / 5;
-      } else if(images.length == 0){
-        imageWidth = 0.0;
-      } else {
-        imageWidth = constraints.maxWidth / images.length;
-      }
       return Wrap(
         //maxCrossAxisExtent: 200.0,
-        children: images.map((img) => SizedBox(width: imageWidth, child: img.generateWidget())).toList(),
+        children: images.map((img) => SizedBox(width: calculateSize(constraints), child: img.generateWidget())).toList(),
         //shrinkWrap: true,
       );
     });
+  }
+
+  double calculateSize(BoxConstraints constraints) {
+    if(maybeSize != null) return maybeSize;
+    if(imageSize == "stretch") return constraints.maxWidth;
+    // Display a maximum of 5 children
+    if(images.length >= 5) {
+      return constraints.maxWidth / 5;
+    } else if(images.length == 0){
+      return 0.0;
+    } else {
+      return constraints.maxWidth / images.length;
+    }
+  }
+
+  void loadSize() {
+    String sizeDescription = adaptiveMap["imageSize"]?? "auto";
+    if(sizeDescription == "auto") {
+      imageSize = "auto";
+      return;
+    }
+    if(sizeDescription == "stretch") {
+      imageSize = "stretch";
+      return;
+    }
+    int size = resolver.resolve("imageSizes", sizeDescription);
+    maybeSize = size.toDouble();
   }
 
 }
