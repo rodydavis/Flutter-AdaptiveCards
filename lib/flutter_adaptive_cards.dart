@@ -167,6 +167,8 @@ abstract class _AdaptiveElement {
 }
 
 /// Usually the root element of every adaptive card.
+///
+/// This container behaves like a Column/ a Container
 class _AdaptiveCardElement extends _AdaptiveElement{
   _AdaptiveCardElement(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
