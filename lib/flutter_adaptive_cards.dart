@@ -6,15 +6,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:uuid/uuid.dart';
 
+
+/// Main entry point to adaptive cards.
+///
+/// This widget takes a [map] (which usually is just a json decoded string) and
+/// displays in natively. Additionally a host config needs to be provided for
+/// styling.
 class AdaptiveCard extends StatefulWidget {
 
-
- /* AdaptiveCard.fromAsset(String assetName):
-  _adaptiveCardReader = _AdaptiveCardReader.fromAsset(assetName);
-*/
   AdaptiveCard.fromMap(this.map, this.hostConfig);
-
-
 
   final Map map;
   final Map hostConfig;
@@ -25,10 +25,10 @@ class AdaptiveCard extends StatefulWidget {
 
 class AdaptiveCardState extends State<AdaptiveCard> {
 
-
-
+  // Wrapper around the host config
   _ReferenceResolver _referenceResolver;
 
+  // The root element
   _AdaptiveElement _adaptiveElement;
 
 
@@ -41,11 +41,15 @@ class AdaptiveCardState extends State<AdaptiveCard> {
 
   }
 
-
+  /// Every widget can access method of this class, meaning setting the state
+  /// is possible from every element
   void rebuild() {
     setState((){});
   }
 
+  //TODO abstract these methods to an interface
+  /// Submits all the inputs of this adaptive card, does it by recursively
+  /// visiting the elements in the tree
   void submit(Map map) {
     _adaptiveElement.visitChildren((element) {
       print("visiting ${element.runtimeType}");
@@ -79,18 +83,46 @@ class AdaptiveCardState extends State<AdaptiveCard> {
 }
 
 
-/// The visitor
+/// The visitor, the function is called once for every element in the tree
 typedef _AdaptiveElementVisitor = void Function(_AdaptiveElement element);
 
 
 
-/// Elements are *not* re constructed when setState is called.
+/// The base class for every element (widget) drawn on the screen.
 ///
+/// The lifecycle is as follows:
+/// - [loadTree()] is called, all the initialization should be done here
+/// - [generateWidget()] is called every time the elements needs to render
+/// this method should be as lightweight as possible because it could possibly
+/// be called many times (for example in an animation). The method should also be
+/// idempotent meaning calling it multiple times without changing anything should
+/// return the same result
+///
+/// This class also holds some references every element needs.
+/// --------------------------------------------------------------------
+/// The [adaptiveMap] is the map associated with that element
+///
+/// root
+/// |
+/// currentElement <-- ([adaptiveMap] contains the subtree from there)
+/// |       |
+/// child 1 child2
+/// --------------------------------------------------------------------
+///
+/// The [resolver] is a handy wrapper around the hostConfig, which makes accessing
+/// it easier.
+///
+/// //TODO refactor
+/// The [widgetState] provides access to flutter specific implementations.
+///
+/// If the element has children (you don't need to do this if the element is a
+/// leaf):
+/// implement the method [visitChildren] and call visitor(this) in addition call
+/// [visitChildren] on each child with the passed visitor.
 abstract class _AdaptiveElement {
   _AdaptiveElement({@required this.adaptiveMap, @required this.resolver, @required this.widgetState, @required this.idGenerator}) {
     loadTree();
   }
-
 
   final Map adaptiveMap;
   final _ReferenceResolver resolver;
@@ -98,6 +130,7 @@ abstract class _AdaptiveElement {
 
   String id;
 
+  // TODO abstract
   /// Because some widgets (looking at you ShowCardAction) need to set the state
   /// all elements get a way to set the state.
   final AdaptiveCardState widgetState;
@@ -133,7 +166,7 @@ abstract class _AdaptiveElement {
 
 }
 
-/// This element also takes actions
+/// Usually the root element of every adaptive card.
 class _AdaptiveCardElement extends _AdaptiveElement{
   _AdaptiveCardElement(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
