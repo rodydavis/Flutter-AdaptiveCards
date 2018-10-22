@@ -1,10 +1,13 @@
 library flutter_adaptive_cards;
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_adaptive_cards/src/utils.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:uuid/uuid.dart';
+import 'package:video_player/video_player.dart';
 
 
 /// Main entry point to adaptive cards.
@@ -284,6 +287,7 @@ abstract class _SeparatorElementMixin extends _AdaptiveElement{
 
   @override
   Widget generateWidget() {
+    assert(separator != null, "Did you forget to call loadSeperator in this class?");
     return Column(
       children: <Widget>[
         separator? Divider(height: topSpacing,): SizedBox(height: topSpacing,),
@@ -720,6 +724,86 @@ class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin{
 
 }
 
+
+class _AdaptiveMedia extends _AdaptiveElement with _SeparatorElementMixin {
+  _AdaptiveMedia(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+      : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
+
+
+  VideoPlayerController controller;
+  String sourceUrl;
+  String postUrl;
+  String altText;
+
+  FadeAnimation imageFadeAnim = FadeAnimation(child: const Icon(Icons.play_arrow, size: 100.0));
+
+
+
+
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    postUrl = adaptiveMap["poster"];
+    sourceUrl = adaptiveMap["sources"][0]["url"];
+    controller = VideoPlayerController.network(sourceUrl);
+    controller.initialize().then((_){
+      widgetState.rebuild();
+    });
+    controller.addListener((){
+      widgetState.rebuild();
+    });
+    controller.setVolume(1.0);
+    controller.play();
+    loadSeparator();
+
+  }
+
+  @override
+  Widget build() {
+
+    final List<Widget> children = <Widget>[
+      GestureDetector(
+        child: controller.value.initialized? AspectRatio(
+            child: VideoPlayer(controller),
+          aspectRatio: controller.value.aspectRatio,
+        ): Container(),
+        onTap: () {
+          if (!controller.value.initialized) {
+            return;
+          }
+          if (controller.value.isPlaying) {
+            imageFadeAnim =
+                FadeAnimation(child: const Icon(Icons.pause, size: 100.0));
+            controller.pause();
+          } else {
+            imageFadeAnim =
+                FadeAnimation(child: const Icon(Icons.play_arrow, size: 100.0));
+            controller.play();
+          }
+        },
+      ),
+      Align(
+        alignment: Alignment.bottomCenter,
+        child: VideoProgressIndicator(
+          controller,
+          allowScrubbing: true,
+        ),
+      ),
+      Center(child: imageFadeAnim),
+      Center(
+          child: controller.value.isBuffering
+              ? const CircularProgressIndicator()
+              : null),
+    ];
+
+    return Stack(
+      fit: StackFit.passthrough,
+      children: children,
+    );
+  }
+
+}
 
 
 
@@ -1199,6 +1283,8 @@ _AdaptiveElement getElement(Map<String, dynamic> map, _ReferenceResolver resolve
   String stringType = map["type"];
 
   switch(stringType) {
+    case "Media":
+      return _AdaptiveMedia(map, resolver, widgetState, idGenerator);
     case "Container":
       return _AdaptiveContainer(map, resolver, widgetState, idGenerator);
     case "TextBlock":

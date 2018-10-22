@@ -11,6 +11,7 @@ import 'package:example/image/image_examples_page.dart';
 import 'package:example/image_set/image_set_examples_page.dart';
 import 'package:example/inputs/input_number/input_number.dart';
 import 'package:example/inputs/input_text/input_text.dart';
+import 'package:example/media/media.dart';
 import 'package:example/text_block/text_block_examples_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
         "Action.ShowCard": (context) => ActionShowCardPage(),
         "Input.Text": (context) => InputText(),
         "Input.Number": (context) => InputNumber(),
+        "Media": (context) => MediaPage(),
       },
     );
   }
@@ -120,6 +122,11 @@ class _MyHomePageState extends State<MyHomePage> {
             Navigator.pushNamed(context, "Input.Number");
           },
             child: Text("Input.Number"),
+          ),
+          RaisedButton(onPressed: () {
+            Navigator.pushNamed(context, "Media");
+          },
+            child: Text("Media"),
           ),
         ],
       ),
