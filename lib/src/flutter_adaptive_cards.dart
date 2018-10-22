@@ -135,7 +135,17 @@ abstract class _AdaptiveElement {
   /// all elements get a way to set the state.
   final AdaptiveCardState widgetState;
 
-  Widget generateWidget();
+
+
+  /// Overwrite this method to return a Flutter widget. If this element has children, call their generateWidget instead of build.
+  Widget build();
+
+  /// The default implementation of generateWidget only calls build. But some classes (for example those with a separator) use this method to add
+  /// additional things into the tree.
+  /// This method always needs to call build() in some way or another.
+  Widget generateWidget() {
+    return build();
+  }
 
   void loadId() {
     if(adaptiveMap.containsKey("id")) {
@@ -206,7 +216,7 @@ class _AdaptiveCardElement extends _AdaptiveElement{
   }
 
   @override
-  Widget generateWidget() {
+  Widget build() {
     List<Widget> widgetChildren = children.map((element) => element.generateWidget()).toList();
 
     // Adds the actions
@@ -226,7 +236,7 @@ class _AdaptiveCardElement extends _AdaptiveElement{
     widgetChildren.add(actionWidget);
 
     if(currentlyActiveShowCardAction != null) {
-      widgetChildren.add(currentlyActiveShowCardAction.card.generateWidget());
+      widgetChildren.add(currentlyActiveShowCardAction.card.build());
     }
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -271,14 +281,18 @@ abstract class _SeparatorElementMixin extends _AdaptiveElement{
     separator = adaptiveMap["separator"]?? false;
   }
 
-  Widget wrapInSeparator(Widget child) {
+
+  @override
+  Widget generateWidget() {
     return Column(
       children: <Widget>[
         separator? Divider(height: topSpacing,): SizedBox(height: topSpacing,),
-        child,
+        build(),
       ],
     );
   }
+
+
 }
 
 abstract class _TappableElementMixin extends _AdaptiveElement{
@@ -334,16 +348,14 @@ class _AdaptiveTextBlock extends _AdaptiveElement with _SeparatorElementMixin {
   }
 
   // TODO create own widget that parses _basic_ markdown. This might help: https://docs.flutter.io/flutter/widgets/Wrap-class.html
-  Widget generateWidget() {
-    return wrapInSeparator(
-        Align(
-            alignment: horizontalAlignment,
-            child: Text(text, style: TextStyle(fontWeight: fontWeight, fontSize:fontSize, color: color), maxLines: maxLines,)
-          /* child: MarkdownBody(
+  Widget build() {
+    return Align(
+        alignment: horizontalAlignment,
+        child: Text(text, style: TextStyle(fontWeight: fontWeight, fontSize:fontSize, color: color), maxLines: maxLines,)
+      /* child: MarkdownBody(
         data: text,
         styleSheet: markdownStyleSheet,
       )*/
-        )
     );
   }
 
@@ -418,17 +430,15 @@ class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin,
 
   }
 
-  Widget generateWidget() {
-    return wrapInSeparator(
-        Container(
-          color: backgroundColor,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: wrapInTappable(Column(
-              children: children.map((it) => it.generateWidget()).toList(),
-            )),
-          ),
-        )
+  Widget build() {
+    return Container(
+      color: backgroundColor,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: wrapInTappable(Column(
+          children: children.map((it) => it.generateWidget()).toList(),
+        )),
+      ),
     );
   }
 
@@ -460,7 +470,7 @@ class _AdaptiveColumnSet extends _AdaptiveElement {
   }
 
   @override
-  Widget generateWidget() {
+  Widget build() {
    return Row(
      children: columns.map((it) => Flexible(child: it.generateWidget())).toList(),
      mainAxisAlignment: MainAxisAlignment.start,
@@ -500,14 +510,12 @@ class _AdaptiveColumn extends _AdaptiveElement with _SeparatorElementMixin,
   }
 
   @override
-  Widget generateWidget() {
+  Widget build() {
     return wrapInTappable(
-      wrapInSeparator(
-          Column(
-            children: items.map((it) => it.generateWidget()).toList(),
-            crossAxisAlignment: CrossAxisAlignment.start,
-          )
-      )
+        Column(
+          children: items.map((it) => it.generateWidget()).toList(),
+          crossAxisAlignment: CrossAxisAlignment.start,
+        )
     );
   }
 
@@ -537,22 +545,20 @@ class _AdaptiveFactSet extends _AdaptiveElement with _SeparatorElementMixin{
   }
 
   @override
-  Widget generateWidget() {
-    return wrapInSeparator(
-        Row(
-          children: [
-            Column(
-              children: facts.map((fact) => Text(fact["title"], style: TextStyle(fontWeight: FontWeight.bold),)).toList(),
-              crossAxisAlignment: CrossAxisAlignment.start,
-            ),
-            SizedBox(width: 8.0,),
-            Column(
-              children: facts.map((fact) => Text(fact["value"])).toList(),
-              crossAxisAlignment: CrossAxisAlignment.start,
-            ),
-          ],
+  Widget build() {
+    return Row(
+      children: [
+        Column(
+          children: facts.map((fact) => Text(fact["title"], style: TextStyle(fontWeight: FontWeight.bold),)).toList(),
           crossAxisAlignment: CrossAxisAlignment.start,
-        )
+        ),
+        SizedBox(width: 8.0,),
+        Column(
+          children: facts.map((fact) => Text(fact["value"])).toList(),
+          crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+      ],
+      crossAxisAlignment: CrossAxisAlignment.start,
     );
   }
 
@@ -584,7 +590,7 @@ class _AdaptiveImage extends _AdaptiveElement with _SeparatorElementMixin{
   }
 
   @override
-  Widget generateWidget() {
+  Widget build() {
 
     //TODO alt text
     Widget image = ConstrainedBox(
@@ -604,14 +610,12 @@ class _AdaptiveImage extends _AdaptiveElement with _SeparatorElementMixin{
     }
 
 
-    return wrapInSeparator(
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Align(
-            alignment: horizontalAlignment,
-            child: image,
-          ),
-        )
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Align(
+        alignment: horizontalAlignment,
+        child: image,
+      ),
     );
   }
 
@@ -670,16 +674,14 @@ class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin{
   }
 
   @override
-  Widget generateWidget() {
-    return wrapInSeparator(
-        LayoutBuilder(builder: (context, constraints) {
-          return Wrap(
-            //maxCrossAxisExtent: 200.0,
-            children: images.map((img) => SizedBox(width: calculateSize(constraints), child: img.generateWidget())).toList(),
-            //shrinkWrap: true,
-          );
-        })
-    );
+  Widget build() {
+    return LayoutBuilder(builder: (context, constraints) {
+      return Wrap(
+        //maxCrossAxisExtent: 200.0,
+        children: images.map((img) => SizedBox(width: calculateSize(constraints), child: img.generateWidget())).toList(),
+        //shrinkWrap: true,
+      );
+    });
   }
 
   double calculateSize(BoxConstraints constraints) {
@@ -771,17 +773,15 @@ class _AdaptiveTextInput extends _AdaptiveInput {
   }
 
   @override
-  Widget generateWidget() {
-    return wrapInSeparator(
-        TextField(
-          controller: controller,
-          maxLength: maxLength,
-          keyboardType: style,
-          maxLines: isMultiline? null: 1,
-          decoration: InputDecoration(
-            labelText: placeholder,
-          ),
-        )
+  Widget build() {
+    return TextField(
+      controller: controller,
+      maxLength: maxLength,
+      keyboardType: style,
+      maxLines: isMultiline? null: 1,
+      decoration: InputDecoration(
+        labelText: placeholder,
+      ),
     );
   }
 
@@ -822,12 +822,10 @@ class _AdaptiveNumberInput extends _AdaptiveInput {
   }
 
   @override
-  Widget generateWidget() {
-    return wrapInSeparator(
-        TextField(
-          keyboardType: TextInputType.number,
-          controller: controller,
-        )
+  Widget build() {
+    return TextField(
+      keyboardType: TextInputType.number,
+      controller: controller,
     );
   }
 
@@ -846,7 +844,7 @@ class _AdaptiveDateInput extends _AdaptiveInput {
   DateTime selectedDateTime;
 
   @override
-  Widget generateWidget() {
+  Widget build() {
     return RaisedButton(
       onPressed: () async {
         selectedDateTime = await widgetState.pickDate();
@@ -871,7 +869,7 @@ class _AdaptiveTimeInput extends _AdaptiveInput {
   TimeOfDay selectedTime;
 
   @override
-  Widget generateWidget() {
+  Widget build() {
     return RaisedButton(
       onPressed: () async {
         selectedTime = await widgetState.pickTime();
@@ -895,7 +893,7 @@ class _AdaptiveToggle extends _AdaptiveInput {
   bool value = false;
 
   @override
-  Widget generateWidget() {
+  Widget build() {
     return Switch(
       value: value,
       onChanged: (newValue) {
@@ -933,7 +931,7 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
   }
 
   @override
-  Widget generateWidget() {
+  Widget build() {
     return isCompact? _buildCompact(): _buildExpanded();
   }
 
@@ -985,7 +983,7 @@ class _AdaptiveChoice extends _AdaptiveInput {
   }
 
   @override
-  Widget generateWidget() {
+  Widget build() {
     //TODO can facts be stand alone?
     throw StateError("The widget should be built by _AdaptiveFactSet");
   }
@@ -1066,7 +1064,7 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
 
 
   @override
-  Widget generateWidget() {
+  Widget build() {
     return RaisedButton(
       onPressed: onTapped,
       child: Row(
@@ -1110,7 +1108,7 @@ class _AdaptiveActionSubmit extends _AdaptiveAction {
   }
 
   @override
-  Widget generateWidget() {
+  Widget build() {
     return RaisedButton(
       onPressed: onTapped,
       child: Text(title),
@@ -1138,7 +1136,7 @@ class _AdaptiveActionOpenUrl extends _AdaptiveAction with _IconButtonMixin{
   }
 
   @override
-  Widget generateWidget() {
+  Widget build() {
     return getButton();
   }
 
