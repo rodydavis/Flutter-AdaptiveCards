@@ -758,7 +758,7 @@ abstract class _AdaptiveTextualInput extends _AdaptiveInput with _SeparatorEleme
     super.loadTree();
     loadSeparator();
     placeholder = adaptiveMap["placeholder"]?? "";
-    value = adaptiveMap["value"].toString()?? "";
+    value = adaptiveMap["value"].toString() == "null"? "": adaptiveMap["value"].toString();
 
   }
 
