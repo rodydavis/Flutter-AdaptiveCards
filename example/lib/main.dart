@@ -9,6 +9,7 @@ import 'package:example/container/container_examples_page.dart';
 import 'package:example/fact_set/fact_set_examples_page.dart';
 import 'package:example/image/image_examples_page.dart';
 import 'package:example/image_set/image_set_examples_page.dart';
+import 'package:example/inputs/input_number/input_number.dart';
 import 'package:example/inputs/input_text/input_text.dart';
 import 'package:example/text_block/text_block_examples_page.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
         "Action.Submit": (context) => ActionSubmitPage(),
         "Action.ShowCard": (context) => ActionShowCardPage(),
         "Input.Text": (context) => InputText(),
+        "Input.Number": (context) => InputNumber(),
       },
     );
   }
@@ -113,6 +115,11 @@ class _MyHomePageState extends State<MyHomePage> {
             Navigator.pushNamed(context, "Input.Text");
           },
             child: Text("Input.Text"),
+          ),
+          RaisedButton(onPressed: () {
+            Navigator.pushNamed(context, "Input.Number");
+          },
+            child: Text("Input.Number"),
           ),
         ],
       ),

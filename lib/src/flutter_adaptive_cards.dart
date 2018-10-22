@@ -526,13 +526,13 @@ class _AdaptiveFactSet extends _AdaptiveElement with _SeparatorElementMixin{
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
 
-  List<_AdaptiveFact> facts;
+  List<Map> facts;
 
 
   @override
   void loadTree() {
     super.loadTree();
-    facts = List<Map>.from(adaptiveMap["facts"]).map((child) => _AdaptiveFact(child, resolver, widgetState, idGenerator)).toList();
+    facts = List<Map>.from(adaptiveMap["facts"]).toList();
     loadSeparator();
   }
 
@@ -542,12 +542,12 @@ class _AdaptiveFactSet extends _AdaptiveElement with _SeparatorElementMixin{
         Row(
           children: [
             Column(
-              children: facts.map((fact) => Text(fact.title, style: TextStyle(fontWeight: FontWeight.bold),)).toList(),
+              children: facts.map((fact) => Text(fact["title"], style: TextStyle(fontWeight: FontWeight.bold),)).toList(),
               crossAxisAlignment: CrossAxisAlignment.start,
             ),
             SizedBox(width: 8.0,),
             Column(
-              children: facts.map((fact) => Text(fact.value)).toList(),
+              children: facts.map((fact) => Text(fact["value"])).toList(),
               crossAxisAlignment: CrossAxisAlignment.start,
             ),
           ],
@@ -559,35 +559,9 @@ class _AdaptiveFactSet extends _AdaptiveElement with _SeparatorElementMixin{
   @override
   void visitChildren(_AdaptiveElementVisitor visitor) {
     visitor(this);
-    facts.forEach((it) => it.visitChildren(visitor));
   }
-
-
 }
 
-class _AdaptiveFact extends _AdaptiveElement {
-  _AdaptiveFact(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
-      : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
-
-
-  String title;
-  String value;
-
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    title = adaptiveMap["title"];
-    value = adaptiveMap["value"];
-  }
-
-  @override
-  Widget generateWidget() {
-    //TODO can facts be stand alone?
-    throw StateError("The widget should be built by _AdaptiveFactSet");
-  }
-
-}
 
 
 class _AdaptiveImage extends _AdaptiveElement with _SeparatorElementMixin{
@@ -794,9 +768,6 @@ class _AdaptiveTextInput extends _AdaptiveInput {
     value = adaptiveMap["value"]?? "";
     style = loadTextInputType();
     controller.text = value;
-
-
-
   }
 
   @override
@@ -844,11 +815,19 @@ class _AdaptiveNumberInput extends _AdaptiveInput {
 
   TextEditingController controller = TextEditingController();
 
+
+  @override
+  void loadTree() {
+    super.loadTree();
+  }
+
   @override
   Widget generateWidget() {
-    return TextField(
-      keyboardType: TextInputType.number,
-      controller: controller,
+    return wrapInSeparator(
+        TextField(
+          keyboardType: TextInputType.number,
+          controller: controller,
+        )
     );
   }
 
