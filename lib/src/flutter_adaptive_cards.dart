@@ -733,23 +733,41 @@ class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin{
 
 /// Text input elements
 
-abstract class _AdaptiveInput extends _AdaptiveElement with _SeparatorElementMixin{
+abstract class _AdaptiveInput extends _AdaptiveElement {
   _AdaptiveInput({Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator})
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
 
   void appendInput(Map map);
 
+
+
+}
+
+abstract class _AdaptiveTextualInput extends _AdaptiveInput with _SeparatorElementMixin{
+  _AdaptiveTextualInput({Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator})
+      : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
+
+
+  String placeholder;
+  String value;
+
+
   @override
   void loadTree() {
     super.loadTree();
     loadSeparator();
+    placeholder = adaptiveMap["placeholder"]?? "";
+    value = adaptiveMap["value"].toString()?? "";
+
   }
 
 
 }
 
-class _AdaptiveTextInput extends _AdaptiveInput {
+
+
+class _AdaptiveTextInput extends _AdaptiveTextualInput {
   _AdaptiveTextInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
@@ -757,17 +775,13 @@ class _AdaptiveTextInput extends _AdaptiveInput {
   TextEditingController controller = TextEditingController();
   bool isMultiline;
   int maxLength;
-  String placeholder;
   TextInputType style;
-  String value;
 
   @override
   void loadTree() {
     super.loadTree();
     isMultiline = adaptiveMap["isMultiline"]?? false;
     maxLength = adaptiveMap["maxLength"];
-    placeholder = adaptiveMap["placeholder"]?? "";
-    value = adaptiveMap["value"]?? "";
     style = loadTextInputType();
     controller.text = value;
   }
@@ -809,34 +823,49 @@ class _AdaptiveTextInput extends _AdaptiveInput {
   }
 }
 
-class _AdaptiveNumberInput extends _AdaptiveInput {
+class _AdaptiveNumberInput extends _AdaptiveTextualInput {
   _AdaptiveNumberInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
   TextEditingController controller = TextEditingController();
 
+  int min;
+  int max;
 
   @override
   void loadTree() {
     super.loadTree();
+    controller.text = value;
+    min = adaptiveMap["min"];
+    max = adaptiveMap["max"];
   }
 
   @override
   Widget build() {
     return TextField(
       keyboardType: TextInputType.number,
+      inputFormatters: [TextInputFormatter.withFunction((oldVal, newVal) {
+        if(newVal.text == "") return newVal;
+        int newNumber = int.parse(newVal.text);
+        if(newNumber >= min && newNumber <= max) return newVal;
+        return oldVal;
+
+      })],
       controller: controller,
+      decoration: InputDecoration(
+        labelText: placeholder,
+      ),
     );
   }
 
   @override
   void appendInput(Map map) {
-    map[id] = controller.value;
+    map[id] = controller.text;
   }
 
 }
 
-class _AdaptiveDateInput extends _AdaptiveInput {
+class _AdaptiveDateInput extends _AdaptiveTextualInput {
   _AdaptiveDateInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
@@ -861,7 +890,7 @@ class _AdaptiveDateInput extends _AdaptiveInput {
 
 }
 
-class _AdaptiveTimeInput extends _AdaptiveInput {
+class _AdaptiveTimeInput extends _AdaptiveTextualInput {
   _AdaptiveTimeInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
