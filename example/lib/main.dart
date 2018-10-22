@@ -9,10 +9,11 @@ import 'package:example/container/container_examples_page.dart';
 import 'package:example/fact_set/fact_set_examples_page.dart';
 import 'package:example/image/image_examples_page.dart';
 import 'package:example/image_set/image_set_examples_page.dart';
+import 'package:example/inputs/input_text/input_text.dart';
 import 'package:example/text_block/text_block_examples_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
+import 'package:flutter_adaptive_cards/src/flutter_adaptive_cards.dart';
 
 void main() => runApp(new MyApp());
 
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         "Action.OpenUrl": (context) => ActionOpenUrlPage(),
         "Action.Submit": (context) => ActionSubmitPage(),
         "Action.ShowCard": (context) => ActionShowCardPage(),
+        "Input.Text": (context) => InputText(),
       },
     );
   }
@@ -106,6 +108,11 @@ class _MyHomePageState extends State<MyHomePage> {
             Navigator.pushNamed(context, "Action.ShowCard");
           },
             child: Text("Action.ShowCard"),
+          ),
+          RaisedButton(onPressed: () {
+            Navigator.pushNamed(context, "Input.Text");
+          },
+            child: Text("Input.Text"),
           ),
         ],
       ),

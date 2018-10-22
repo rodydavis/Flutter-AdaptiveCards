@@ -80,6 +80,8 @@ flutter:
     - lib/action_open_url/example2
     - lib/action_submit/example1
     - lib/action_show_card/example1
+    - lib/inputs/input_text/example1
+    - lib/inputs/input_text/example2
 
 
   # To add assets to your application, add an assets section, like this:
