@@ -34,6 +34,7 @@ class AdaptiveCardState extends State<AdaptiveCard> {
   // The root element
   _AdaptiveElement _adaptiveElement;
 
+  List<VoidCallback> deactivateListeners = [];
 
   @override
   void initState() {
@@ -49,6 +50,18 @@ class AdaptiveCardState extends State<AdaptiveCard> {
   void rebuild() {
     setState((){});
   }
+
+
+  void addDeactivateListener(VoidCallback callback) {
+    deactivateListeners.add(callback);
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+    deactivateListeners.forEach((it) => it());
+  }
+
 
   //TODO abstract these methods to an interface
   /// Submits all the inputs of this adaptive card, does it by recursively
@@ -157,6 +170,7 @@ abstract class _AdaptiveElement {
       id = idGenerator.getId();
     }
   }
+
 
   @mustCallSuper
   void loadTree() {
@@ -757,11 +771,14 @@ class _AdaptiveMedia extends _AdaptiveElement with _SeparatorElementMixin {
     controller.play();
     loadSeparator();
 
+    widgetState.addDeactivateListener(() {
+      controller.dispose();
+    });
+
   }
 
   @override
   Widget build() {
-
     final List<Widget> children = <Widget>[
       GestureDetector(
         child: controller.value.initialized? AspectRatio(
