@@ -757,13 +757,18 @@ class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin{
 
 /// Text input elements
 
-abstract class _AdaptiveInput extends _AdaptiveElement {
+abstract class _AdaptiveInput extends _AdaptiveElement with _SeparatorElementMixin{
   _AdaptiveInput({Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator})
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
 
   void appendInput(Map map);
 
+  @override
+  void loadTree() {
+    super.loadTree();
+    loadSeparator();
+  }
 
 
 }
@@ -777,20 +782,18 @@ class _AdaptiveTextInput extends _AdaptiveInput {
   bool isMultiline;
   int maxLength;
   String placeholder;
-  /// Can be one of the following:
-  /// - "text"
-  /// - "tel"
-  /// - "url"
-  /// - "email"
-  String style;
+  TextInputType style;
+  String value;
 
   @override
   void loadTree() {
     super.loadTree();
     isMultiline = adaptiveMap["isMultiline"]?? false;
-    maxLength = adaptiveMap["maxLength"]?? -1;
+    maxLength = adaptiveMap["maxLength"];
     placeholder = adaptiveMap["placeholder"]?? "";
-    style = adaptiveMap["style"]?? "text";
+    value = adaptiveMap["value"]?? "";
+    style = loadTextInputType();
+    controller.text = value;
 
 
 
@@ -798,8 +801,16 @@ class _AdaptiveTextInput extends _AdaptiveInput {
 
   @override
   Widget generateWidget() {
-    return TextField(
-      controller: controller,
+    return wrapInSeparator(
+        TextField(
+          controller: controller,
+          maxLength: maxLength,
+          keyboardType: style,
+          maxLines: isMultiline? null: 1,
+          decoration: InputDecoration(
+            labelText: placeholder,
+          ),
+        )
     );
   }
 
@@ -808,6 +819,23 @@ class _AdaptiveTextInput extends _AdaptiveInput {
     map[id] = controller.text;
   }
 
+
+  TextInputType loadTextInputType() {
+    /// Can be one of the following:
+    /// - "text"
+    /// - "tel"
+    /// - "url"
+    /// - "email"
+    String style = adaptiveMap["style"]?? "text";
+    switch(style) {
+      case "text": return TextInputType.text;
+      case "tel": return TextInputType.phone;
+      case "url": return TextInputType.url;
+      case "email": return TextInputType.emailAddress;
+      default: return null;
+    }
+
+  }
 }
 
 class _AdaptiveNumberInput extends _AdaptiveInput {
