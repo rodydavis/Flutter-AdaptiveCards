@@ -77,7 +77,7 @@ class AdaptiveCardState extends State<AdaptiveCard> {
   }
 
   void openUrl(String url) {
-    print("Open url: $url");
+    Scaffold.of(context).showSnackBar(SnackBar(content: Text("Open url: $url")));
   }
 
   /// min and max dates may be null, in this case no constraint is made in that direction
@@ -432,7 +432,6 @@ class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin,
 
   List<_AdaptiveElement> children;
 
-  _AdaptiveAction action;
 
   Color backgroundColor;
 
@@ -477,11 +476,12 @@ class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin,
 }
 
 
-class _AdaptiveColumnSet extends _AdaptiveElement {
+class _AdaptiveColumnSet extends _AdaptiveElement with _TappableElementMixin{
   _AdaptiveColumnSet(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
   List<_AdaptiveColumn> columns;
+
 
   @override
   void loadTree() {
@@ -490,15 +490,18 @@ class _AdaptiveColumnSet extends _AdaptiveElement {
     columns = List<Map>.from(adaptiveMap["columns"])
         .map((child) => _AdaptiveColumn(child, resolver, widgetState, idGenerator))
         .toList();
+    loadTappable();
 
   }
 
   @override
   Widget build() {
-   return Row(
-     children: columns.map((it) => Flexible(child: it.generateWidget())).toList(),
-     mainAxisAlignment: MainAxisAlignment.start,
-     crossAxisAlignment: CrossAxisAlignment.center,
+   return wrapInTappable(
+       Row(
+         children: columns.map((it) => Flexible(child: it.generateWidget())).toList(),
+         mainAxisAlignment: MainAxisAlignment.start,
+         crossAxisAlignment: CrossAxisAlignment.center,
+       )
    );
   }
 
@@ -506,6 +509,7 @@ class _AdaptiveColumnSet extends _AdaptiveElement {
   void visitChildren(_AdaptiveElementVisitor visitor) {
     visitor(this);
     columns.forEach((it) => it.visitChildren(visitor));
+    action.visitChildren(visitor);
   }
 
 
