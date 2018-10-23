@@ -80,9 +80,15 @@ class AdaptiveCardState extends State<AdaptiveCard> {
     print("Open url: $url");
   }
 
-  Future<DateTime> pickDate() {
+  /// min and max dates may be null, in this case no constraint is made in that direction
+  Future<DateTime> pickDate(DateTime min, DateTime max) {
     DateTime initialDate = DateTime.now();
-    return showDatePicker(context: context, initialDate: initialDate, firstDate: initialDate, lastDate: DateTime.now().add(Duration(days: 365)));
+    return showDatePicker(
+        context: context,
+        initialDate: initialDate,
+        firstDate: min?? DateTime.now().subtract(Duration(days: 10000)),
+        lastDate: max?? DateTime.now().add(Duration(days: 10000))
+    );
   }
 
   Future<TimeOfDay> pickTime() {
@@ -972,15 +978,29 @@ class _AdaptiveDateInput extends _AdaptiveTextualInput {
 
 
   DateTime selectedDateTime;
+  DateTime min;
+  DateTime max;
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    try {
+      selectedDateTime = DateTime.parse(value);
+      min = DateTime.parse(adaptiveMap["min"]);
+      max = DateTime.parse(adaptiveMap["max"]);
+    } catch(formatException) {
+
+    }
+  }
 
   @override
   Widget build() {
     return RaisedButton(
       onPressed: () async {
-        selectedDateTime = await widgetState.pickDate();
+        selectedDateTime = await widgetState.pickDate(min, max);
         widgetState.rebuild();
       },
-      child: Text(selectedDateTime == null ? "Pick a date" : selectedDateTime.toIso8601String()),
+      child: Text(selectedDateTime == null ? placeholder : selectedDateTime.toIso8601String()),
     );
   }
 

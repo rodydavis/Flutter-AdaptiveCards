@@ -9,6 +9,7 @@ import 'package:example/container/container_examples_page.dart';
 import 'package:example/fact_set/fact_set_examples_page.dart';
 import 'package:example/image/image_examples_page.dart';
 import 'package:example/image_set/image_set_examples_page.dart';
+import 'package:example/inputs/input_date/input_date.dart';
 import 'package:example/inputs/input_number/input_number.dart';
 import 'package:example/inputs/input_text/input_text.dart';
 import 'package:example/media/media.dart';
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
         "Input.Text": (context) => InputText(),
         "Input.Number": (context) => InputNumber(),
         "Media": (context) => MediaPage(),
+        "Input.Date": (context) => InputDatePage(),
       },
     );
   }
@@ -127,6 +129,11 @@ class _MyHomePageState extends State<MyHomePage> {
             Navigator.pushNamed(context, "Media");
           },
             child: Text("Media"),
+          ),
+          RaisedButton(onPressed: () {
+            Navigator.pushNamed(context, "Input.Date");
+          },
+            child: Text("Input.Date"),
           ),
         ],
       ),

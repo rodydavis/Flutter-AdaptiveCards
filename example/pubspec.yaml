@@ -83,6 +83,7 @@ flutter:
     - lib/inputs/input_text/example1
     - lib/inputs/input_text/example2
     - lib/inputs/input_number/example1
+    - lib/inputs/input_date/example1
     - lib/media/example1
 
 
