@@ -855,9 +855,16 @@ abstract class _AdaptiveInput extends _AdaptiveElement {
   _AdaptiveInput({Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator})
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
+  String value;
+
 
   void appendInput(Map map);
 
+  @override
+  void loadTree() {
+    super.loadTree();
+    value = adaptiveMap["value"].toString() == "null"? "": adaptiveMap["value"].toString();
+  }
 
 
 }
@@ -868,7 +875,6 @@ abstract class _AdaptiveTextualInput extends _AdaptiveInput with _SeparatorEleme
 
 
   String placeholder;
-  String value;
 
 
   @override
@@ -876,8 +882,6 @@ abstract class _AdaptiveTextualInput extends _AdaptiveInput with _SeparatorEleme
     super.loadTree();
     loadSeparator();
     placeholder = adaptiveMap["placeholder"]?? "";
-    value = adaptiveMap["value"].toString() == "null"? "": adaptiveMap["value"].toString();
-
   }
 
 
@@ -1078,14 +1082,26 @@ class _AdaptiveToggle extends _AdaptiveInput {
   _AdaptiveToggle(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
-  bool value = false;
+  bool boolValue = false;
+
+  String valueOff;
+  String valueOn;
+
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    valueOff = adaptiveMap["valueOff"]?? "false";
+    valueOn = adaptiveMap["valueOn"]?? "true";
+    boolValue = value == valueOn;
+  }
 
   @override
   Widget build() {
     return Switch(
-      value: value,
+      value: boolValue,
       onChanged: (newValue) {
-        value = newValue;
+        boolValue = newValue;
         widgetState.rebuild();
       },
     );
@@ -1093,7 +1109,7 @@ class _AdaptiveToggle extends _AdaptiveInput {
 
   @override
   void appendInput(Map map) {
-    map[id] = value;
+    map[id] = boolValue? valueOn: valueOff;
   }
 
 }
@@ -1103,19 +1119,24 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
 
-  List<_AdaptiveChoice> choices;
+  // Map from title to value
+  Map<String, String> choices;
 
-  _AdaptiveChoice _selectedChoice;
+  String _selectedChoice;
+
   @override
   void loadTree() {
     super.loadTree();
-    choices = List<Map>.from(adaptiveMap["choices"])
-        .map((child) => _AdaptiveChoice(child, resolver, widgetState, idGenerator)).toList();
+    choices = Map();
+    for(Map map in adaptiveMap["choices"]) {
+      choices[map["title"]] = map["value"];
+    }
+    //choices = List<Map>.from(adaptiveMap["choices"]);
   }
 
   @override
   void appendInput(Map map) {
-    map[id] = _selectedChoice.id;
+    map[id] = _selectedChoice;
   }
 
   @override
@@ -1124,9 +1145,9 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
   }
 
   Widget _buildCompact() {
-    return PopupMenuButton<_AdaptiveChoice>(itemBuilder: (BuildContext context) {
-      return choices.map((choice) => PopupMenuItem<_AdaptiveChoice>(
-          child: Text(choice.title),
+    return PopupMenuButton<Map>(itemBuilder: (BuildContext context) {
+      return choices.map((choice) => PopupMenuItem<Map>(
+          child: Text(choice[]),
       )).toList();
     },
     onSelected: (choice){
@@ -1146,45 +1167,10 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
     throw StateError("The style of the ChoiceSet needs to be either compact or expanded");
   }
 
-  @override
-  void visitChildren(_AdaptiveElementVisitor visitor) {
-    visitor(this);
-    choices.forEach((it) => it.visitChildren(visitor));
-  }
-
 
 }
 
-class _AdaptiveChoice extends _AdaptiveInput {
-  _AdaptiveChoice(Map adaptiveMap, _ReferenceResolver resolver, widgetState, _AtomicIdGenerator idGenerator)
-      : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
-
-  String title;
-  String value;
-
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    title = adaptiveMap["title"];
-    value = adaptiveMap["value"];
-  }
-
-  @override
-  Widget build() {
-    //TODO can facts be stand alone?
-    throw StateError("The widget should be built by _AdaptiveFactSet");
-  }
-
-  @override
-  void appendInput(Map map) {
-    // TODO: implement appendInput
-  }
-
-}
-
-
-
+///
 
 
 

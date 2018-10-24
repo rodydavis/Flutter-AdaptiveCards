@@ -85,6 +85,8 @@ flutter:
     - lib/inputs/input_number/example1
     - lib/inputs/input_date/example1
     - lib/inputs/input_time/example1
+    - lib/inputs/input_toggle/example1
+    - lib/inputs/input_choice_set/example1
     - lib/media/example1
 
 

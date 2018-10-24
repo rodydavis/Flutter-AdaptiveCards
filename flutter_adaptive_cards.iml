@@ -63,10 +63,12 @@
       <excludeFolder url="file://$MODULE_DIR$/example/lib/fact_set/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/image/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/image_set/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/example/lib/inputs/input_choice_set/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/inputs/input_date/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/inputs/input_number/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/inputs/input_text/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/inputs/input_time/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/example/lib/inputs/input_toggle/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/inputs/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/media/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/packages" />
