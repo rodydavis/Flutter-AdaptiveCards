@@ -12,6 +12,7 @@ import 'package:example/image_set/image_set_examples_page.dart';
 import 'package:example/inputs/input_date/input_date.dart';
 import 'package:example/inputs/input_number/input_number.dart';
 import 'package:example/inputs/input_text/input_text.dart';
+import 'package:example/inputs/input_time/input_time.dart';
 import 'package:example/media/media.dart';
 import 'package:example/text_block/text_block_examples_page.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
         "Input.Number": (context) => InputNumber(),
         "Media": (context) => MediaPage(),
         "Input.Date": (context) => InputDatePage(),
+        "Input.Time": (context) => InputTimePage(),
       },
     );
   }
@@ -134,6 +136,11 @@ class _MyHomePageState extends State<MyHomePage> {
             Navigator.pushNamed(context, "Input.Date");
           },
             child: Text("Input.Date"),
+          ),
+          RaisedButton(onPressed: () {
+            Navigator.pushNamed(context, "Input.Time");
+          },
+            child: Text("Input.Time"),
           ),
         ],
       ),

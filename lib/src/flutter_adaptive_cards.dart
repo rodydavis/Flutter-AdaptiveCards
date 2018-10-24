@@ -80,6 +80,10 @@ class AdaptiveCardState extends State<AdaptiveCard> {
     Scaffold.of(context).showSnackBar(SnackBar(content: Text("Open url: $url")));
   }
 
+  void showError(String message) {
+    Scaffold.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   /// min and max dates may be null, in this case no constraint is made in that direction
   Future<DateTime> pickDate(DateTime min, DateTime max) {
     DateTime initialDate = DateTime.now();
@@ -305,6 +309,9 @@ abstract class _SeparatorElementMixin extends _AdaptiveElement{
   }
 
 
+  // TODO potential bug, because this mixin overrites this method
+  // others might not be able to do so meaning only one mixing will generate its
+  // widget
   @override
   Widget generateWidget() {
     assert(separator != null, "Did you forget to call loadSeperator in this class?");
@@ -1021,15 +1028,42 @@ class _AdaptiveTimeInput extends _AdaptiveTextualInput {
 
 
   TimeOfDay selectedTime;
+  TimeOfDay min;
+  TimeOfDay max;
+
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    selectedTime = parseTime(value);
+    min = parseTime(adaptiveMap["min"]);
+    max = parseTime(adaptiveMap["max"]);
+  }
+
+  TimeOfDay parseTime(String time) {
+    List<String> times = time.split(":");
+    assert(times.length == 2, "Invalid TimeOfDay format");
+    return TimeOfDay(
+      hour: int.parse(times[0]),
+      minute: int.parse(times[1]),
+    );
+  }
 
   @override
   Widget build() {
     return RaisedButton(
       onPressed: () async {
-        selectedTime = await widgetState.pickTime();
-        widgetState.rebuild();
+        TimeOfDay result = await widgetState.pickTime();
+        //TODO compare times
+        if(result.hour >= min.hour && result.hour <= max.hour) {
+          widgetState.showError("Time must be after ${min.format(widgetState.context)}"
+              " and before ${max.format(widgetState.context)}");
+        } else {
+          selectedTime = result;
+          widgetState.rebuild();
+        }
       },
-      child: Text(selectedTime == null ? "Pick a date" : selectedTime.toString()),
+      child: Text(selectedTime == null ? placeholder : selectedTime.format(widgetState.context)),
     );
   }
 
