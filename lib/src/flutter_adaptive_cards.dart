@@ -1125,6 +1125,9 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
 
   String _selectedChoice;
 
+  bool isCompact;
+  bool isMultiSelect;
+
   @override
   void loadTree() {
     super.loadTree();
@@ -1132,7 +1135,8 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
     for(Map map in adaptiveMap["choices"]) {
       choices[map["title"]] = map["value"];
     }
-    //choices = List<Map>.from(adaptiveMap["choices"]);
+    isCompact = loadCompact();
+    isMultiSelect = adaptiveMap["isMultiSelect"]?? false;
   }
 
   @override
@@ -1145,9 +1149,10 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
     return isCompact? _buildCompact(): _buildExpanded();
   }
 
+  /// This is built when multiselect is false and com
   Widget _buildCompact() {
     return PopupMenuButton<String>(itemBuilder: (BuildContext context) {
-      return choices.values.map((choice) => PopupMenuItem<String>(
+      return choices.keys.map((choice) => PopupMenuItem<String>(
           child: Text(choice),
       )).toList();
     },
@@ -1158,10 +1163,17 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
   }
 
   Widget _buildExpanded() {
-
+    return Column(
+      children: choices.keys.map((key) {
+        return RadioListTile(value: key, groupValue: _selectedChoice, title: Text(key),onChanged: (it){
+          _selectedChoice = it;
+          widgetState.rebuild();
+        });
+      }).toList(),
+    );
   }
 
-  bool get isCompact {
+  bool loadCompact() {
     if(!adaptiveMap.containsKey("style")) return false;
     if(adaptiveMap["style"] == "compact") return true;
     if(adaptiveMap["style"] == "expanded") return false;
