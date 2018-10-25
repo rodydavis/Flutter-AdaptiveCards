@@ -16,6 +16,7 @@ import 'package:example/inputs/input_text/input_text.dart';
 import 'package:example/inputs/input_time/input_time.dart';
 import 'package:example/inputs/input_toggle/input_toggle.dart';
 import 'package:example/media/media.dart';
+import 'package:example/samples/samples.dart';
 import 'package:example/text_block/text_block_examples_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
       ),
       home: new MyHomePage(),
       routes: {
+        "Samples": (context) => SamplesPage(),
         "TextBlock": (context) => TextBlockPage(),
         "Image": (context) => ImagePage(),
         "Container": (context) => ContainerPage(),
@@ -71,6 +73,11 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: ListView(
         children: <Widget>[
+          RaisedButton(onPressed: () {
+            Navigator.pushNamed(context, "Samples");
+          },
+            child: Text("Samples"),
+          ),
           RaisedButton(onPressed: () {
             Navigator.pushNamed(context, "TextBlock");
           },

@@ -1039,12 +1039,13 @@ class _AdaptiveTimeInput extends _AdaptiveTextualInput {
   @override
   void loadTree() {
     super.loadTree();
-    selectedTime = parseTime(value);
-    min = parseTime(adaptiveMap["min"]);
-    max = parseTime(adaptiveMap["max"]);
+    selectedTime = parseTime(value)?? TimeOfDay.now();
+    min = parseTime(adaptiveMap["min"])?? TimeOfDay(minute: 0, hour: 0);
+    max = parseTime(adaptiveMap["max"])?? TimeOfDay(minute: 59, hour: 23);
   }
 
   TimeOfDay parseTime(String time) {
+    if(time == null) return null;
     List<String> times = time.split(":");
     assert(times.length == 2, "Invalid TimeOfDay format");
     return TimeOfDay(
@@ -1145,9 +1146,9 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
   }
 
   Widget _buildCompact() {
-    return PopupMenuButton<Map>(itemBuilder: (BuildContext context) {
-      return choices.map((choice) => PopupMenuItem<Map>(
-          child: Text(choice[]),
+    return PopupMenuButton<String>(itemBuilder: (BuildContext context) {
+      return choices.values.map((choice) => PopupMenuItem<String>(
+          child: Text(choice),
       )).toList();
     },
     onSelected: (choice){
@@ -1372,8 +1373,6 @@ _AdaptiveElement getElement(Map<String, dynamic> map, _ReferenceResolver resolve
       return _AdaptiveToggle(map, resolver, widgetState, idGenerator);
     case "Input.ChoiceSet":
       return _AdaptiveChoiceSet(map, resolver, widgetState, idGenerator);
-    case "Input.Choice":
-      return _AdaptiveChoice(map, resolver, widgetState, idGenerator);
   }
   throw StateError("Could not find: $stringType");
 }

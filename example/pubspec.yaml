@@ -88,6 +88,21 @@ flutter:
     - lib/inputs/input_toggle/example1
     - lib/inputs/input_choice_set/example1
     - lib/media/example1
+    - lib/samples/example1
+    - lib/samples/example2
+    - lib/samples/example3
+    - lib/samples/example4
+    - lib/samples/example5
+    - lib/samples/example6
+    - lib/samples/example7
+    - lib/samples/example8
+    - lib/samples/example9
+    - lib/samples/example10
+    - lib/samples/example11
+    - lib/samples/example12
+    - lib/samples/example13
+    - lib/samples/example14
+    - lib/samples/example15
 
 
 

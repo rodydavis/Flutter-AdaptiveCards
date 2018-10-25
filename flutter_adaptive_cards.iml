@@ -72,6 +72,7 @@
       <excludeFolder url="file://$MODULE_DIR$/example/lib/inputs/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/media/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/example/lib/samples/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/lib/text_block/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/test/packages" />
