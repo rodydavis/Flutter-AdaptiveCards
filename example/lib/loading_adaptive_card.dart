@@ -1,9 +1,7 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_cards/src/flutter_adaptive_cards.dart';
-
 
 class LoadingAdaptiveCard extends StatefulWidget {
 

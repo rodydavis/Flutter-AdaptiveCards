@@ -69,102 +69,61 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("Example"),
+        title: new Text("Flutter Adaptive Cards"),
       ),
       body: ListView(
+        padding: EdgeInsets.all(16.0),
         children: <Widget>[
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "Samples");
-          },
-            child: Text("Samples"),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: <Widget>[
+                  Text("Flutter - Adaptive Cards \nby Neohelden", style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.w600), textAlign: TextAlign.center,),
+                  SizedBox(height: 8.0,),
+                  Text("The animations are not part of the library, check out flutter_villains for that ", style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300), textAlign: TextAlign.center,),
+                ],
+              ),
+            ),
           ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "TextBlock");
-          },
-          child: Text("TextBlock"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "Image");
-          },
-            child: Text("Image"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "Container");
-          },
-            child: Text("Container"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "ColumnSet");
-          },
-            child: Text("ColumnSet"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "Column");
-          },
-            child: Text("Column"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "FactSet");
-          },
-            child: Text("FactSet"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "ImageSet");
-          },
-            child: Text("ImageSet"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "Action.OpenUrl");
-          },
-            child: Text("Action.OpenUrl"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "Action.Submit");
-          },
-            child: Text("Action.Submit"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "Action.ShowCard");
-          },
-            child: Text("Action.ShowCard"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "Input.Text");
-          },
-            child: Text("Input.Text"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "Input.Number");
-          },
-            child: Text("Input.Number"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "Media");
-          },
-            child: Text("Media"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "Input.Date");
-          },
-            child: Text("Input.Date"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "Input.Time");
-          },
-            child: Text("Input.Time"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "Input.Toggle");
-          },
-            child: Text("Input.Toggle"),
-          ),
-          RaisedButton(onPressed: () {
-            Navigator.pushNamed(context, "Input.ChoiceSet");
-          },
-            child: Text("Input.ChoiceSet"),
-          ),
+          getButton("Samples"),
+          getRow(["Image", "ImageSet"]),
+          getButton("Media"),
+          Divider(),
+          getRow(["Action.OpenUrl", "Action.Submit", "Action.ShowCard"]),
+          Divider(),
+          getButton("Container"),
+          getButton("FactSet"),
+          getButton("TextBlock"),
+          getRow(["Column", "ColumnSet"]),
+          Divider(),
+          getRow(["Input.Text", "Input.Number", "Input.Date"]),
+          getRow(["Input.Time", "Input.Toggle", "Input.ChoiceSet"]),
         ],
       ),
     );
+  }
+
+
+  Widget getRow(List<String> element) {
+    return Row(
+      children: element.map((it) => Expanded(child: getButton(it)),).toList(),
+    );
+  }
+
+  Widget getButton(String element) {
+    return Card(
+      child: InkWell(
+        onTap: () => pushNamed(element),
+        child: SizedBox(
+          height: 64.0,
+          child: Center(child: Text(element)),
+        )
+      ),
+    );
+  }
+
+  void pushNamed(String element) {
+    Navigator.pushNamed(context, element);
   }
 }
