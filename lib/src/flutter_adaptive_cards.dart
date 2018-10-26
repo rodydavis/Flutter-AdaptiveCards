@@ -1089,6 +1089,7 @@ class _AdaptiveToggle extends _AdaptiveInput {
   String valueOff;
   String valueOn;
 
+  String title;
 
   @override
   void loadTree() {
@@ -1096,16 +1097,24 @@ class _AdaptiveToggle extends _AdaptiveInput {
     valueOff = adaptiveMap["valueOff"]?? "false";
     valueOn = adaptiveMap["valueOn"]?? "true";
     boolValue = value == valueOn;
+    title = adaptiveMap["title"]?? "";
   }
 
   @override
   Widget build() {
-    return Switch(
-      value: boolValue,
-      onChanged: (newValue) {
-        boolValue = newValue;
-        widgetState.rebuild();
-      },
+    return Row(
+      children: <Widget>[
+        Switch(
+          value: boolValue,
+          onChanged: (newValue) {
+            boolValue = newValue;
+            widgetState.rebuild();
+          },
+        ),
+        Expanded(
+          child: Text(title),
+        ),
+      ],
     );
   }
 
