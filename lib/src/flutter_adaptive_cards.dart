@@ -291,9 +291,9 @@ class _AdaptiveCardElement extends _AdaptiveElement{
   @override
   void visitChildren(_AdaptiveElementVisitor visitor) {
     visitor(this);
-    children.forEach((it) => it.visitChildren(visitor));
-    allActions.forEach((it) => it.visitChildren(visitor));
-    showCardActions.forEach((it) => it.visitChildren(visitor));
+    children?.forEach((it) => it.visitChildren(visitor));
+    allActions?.forEach((it) => it.visitChildren(visitor));
+    showCardActions?.forEach((it) => it.visitChildren(visitor));
   }
 
 
@@ -476,8 +476,8 @@ class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin,
   @override
   void visitChildren(_AdaptiveElementVisitor visitor) {
     visitor(this);
-    children.forEach((it) => it.visitChildren(visitor));
-    action.visitChildren(visitor);
+    children?.forEach((it) => it.visitChildren(visitor));
+    action?.visitChildren(visitor);
   }
 
 
@@ -516,8 +516,8 @@ class _AdaptiveColumnSet extends _AdaptiveElement with _TappableElementMixin{
   @override
   void visitChildren(_AdaptiveElementVisitor visitor) {
     visitor(this);
-    columns.forEach((it) => it.visitChildren(visitor));
-    action.visitChildren(visitor);
+    columns?.forEach((it) => it.visitChildren(visitor));
+    action?.visitChildren(visitor);
   }
 
 
@@ -558,7 +558,7 @@ class _AdaptiveColumn extends _AdaptiveElement with _SeparatorElementMixin,
   @override
   void visitChildren(_AdaptiveElementVisitor visitor) {
     visitor(this);
-    items.forEach((it) => it.visitChildren(visitor));
+    items?.forEach((it) => it.visitChildren(visitor));
   }
 
 
@@ -598,10 +598,6 @@ class _AdaptiveFactSet extends _AdaptiveElement with _SeparatorElementMixin{
     );
   }
 
-  @override
-  void visitChildren(_AdaptiveElementVisitor visitor) {
-    visitor(this);
-  }
 }
 
 
@@ -750,7 +746,7 @@ class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin{
   @override
   void visitChildren(_AdaptiveElementVisitor visitor) {
     visitor(this);
-    images.forEach((it) => it.visitChildren(visitor));
+    images?.forEach((it) => it.visitChildren(visitor));
   }
 
 
@@ -786,7 +782,6 @@ class _AdaptiveMedia extends _AdaptiveElement with _SeparatorElementMixin {
       widgetState.rebuild();
     });
     controller.setVolume(1.0);
-    controller.play();
     loadSeparator();
 
     widgetState.addDeactivateListener(() {
