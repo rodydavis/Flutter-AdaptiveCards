@@ -12,8 +12,8 @@ class InputText extends StatelessWidget {
       ),
       body: ListView(
         children: <Widget>[
-          LoadingAdaptiveCard("lib/inputs/input_text/example1",),
-          LoadingAdaptiveCard("lib/inputs/input_text/example2",),
+          DemoAdaptiveCard("lib/inputs/input_text/example1",),
+          DemoAdaptiveCard("lib/inputs/input_text/example2",),
         ],
       ),
     );

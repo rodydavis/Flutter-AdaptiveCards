@@ -12,12 +12,12 @@ class ImagePage extends StatelessWidget {
       ),
       body: ListView(
         children: <Widget>[
-          LoadingAdaptiveCard("lib/image/example1",),
-          LoadingAdaptiveCard("lib/image/example2",),
-          LoadingAdaptiveCard("lib/image/example3",),
-          LoadingAdaptiveCard("lib/image/example4",),
-          LoadingAdaptiveCard("lib/image/example5",),
-          LoadingAdaptiveCard("lib/image/example6",),
+          DemoAdaptiveCard("lib/image/example1",),
+          DemoAdaptiveCard("lib/image/example2",),
+          DemoAdaptiveCard("lib/image/example3",),
+          DemoAdaptiveCard("lib/image/example4",),
+          DemoAdaptiveCard("lib/image/example5",),
+          DemoAdaptiveCard("lib/image/example6",),
         ],
       ),
     );

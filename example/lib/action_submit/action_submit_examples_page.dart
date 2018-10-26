@@ -12,7 +12,7 @@ class ActionSubmitPage extends StatelessWidget {
       ),
       body: ListView(
         children: <Widget>[
-          LoadingAdaptiveCard("lib/action_submit/example1",),
+          DemoAdaptiveCard("lib/action_submit/example1",),
         ],
       ),
     );

@@ -3,29 +3,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_cards/src/flutter_adaptive_cards.dart';
 
-class LoadingAdaptiveCard extends StatefulWidget {
+class DemoAdaptiveCard extends StatefulWidget {
 
   final String assetPath;
 
-  const LoadingAdaptiveCard(this.assetPath, {Key key}) : super(key: key);
+  const DemoAdaptiveCard(this.assetPath, {Key key}) : super(key: key);
 
 
 
   @override
-  _LoadingAdaptiveCardState createState() => new _LoadingAdaptiveCardState();
+  _DemoAdaptiveCardState createState() => new _DemoAdaptiveCardState();
 }
 
-class _LoadingAdaptiveCardState extends State<LoadingAdaptiveCard> with AutomaticKeepAliveClientMixin<LoadingAdaptiveCard>{
+class _DemoAdaptiveCardState extends State<DemoAdaptiveCard> with AutomaticKeepAliveClientMixin<DemoAdaptiveCard>{
 
 
   Map adaptiveMap;
   Map hostConfig;
 
+  String jsonFile;
 
   @override
   void initState() {
     super.initState();
     rootBundle.loadString(widget.assetPath).then((string) {
+      jsonFile = string;
       setState(() {
         adaptiveMap = json.decode(string);
       });
@@ -47,8 +49,33 @@ class _LoadingAdaptiveCardState extends State<LoadingAdaptiveCard> with Automati
     }
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: AdaptiveCard
-          .fromMap(adaptiveMap, hostConfig),
+      child: Column(
+        children: <Widget>[
+          AdaptiveCard
+              .fromMap(adaptiveMap, hostConfig),
+          FlatButton(
+            textColor: Colors.indigo,
+            onPressed: () {
+              showDialog(context: context, builder: (context) {
+                return AlertDialog(
+                  title: Text("JSON"),
+                  content: SingleChildScrollView(child: Text(jsonFile)),
+                  actions: <Widget>[
+                    Center(
+                      child: FlatButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text("Thanks"),
+                      ),
+                    )
+                  ],
+                  contentPadding: EdgeInsets.all(8.0),
+                );
+              });
+            },
+            child: Text("Show the JSON"),
+          ),
+        ],
+      ),
     );
   }
 

@@ -12,7 +12,7 @@ class MediaPage extends StatelessWidget {
       ),
       body: ListView(
         children: <Widget>[
-          LoadingAdaptiveCard("lib/media/example1",),
+          DemoAdaptiveCard("lib/media/example1",),
         ],
       ),
     );

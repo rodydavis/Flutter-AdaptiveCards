@@ -12,7 +12,7 @@ class InputChoiceSetPage extends StatelessWidget {
       ),
       body: ListView(
         children: <Widget>[
-          LoadingAdaptiveCard("lib/inputs/input_choice_set/example1",),
+          DemoAdaptiveCard("lib/inputs/input_choice_set/example1",),
         ],
       ),
     );

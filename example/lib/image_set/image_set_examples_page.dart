@@ -12,8 +12,8 @@ class ImageSetPage extends StatelessWidget {
       ),
       body: ListView(
         children: <Widget>[
-          LoadingAdaptiveCard("lib/image_set/example1",),
-          LoadingAdaptiveCard("lib/image_set/example2",),
+          DemoAdaptiveCard("lib/image_set/example1",),
+          DemoAdaptiveCard("lib/image_set/example2",),
         ],
       ),
     );

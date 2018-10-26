@@ -12,11 +12,11 @@ class ColumnPage extends StatelessWidget {
       ),
       body: ListView(
         children: <Widget>[
-          LoadingAdaptiveCard("lib/column/example1",),
-          LoadingAdaptiveCard("lib/column/example2",),
-          LoadingAdaptiveCard("lib/column/example3",),
-          LoadingAdaptiveCard("lib/column/example4",),
-          LoadingAdaptiveCard("lib/column/example5",),
+          DemoAdaptiveCard("lib/column/example1",),
+          DemoAdaptiveCard("lib/column/example2",),
+          DemoAdaptiveCard("lib/column/example3",),
+          DemoAdaptiveCard("lib/column/example4",),
+          DemoAdaptiveCard("lib/column/example5",),
         ],
       ),
     );

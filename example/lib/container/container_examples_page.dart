@@ -12,11 +12,11 @@ class ContainerPage extends StatelessWidget {
       ),
       body: ListView(
         children: <Widget>[
-          LoadingAdaptiveCard("lib/container/example1",),
-          LoadingAdaptiveCard("lib/container/example2",),
-          LoadingAdaptiveCard("lib/container/example3",),
-          LoadingAdaptiveCard("lib/container/example4",),
-          LoadingAdaptiveCard("lib/container/example5",),
+          DemoAdaptiveCard("lib/container/example1",),
+          DemoAdaptiveCard("lib/container/example2",),
+          DemoAdaptiveCard("lib/container/example3",),
+          DemoAdaptiveCard("lib/container/example4",),
+          DemoAdaptiveCard("lib/container/example5",),
         ],
       ),
     );

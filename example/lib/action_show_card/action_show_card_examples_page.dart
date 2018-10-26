@@ -12,7 +12,7 @@ class ActionShowCardPage extends StatelessWidget {
       ),
       body: ListView(
         children: <Widget>[
-          LoadingAdaptiveCard("lib/action_show_card/example1",),
+          DemoAdaptiveCard("lib/action_show_card/example1",),
         ],
       ),
     );

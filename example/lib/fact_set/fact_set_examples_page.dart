@@ -12,7 +12,7 @@ class FactSetPage extends StatelessWidget {
       ),
       body: ListView(
         children: <Widget>[
-          LoadingAdaptiveCard("lib/fact_set/example1",),
+          DemoAdaptiveCard("lib/fact_set/example1",),
         ],
       ),
     );
