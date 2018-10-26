@@ -1123,7 +1123,8 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
   // Map from title to value
   Map<String, String> choices;
 
-  String _selectedChoice;
+  // Contains the values (the things to send as request)
+  Set<String> _selectedChoice = Set();
 
   bool isCompact;
   bool isMultiSelect;
@@ -1137,6 +1138,7 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
     }
     isCompact = loadCompact();
     isMultiSelect = adaptiveMap["isMultiSelect"]?? false;
+    _selectedChoice.addAll(value.split(","));
   }
 
   @override
@@ -1146,31 +1148,40 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
 
   @override
   Widget build() {
-    return isCompact? _buildCompact(): _buildExpanded();
+    return isCompact? isMultiSelect? _buildExpanded(): _buildCompact(): _buildExpanded();
   }
 
-  /// This is built when multiselect is false and com
+  /// This is built when multiSelect is false and isCompact is true
   Widget _buildCompact() {
-    return PopupMenuButton<String>(itemBuilder: (BuildContext context) {
-      return choices.keys.map((choice) => PopupMenuItem<String>(
-          child: Text(choice),
-      )).toList();
-    },
-    onSelected: (choice){
-      _selectedChoice = choice;
-    },
+    return DropdownButton<String>(items: choices.keys.map((choice) => DropdownMenuItem<String>(
+      value: choices[choice],
+      child: Text(choice),
+    )).toList(),
+    onChanged: select,
+    value: _selectedChoice.single,
     );
   }
 
   Widget _buildExpanded() {
     return Column(
       children: choices.keys.map((key) {
-        return RadioListTile(value: key, groupValue: _selectedChoice, title: Text(key),onChanged: (it){
-          _selectedChoice = it;
-          widgetState.rebuild();
-        });
+        return RadioListTile<String>(value: choices[key], groupValue: _selectedChoice.contains(choices[key])? choices[key]: null, title: Text(key), onChanged: select);
       }).toList(),
     );
+  }
+
+  void select(String choice) {
+    if(!isMultiSelect) {
+      _selectedChoice.clear();
+      _selectedChoice.add(choice);
+    } else {
+      if(_selectedChoice.contains(choice)) {
+        _selectedChoice.remove(choice);
+      } else {
+        _selectedChoice.add(choice);
+      }
+    }
+    widgetState.rebuild();
   }
 
   bool loadCompact() {
@@ -1179,6 +1190,24 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
     if(adaptiveMap["style"] == "expanded") return false;
     throw StateError("The style of the ChoiceSet needs to be either compact or expanded");
   }
+
+
+}
+
+class InGroupBool<T> {
+  Set<T> group;
+  T value;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is InGroupBool &&
+              runtimeType == other.runtimeType &&
+              value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
 
 
 }
