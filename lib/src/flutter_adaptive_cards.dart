@@ -2,6 +2,7 @@ library flutter_adaptive_cards;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_cards/src/utils.dart';
@@ -1190,24 +1191,6 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
     if(adaptiveMap["style"] == "expanded") return false;
     throw StateError("The style of the ChoiceSet needs to be either compact or expanded");
   }
-
-
-}
-
-class InGroupBool<T> {
-  Set<T> group;
-  T value;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is InGroupBool &&
-              runtimeType == other.runtimeType &&
-              value == other.value;
-
-  @override
-  int get hashCode => value.hashCode;
-
 
 
 }
