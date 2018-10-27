@@ -83,8 +83,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     size: 50.0,
                   ),
                   Text("Flutter - Adaptive Cards \nby Neohelden", style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.w600), textAlign: TextAlign.center,),
-                  SizedBox(height: 8.0,),
-                  Text("The animations are not part of the library, check out flutter_villains for that ", style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300), textAlign: TextAlign.center,),
                 ],
               ),
             ),
