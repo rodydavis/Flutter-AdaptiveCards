@@ -760,6 +760,8 @@ class _AdaptiveMedia extends _AdaptiveElement with _SeparatorElementMixin {
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
 
+  VideoPlayerController controller;
+
   String sourceUrl;
   String postUrl;
   String altText;
@@ -775,17 +777,24 @@ class _AdaptiveMedia extends _AdaptiveElement with _SeparatorElementMixin {
     super.loadTree();
     postUrl = adaptiveMap["poster"];
     sourceUrl = adaptiveMap["sources"][0]["url"];
+    controller = VideoPlayerController.network(sourceUrl);
     loadSeparator();
 
+    widgetState.addDeactivateListener((){
+      controller.dispose();
+      controller = null;
+    });
   }
 
   @override
   Widget build() {
     return Chewie(
-      VideoPlayerController.network(sourceUrl),
+      controller,
       aspectRatio: 3 / 2,
       autoPlay: false,
       looping: true,
+      autoInitialize: true,
+      placeholder: postUrl != null? Center(child: Image.network(postUrl)): SizedBox(),
     );
   }
 
