@@ -9,6 +9,7 @@ import 'package:flutter_adaptive_cards/src/utils.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
 
 
 /// Main entry point to adaptive cards.
@@ -19,6 +20,7 @@ import 'package:video_player/video_player.dart';
 class AdaptiveCard extends StatefulWidget {
 
   AdaptiveCard.fromMap(this.map, this.hostConfig);
+
 
   final Map map;
   final Map hostConfig;
@@ -758,7 +760,6 @@ class _AdaptiveMedia extends _AdaptiveElement with _SeparatorElementMixin {
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
 
-  VideoPlayerController controller;
   String sourceUrl;
   String postUrl;
   String altText;
@@ -774,62 +775,17 @@ class _AdaptiveMedia extends _AdaptiveElement with _SeparatorElementMixin {
     super.loadTree();
     postUrl = adaptiveMap["poster"];
     sourceUrl = adaptiveMap["sources"][0]["url"];
-    controller = VideoPlayerController.network(sourceUrl);
-    controller.initialize().then((_){
-      widgetState.rebuild();
-    });
-    controller.addListener((){
-      widgetState.rebuild();
-    });
-    controller.setVolume(1.0);
     loadSeparator();
-
-    widgetState.addDeactivateListener(() {
-      controller.dispose();
-    });
 
   }
 
   @override
   Widget build() {
-    final List<Widget> children = <Widget>[
-      GestureDetector(
-        child: controller.value.initialized? AspectRatio(
-            child: VideoPlayer(controller),
-          aspectRatio: controller.value.aspectRatio,
-        ): Container(),
-        onTap: () {
-          if (!controller.value.initialized) {
-            return;
-          }
-          if (controller.value.isPlaying) {
-            imageFadeAnim =
-                FadeAnimation(child: const Icon(Icons.pause, size: 100.0));
-            controller.pause();
-          } else {
-            imageFadeAnim =
-                FadeAnimation(child: const Icon(Icons.play_arrow, size: 100.0));
-            controller.play();
-          }
-        },
-      ),
-      Align(
-        alignment: Alignment.bottomCenter,
-        child: VideoProgressIndicator(
-          controller,
-          allowScrubbing: true,
-        ),
-      ),
-      Center(child: imageFadeAnim),
-      Center(
-          child: controller.value.isBuffering
-              ? const CircularProgressIndicator()
-              : null),
-    ];
-
-    return Stack(
-      fit: StackFit.passthrough,
-      children: children,
+    return Chewie(
+      VideoPlayerController.network(sourceUrl),
+      aspectRatio: 3 / 2,
+      autoPlay: false,
+      looping: true,
     );
   }
 

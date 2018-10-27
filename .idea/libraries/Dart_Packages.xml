@@ -37,6 +37,13 @@
             </list>
           </value>
         </entry>
+        <entry key="chewie">
+          <value>
+            <list>
+              <option value="$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/chewie-0.8.0/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="collection">
           <value>
             <list>
@@ -209,6 +216,13 @@
           <value>
             <list>
               <option value="$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/node_preamble-1.4.4/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="open_iconic_flutter">
+          <value>
+            <list>
+              <option value="$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/open_iconic_flutter-0.3.0/lib" />
             </list>
           </value>
         </entry>
@@ -423,6 +437,7 @@
       <root url="file://$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/async-2.0.8/lib" />
       <root url="file://$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/boolean_selector-1.0.4/lib" />
       <root url="file://$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/charcode-1.1.2/lib" />
+      <root url="file://$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/chewie-0.8.0/lib" />
       <root url="file://$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/collection-1.14.11/lib" />
       <root url="file://$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/convert-2.0.2/lib" />
       <root url="file://$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/crypto-2.0.6/lib" />
@@ -446,6 +461,7 @@
       <root url="file://$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/mime-0.9.6+2/lib" />
       <root url="file://$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/multi_server_socket-1.0.2/lib" />
       <root url="file://$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/node_preamble-1.4.4/lib" />
+      <root url="file://$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/open_iconic_flutter-0.3.0/lib" />
       <root url="file://$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/package_config-1.0.5/lib" />
       <root url="file://$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/package_resolver-1.0.6/lib" />
       <root url="file://$USER_HOME$/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/path-1.6.2/lib" />
