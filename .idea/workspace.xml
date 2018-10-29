@@ -2,13 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="45ba069b-51a4-44d7-afd1-30822f91c9e3" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/example/pubspec.lock" afterPath="$PROJECT_DIR$/example/pubspec.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/flutter_adaptive_cards.iml" afterPath="$PROJECT_DIR$/flutter_adaptive_cards.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/src/flutter_adaptive_cards.dart" afterPath="$PROJECT_DIR$/lib/src/flutter_adaptive_cards.dart" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pubspec.lock" afterPath="$PROJECT_DIR$/pubspec.lock" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -24,8 +19,8 @@
       <file leaf-file-name="flutter_adaptive_cards.dart" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/src/flutter_adaptive_cards.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="250">
-              <caret line="333" column="2" lean-forward="false" selection-start-line="333" selection-start-column="2" selection-end-line="333" selection-end-column="2" />
+            <state relative-caret-position="511">
+              <caret line="1463" column="11" lean-forward="false" selection-start-line="1463" selection-start-column="11" selection-end-line="1463" selection-end-column="11" />
               <folding />
             </state>
           </provider>
@@ -66,8 +61,10 @@
     <findStrings>
       <find>Tuple</find>
       <find>Tupel</find>
-      <find>Column</find>
       <find>loadSeparator();</find>
+      <find>Column</find>
+      <find>_AdaptiveColumn</find>
+      <find>_A</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -659,7 +656,14 @@
       <option name="project" value="LOCAL" />
       <updated>1540459027182</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Fixed potential bug, updated documentation">
+      <created>1540831188250</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1540831188250</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -756,11 +760,12 @@
     <MESSAGE value="time element" />
     <MESSAGE value="started choice set" />
     <MESSAGE value="added samples, fixed stuff" />
-    <option name="LAST_COMMIT_MESSAGE" value="added samples, fixed stuff" />
+    <MESSAGE value="Fixed potential bug, updated documentation" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed potential bug, updated documentation" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="52" />
+      <option name="time" value="53" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -1115,8 +1120,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/src/flutter_adaptive_cards.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="250">
-          <caret line="333" column="2" lean-forward="false" selection-start-line="333" selection-start-column="2" selection-end-line="333" selection-end-column="2" />
+        <state relative-caret-position="511">
+          <caret line="1463" column="11" lean-forward="false" selection-start-line="1463" selection-start-column="11" selection-end-line="1463" selection-end-column="11" />
           <folding />
         </state>
       </provider>

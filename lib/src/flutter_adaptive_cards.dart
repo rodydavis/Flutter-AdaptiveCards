@@ -331,7 +331,7 @@ abstract class _SeparatorElementMixin extends _AdaptiveElement{
     topSpacing = resolver.resolveSpacing(adaptiveMap["spacing"]);
     separator = adaptiveMap["separator"]?? false;
   }
-  
+
   @override
   Widget generateWidget() {
     assert(separator != null, "Did you forget to call loadSeperator in this class?");
@@ -371,12 +371,24 @@ abstract class _TappableElementMixin extends _AdaptiveElement{
 
 }
 abstract class _ChildStylerMixin extends _AdaptiveElement{
+
+
+  String style;
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    style = adaptiveMap["style"];
+  }
+
+
   void styleChild() {
     // The container needs to set the style in every iteration
-    if(adaptiveMap.containsKey("style")) {
-      resolver.setContainerStyle(adaptiveMap["style"]);
+    if(style != null) {
+      resolver.setContainerStyle(style);
     }
   }
+
 }
 
 class _AdaptiveTextBlock extends _AdaptiveElement with _SeparatorElementMixin {
