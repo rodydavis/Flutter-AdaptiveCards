@@ -166,12 +166,31 @@ abstract class _AdaptiveElement {
 
 
 
-  /// Overwrite this method to return a Flutter widget. If this element has children, call their generateWidget instead of build.
+  /// This method should be implemented by the actual elements to return
+  /// their Flutter representation.
   Widget build();
 
-  /// The default implementation of generateWidget only calls build. But some classes (for example those with a separator) use this method to add
-  /// additional things into the tree.
-  /// This method always needs to call build() in some way or another.
+  /// Use this method to obtain the widget tree of the adaptive card.
+  ///
+  /// Easy mixin has the opportunity to add something to the widget hierarchy.
+  ///
+  /// An example:
+  /// @override
+  /// Widget generateWidget() {
+  ///  assert(separator != null, "Did you forget to call loadSeperator in this class?");
+  ///  return Column(
+  ///    children: <Widget>[
+  ///      separator? Divider(height: topSpacing,): SizedBox(height: topSpacing,),
+  ///      super.generateWidget(),
+  ///    ],
+  ///  );
+  ///}
+  ///
+  /// This works because each mixin calls [generateWidget] in its generateWidget
+  /// and adds the returned value into the widget tree. Eventually the base
+  /// implementation (this) will be called and the elementa actual build method is
+  /// included.
+  @mustCallSuper
   Widget generateWidget() {
     return build();
   }
@@ -306,22 +325,20 @@ abstract class _SeparatorElementMixin extends _AdaptiveElement{
   double topSpacing;
   bool separator;
 
-  void loadSeparator() {
+  @override
+  void loadTree() {
+    super.loadTree();
     topSpacing = resolver.resolveSpacing(adaptiveMap["spacing"]);
     separator = adaptiveMap["separator"]?? false;
   }
-
-
-  // TODO potential bug, because this mixin overrites this method
-  // others might not be able to do so meaning only one mixing will generate its
-  // widget
+  
   @override
   Widget generateWidget() {
     assert(separator != null, "Did you forget to call loadSeperator in this class?");
     return Column(
       children: <Widget>[
         separator? Divider(height: topSpacing,): SizedBox(height: topSpacing,),
-        build(),
+        super.generateWidget(),
       ],
     );
   }
@@ -333,7 +350,9 @@ abstract class _TappableElementMixin extends _AdaptiveElement{
 
   _AdaptiveAction action;
 
-  void loadTappable() {
+  @override
+  void loadTree() {
+    super.loadTree();
     if(adaptiveMap.containsKey("selectAction")) {
       action = getAction(adaptiveMap["selectAction"],
           resolver, widgetState, null, idGenerator);
@@ -341,12 +360,15 @@ abstract class _TappableElementMixin extends _AdaptiveElement{
     }
   }
 
-  Widget wrapInTappable(Widget child) {
+  @override
+  Widget generateWidget() {
     return InkWell(
       onTap: action?.onTapped,
-      child: child,
+      child: super.generateWidget(),
     );
   }
+
+
 }
 abstract class _ChildStylerMixin extends _AdaptiveElement{
   void styleChild() {
@@ -378,7 +400,7 @@ class _AdaptiveTextBlock extends _AdaptiveElement with _SeparatorElementMixin {
     horizontalAlignment = loadAlignment();
     maxLines = loadMaxLines();
     markdownStyleSheet = loadMarkdownStyleSheet();
-    loadSeparator();
+    
   }
 
   // TODO create own widget that parses _basic_ markdown. This might help: https://docs.flutter.io/flutter/widgets/Wrap-class.html
@@ -457,10 +479,6 @@ class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin,
     String colorString = resolver.hostConfig["containerStyles"]
     [adaptiveMap["style"]?? "default"]["backgroundColor"];
     backgroundColor = _parseColor(colorString);
-
-    loadSeparator();
-    loadTappable();
-
   }
 
   Widget build() {
@@ -468,9 +486,9 @@ class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin,
       color: backgroundColor,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: wrapInTappable(Column(
+        child: Column(
           children: children.map((it) => it.generateWidget()).toList(),
-        )),
+        ),
       ),
     );
   }
@@ -500,18 +518,14 @@ class _AdaptiveColumnSet extends _AdaptiveElement with _TappableElementMixin{
     columns = List<Map>.from(adaptiveMap["columns"])
         .map((child) => _AdaptiveColumn(child, resolver, widgetState, idGenerator))
         .toList();
-    loadTappable();
-
   }
 
   @override
   Widget build() {
-   return wrapInTappable(
-       Row(
-         children: columns.map((it) => Flexible(child: it.generateWidget())).toList(),
-         mainAxisAlignment: MainAxisAlignment.start,
-         crossAxisAlignment: CrossAxisAlignment.center,
-       )
+   return Row(
+     children: columns.map((it) => Flexible(child: it.generateWidget())).toList(),
+     mainAxisAlignment: MainAxisAlignment.start,
+     crossAxisAlignment: CrossAxisAlignment.center,
    );
   }
 
@@ -543,17 +557,13 @@ class _AdaptiveColumn extends _AdaptiveElement with _SeparatorElementMixin,
       styleChild();
       return getElement(child, resolver, widgetState, idGenerator);
     }).toList();
-    loadSeparator();
-    loadTappable();
   }
 
   @override
   Widget build() {
-    return wrapInTappable(
-        Column(
-          children: items.map((it) => it.generateWidget()).toList(),
-          crossAxisAlignment: CrossAxisAlignment.start,
-        )
+    return Column(
+      children: items.map((it) => it.generateWidget()).toList(),
+      crossAxisAlignment: CrossAxisAlignment.start,
     );
   }
 
@@ -579,7 +589,7 @@ class _AdaptiveFactSet extends _AdaptiveElement with _SeparatorElementMixin{
   void loadTree() {
     super.loadTree();
     facts = List<Map>.from(adaptiveMap["facts"]).toList();
-    loadSeparator();
+    
   }
 
   @override
@@ -620,7 +630,7 @@ class _AdaptiveImage extends _AdaptiveElement with _SeparatorElementMixin{
     horizontalAlignment = loadAlignment();
     isPerson = loadIsPerson();
     size = loadSize();
-    loadSeparator();
+    
   }
 
   @override
@@ -703,7 +713,7 @@ class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin{
         .map((child) => _AdaptiveImage(child, resolver, widgetState, idGenerator)).toList();
 
     loadSize();
-    loadSeparator();
+    
 
   }
 
@@ -778,7 +788,7 @@ class _AdaptiveMedia extends _AdaptiveElement with _SeparatorElementMixin {
     postUrl = adaptiveMap["poster"];
     sourceUrl = adaptiveMap["sources"][0]["url"];
     controller = VideoPlayerController.network(sourceUrl);
-    loadSeparator();
+    
 
     widgetState.addDeactivateListener((){
       controller.dispose();
@@ -818,7 +828,6 @@ abstract class _AdaptiveInput extends _AdaptiveElement {
 
   String value;
 
-
   void appendInput(Map map);
 
   @override
@@ -836,12 +845,9 @@ abstract class _AdaptiveTextualInput extends _AdaptiveInput with _SeparatorEleme
 
 
   String placeholder;
-
-
   @override
   void loadTree() {
     super.loadTree();
-    loadSeparator();
     placeholder = adaptiveMap["placeholder"]?? "";
   }
 
