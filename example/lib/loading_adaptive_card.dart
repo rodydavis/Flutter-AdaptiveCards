@@ -51,7 +51,7 @@ class _DemoAdaptiveCardState extends State<DemoAdaptiveCard> with AutomaticKeepA
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: <Widget>[
-          AdaptiveCard
+          RawAdaptiveCard
               .fromMap(adaptiveMap, hostConfig),
           FlatButton(
             textColor: Colors.indigo,

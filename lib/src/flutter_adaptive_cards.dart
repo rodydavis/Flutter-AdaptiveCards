@@ -10,6 +10,141 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
+import 'package:http/http.dart' as http;
+
+
+abstract class AdaptiveCardContentProvider {
+
+  AdaptiveCardContentProvider({@required this.hostConfigPath});
+
+  final String hostConfigPath;
+
+
+  Future<Map> loadHostConfig() async {
+    String hostConfigString = await rootBundle.loadString(hostConfigPath);
+    return json.decode(hostConfigString);
+  }
+
+  Future<Map> loadAdaptiveCardContent();
+
+}
+
+class MemoryAdaptiveCardContentProvider extends AdaptiveCardContentProvider{
+
+  MemoryAdaptiveCardContentProvider({@required this.content, @required String hostConfigPath}): super(hostConfigPath: hostConfigPath);
+
+  String content;
+
+  @override
+  Future<Map> loadAdaptiveCardContent() {
+    return json.decode(content);
+  }
+
+}
+
+class AssetAdaptiveCardContentProvider extends AdaptiveCardContentProvider{
+
+  AssetAdaptiveCardContentProvider({@required this.path, @required String hostConfigPath}): super(hostConfigPath: hostConfigPath);
+
+  String path;
+
+  @override
+  Future<Map> loadAdaptiveCardContent() async {
+    return json.decode(await rootBundle.loadString(path));
+  }
+
+}
+
+class NetworkAdaptiveCardContentProvider extends AdaptiveCardContentProvider{
+
+  NetworkAdaptiveCardContentProvider({@required this.url, @required String hostConfigPath}): super(hostConfigPath: hostConfigPath);
+
+  String url;
+
+  @override
+  Future<Map> loadAdaptiveCardContent() async {
+    return json.decode((await http.get(url)).body);
+  }
+
+}
+
+
+class AdaptiveCard extends StatefulWidget {
+
+
+  AdaptiveCard({Key key, @required this.adaptiveCardContentProvider, this.placeholder}) : super(key: key);
+
+
+  AdaptiveCard.network({
+    Key key,
+    this.placeholder,
+    String url,
+    String hostConfigPath,
+  })
+  : adaptiveCardContentProvider = NetworkAdaptiveCardContentProvider(url: url, hostConfigPath: hostConfigPath);
+
+  AdaptiveCard.asset({
+    Key key,
+    this.placeholder,
+    String assetPath,
+    String hostConfigPath,
+  }) : adaptiveCardContentProvider = AssetAdaptiveCardContentProvider(path: assetPath, hostConfigPath: hostConfigPath);
+
+  AdaptiveCard.memory({
+    Key key,
+    this.placeholder,
+    String content,
+    String hostConfigPath,
+  }) : adaptiveCardContentProvider = MemoryAdaptiveCardContentProvider(content: content, hostConfigPath: hostConfigPath);
+
+  final AdaptiveCardContentProvider adaptiveCardContentProvider;
+
+  final Widget placeholder;
+
+
+  @override
+  _AdaptiveCardState createState() => new _AdaptiveCardState();
+}
+
+class _AdaptiveCardState extends State<AdaptiveCard> {
+
+  Map map;
+  Map hostConfig;
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget.adaptiveCardContentProvider.loadHostConfig().then((hostConfigMap) {
+      setState(() {
+        hostConfig = hostConfigMap;
+      });
+    });
+    widget.adaptiveCardContentProvider.loadAdaptiveCardContent().then((adaptiveMap) {
+      setState(() {
+        map = adaptiveMap;
+      });
+    });
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    if(map == null || hostConfig == null) {
+      return widget.placeholder?? SizedBox();
+    }
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: RawAdaptiveCard.fromMap(map, hostConfig),
+    );
+  }
+
+}
+
+
+
 
 
 /// Main entry point to adaptive cards.
@@ -17,19 +152,21 @@ import 'package:chewie/chewie.dart';
 /// This widget takes a [map] (which usually is just a json decoded string) and
 /// displays in natively. Additionally a host config needs to be provided for
 /// styling.
-class AdaptiveCard extends StatefulWidget {
+class RawAdaptiveCard extends StatefulWidget {
 
-  AdaptiveCard.fromMap(this.map, this.hostConfig);
+  RawAdaptiveCard.fromMap(this.map, this.hostConfig);
 
 
   final Map map;
   final Map hostConfig;
 
   @override
-  AdaptiveCardState createState() => AdaptiveCardState();
+  RawAdaptiveCardState createState() => RawAdaptiveCardState();
 }
 
-class AdaptiveCardState extends State<AdaptiveCard> {
+
+
+class RawAdaptiveCardState extends State<RawAdaptiveCard> {
 
   // Wrapper around the host config
   _ReferenceResolver _referenceResolver;
@@ -162,7 +299,7 @@ abstract class _AdaptiveElement {
   // TODO abstract
   /// Because some widgets (looking at you ShowCardAction) need to set the state
   /// all elements get a way to set the state.
-  final AdaptiveCardState widgetState;
+  final RawAdaptiveCardState widgetState;
 
 
 
@@ -487,7 +624,7 @@ class _AdaptiveContainer extends _AdaptiveElement with _SeparatorElementMixin,
 
 
 class _AdaptiveColumnSet extends _AdaptiveElement with _TappableElementMixin{
-  _AdaptiveColumnSet(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+  _AdaptiveColumnSet(Map adaptiveMap, _ReferenceResolver resolver, RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
   List<_AdaptiveColumn> columns;
@@ -527,7 +664,7 @@ class _AdaptiveColumnSet extends _AdaptiveElement with _TappableElementMixin{
 
 class _AdaptiveColumn extends _AdaptiveElement with _SeparatorElementMixin,
     _TappableElementMixin, _ChildStylerMixin{
-  _AdaptiveColumn(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+  _AdaptiveColumn(Map adaptiveMap, _ReferenceResolver resolver, RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
 
@@ -568,7 +705,7 @@ class _AdaptiveColumn extends _AdaptiveElement with _SeparatorElementMixin,
 
 
 class _AdaptiveFactSet extends _AdaptiveElement with _SeparatorElementMixin{
-  _AdaptiveFactSet(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+  _AdaptiveFactSet(Map adaptiveMap, _ReferenceResolver resolver, RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
 
@@ -605,7 +742,7 @@ class _AdaptiveFactSet extends _AdaptiveElement with _SeparatorElementMixin{
 
 
 class _AdaptiveImage extends _AdaptiveElement with _SeparatorElementMixin{
-  _AdaptiveImage(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+  _AdaptiveImage(Map adaptiveMap, _ReferenceResolver resolver, RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
 
@@ -687,7 +824,7 @@ class _AdaptiveImage extends _AdaptiveElement with _SeparatorElementMixin{
 }
 
 class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin{
-  _AdaptiveImageSet(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+  _AdaptiveImageSet(Map adaptiveMap, _ReferenceResolver resolver, RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
   List<_AdaptiveImage> images;
@@ -756,7 +893,7 @@ class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin{
 
 
 class _AdaptiveMedia extends _AdaptiveElement with _SeparatorElementMixin {
-  _AdaptiveMedia(Map adaptiveMap, _ReferenceResolver resolver, AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+  _AdaptiveMedia(Map adaptiveMap, _ReferenceResolver resolver, RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
       : super(adaptiveMap: adaptiveMap, resolver: resolver, widgetState: widgetState, idGenerator: idGenerator);
 
 
@@ -1333,7 +1470,7 @@ class _AdaptiveActionOpenUrl extends _AdaptiveAction with _IconButtonMixin{
 ///
 /// It looks at the [type] property and decides which object to construct
 _AdaptiveElement getElement(Map<String, dynamic> map, _ReferenceResolver resolver,
-    AdaptiveCardState widgetState, _AtomicIdGenerator idGenerator) {
+    RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator) {
 
   String stringType = map["type"];
 
@@ -1371,7 +1508,7 @@ _AdaptiveElement getElement(Map<String, dynamic> map, _ReferenceResolver resolve
 }
 
 _AdaptiveAction getAction(Map<String, dynamic> map, _ReferenceResolver resolver,
-    AdaptiveCardState widgetState, _AdaptiveCardElement adaptiveCardElement, _AtomicIdGenerator idGenerator) {
+    RawAdaptiveCardState widgetState, _AdaptiveCardElement adaptiveCardElement, _AtomicIdGenerator idGenerator) {
 
   String stringType = map["type"];
 
