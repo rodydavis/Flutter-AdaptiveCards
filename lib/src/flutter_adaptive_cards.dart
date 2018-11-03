@@ -78,23 +78,23 @@ class AdaptiveCard extends StatefulWidget {
   AdaptiveCard.network({
     Key key,
     this.placeholder,
-    String url,
-    String hostConfigPath,
+    @required String url,
+    @required String hostConfigPath,
   })
   : adaptiveCardContentProvider = NetworkAdaptiveCardContentProvider(url: url, hostConfigPath: hostConfigPath);
 
   AdaptiveCard.asset({
     Key key,
     this.placeholder,
-    String assetPath,
-    String hostConfigPath,
+    @required String assetPath,
+    @required String hostConfigPath,
   }) : adaptiveCardContentProvider = AssetAdaptiveCardContentProvider(path: assetPath, hostConfigPath: hostConfigPath);
 
   AdaptiveCard.memory({
     Key key,
     this.placeholder,
-    String content,
-    String hostConfigPath,
+    @required String content,
+    @required String hostConfigPath,
   }) : adaptiveCardContentProvider = MemoryAdaptiveCardContentProvider(content: content, hostConfigPath: hostConfigPath);
 
   final AdaptiveCardContentProvider adaptiveCardContentProvider;

@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="45ba069b-51a4-44d7-afd1-30822f91c9e3" name="Default" comment="removed text from main">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/lib/loading_adaptive_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/lib/loading_adaptive_card.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/flutter_adaptive_cards.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/flutter_adaptive_cards.dart" afterDir="false" />
+    <list default="true" id="45ba069b-51a4-44d7-afd1-30822f91c9e3" name="Default" comment="added nice constructor methods">
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,8 +17,8 @@
       <file leaf-file-name="flutter_adaptive_cards.dart" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/src/flutter_adaptive_cards.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="95" column="19" lean-forward="true" selection-start-line="95" selection-start-column="19" selection-end-line="95" selection-end-column="19" />
+            <state relative-caret-position="1888">
+              <caret line="118" column="78" lean-forward="true" selection-start-line="118" selection-start-column="78" selection-end-line="118" selection-end-column="78" />
               <folding>
                 <element signature="e#33#53#0" expanded="true" />
               </folding>
@@ -243,7 +241,7 @@
     <property name="aspect.path.notification.shown" value="true" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="flutter.settings" />
     <property name="show.migrate.to.gradle.popup" value="false" />
   </component>
   <component name="RecentsManager">
@@ -504,7 +502,7 @@
       <workItem from="1540637171754" duration="1661000" />
       <workItem from="1540716123586" duration="21000" />
       <workItem from="1540809440801" duration="608000" />
-      <workItem from="1541252318493" duration="1222000" />
+      <workItem from="1541252318493" duration="1308000" />
     </task>
     <task id="LOCAL-00001" summary="made the states work">
       <created>1538758081046</created>
@@ -758,15 +756,21 @@
       <option name="project" value="LOCAL" />
       <updated>1540638293886</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="added nice constructor methods">
+      <created>1541253562437</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1541253562437</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="61856000" />
+    <option name="totallyTimeSpent" value="61942000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
@@ -846,7 +850,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="added the icon to the Action.OpenUrl" />
     <MESSAGE value="added visitor, submit button works now" />
     <MESSAGE value="made constructor named and extends the mixins from _AdaptiveElement" />
     <MESSAGE value="added show card example" />
@@ -871,7 +874,8 @@
     <MESSAGE value="added chewie for media playback" />
     <MESSAGE value="fully implemented media source" />
     <MESSAGE value="removed text from main" />
-    <option name="LAST_COMMIT_MESSAGE" value="removed text from main" />
+    <MESSAGE value="added nice constructor methods" />
+    <option name="LAST_COMMIT_MESSAGE" value="added nice constructor methods" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1232,8 +1236,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/src/flutter_adaptive_cards.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="95" column="19" lean-forward="true" selection-start-line="95" selection-start-column="19" selection-end-line="95" selection-end-column="19" />
+        <state relative-caret-position="1888">
+          <caret line="118" column="78" lean-forward="true" selection-start-line="118" selection-start-column="78" selection-end-line="118" selection-end-column="78" />
           <folding>
             <element signature="e#33#53#0" expanded="true" />
           </folding>
