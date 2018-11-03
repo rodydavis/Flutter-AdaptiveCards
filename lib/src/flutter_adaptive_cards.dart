@@ -33,11 +33,11 @@ class MemoryAdaptiveCardContentProvider extends AdaptiveCardContentProvider{
 
   MemoryAdaptiveCardContentProvider({@required this.content, @required String hostConfigPath}): super(hostConfigPath: hostConfigPath);
 
-  String content;
+  Map content;
 
   @override
   Future<Map> loadAdaptiveCardContent() {
-    return json.decode(content);
+    return Future.value(content);
   }
 
 }
@@ -93,7 +93,7 @@ class AdaptiveCard extends StatefulWidget {
   AdaptiveCard.memory({
     Key key,
     this.placeholder,
-    @required String content,
+    @required Map content,
     @required String hostConfigPath,
   }) : adaptiveCardContentProvider = MemoryAdaptiveCardContentProvider(content: content, hostConfigPath: hostConfigPath);
 
@@ -1259,7 +1259,7 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
     super.loadTree();
     choices = Map();
     for(Map map in adaptiveMap["choices"]) {
-      choices[map["title"]] = map["value"];
+      choices[map["title"]] = map["value"].toString();
     }
     isCompact = loadCompact();
     isMultiSelect = adaptiveMap["isMultiSelect"]?? false;
