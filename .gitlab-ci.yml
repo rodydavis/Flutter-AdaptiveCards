@@ -1,0 +1,11 @@
+variables:
+  GIT_STRATEGY: clone
+
+docker:
+  stage: build
+  script:
+    - cd example
+    - flutter channel beta
+    - flutter build apk --release
+  only: [branches]
+  tags: [mac]
