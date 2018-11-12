@@ -3,6 +3,8 @@ variables:
 
 docker:
   stage: build
+  before_script:
+    - source ~/.bashrc
   script:
     - cd example
     - flutter channel beta
