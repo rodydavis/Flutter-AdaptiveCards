@@ -457,7 +457,7 @@ class _AdaptiveCardElement extends _AdaptiveElement{
 
 }
 
-abstract class _SeparatorElementMixin extends _AdaptiveElement{
+mixin _SeparatorElementMixin on _AdaptiveElement{
 
   double topSpacing;
   bool separator;
@@ -483,7 +483,7 @@ abstract class _SeparatorElementMixin extends _AdaptiveElement{
 
 }
 
-abstract class _TappableElementMixin extends _AdaptiveElement{
+mixin _TappableElementMixin on _AdaptiveElement{
 
   _AdaptiveAction action;
 
@@ -507,7 +507,7 @@ abstract class _TappableElementMixin extends _AdaptiveElement{
 
 
 }
-abstract class _ChildStylerMixin extends _AdaptiveElement{
+mixin _ChildStylerMixin on _AdaptiveElement{
 
 
   String style;
@@ -1325,7 +1325,7 @@ class _AdaptiveChoiceSet extends _AdaptiveInput {
 
 
 
-abstract class _IconButtonMixin extends _AdaptiveAction {
+mixin _IconButtonMixin on _AdaptiveAction {
 
   String iconUrl;
 
