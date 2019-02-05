@@ -13,12 +13,17 @@ dependencies:
 
   uuid: ^1.0.3
   chewie: 0.8.0
+  http: ^0.11.3+16
+
 
   flutter_markdown: ^0.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  test: ^1.5.1
+
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec

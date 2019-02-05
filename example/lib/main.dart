@@ -21,8 +21,12 @@ import 'package:example/text_block/text_block_examples_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_cards/src/flutter_adaptive_cards.dart';
-
-void main() => runApp(new MyApp());
+import 'package:flutter/foundation.dart'
+    show debugDefaultTargetPlatformOverride;
+void main() {
+  debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+  runApp(new MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override

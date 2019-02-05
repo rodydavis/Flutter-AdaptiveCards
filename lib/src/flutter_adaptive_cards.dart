@@ -1556,7 +1556,8 @@ class _ReferenceResolver {
   String _currentStyle;
 
   dynamic resolve(String key, String value) {
-    return hostConfig[key][value];
+    // Make it case insensitive
+    return hostConfig[key][value.toLowerCase()];
   }
 
   dynamic get(String key) {
@@ -1586,7 +1587,8 @@ class _ReferenceResolver {
     String myColor = color?? "default";
     String subtleOrDefault = isSubtle ?? false? "subtle" : "default";
     _currentStyle = _currentStyle ?? "default";
-    String colorValue = hostConfig["containerStyles"][_currentStyle]["foregroundColors"][myColor][subtleOrDefault];
+    // Make it case insensitive
+    String colorValue = hostConfig["containerStyles"][_currentStyle]["foregroundColors"][myColor.toLowerCase()][subtleOrDefault];
     return _parseColor(colorValue);
   }
 
