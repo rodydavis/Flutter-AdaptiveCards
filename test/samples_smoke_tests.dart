@@ -6,11 +6,14 @@ import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  // Deliver actual images
   setUp(() {
     HttpOverrides.global = MyTestHttpOverrides();
   });
+
+
   for(int i = 1; i <= 15; i++) {
-    testWidgets('sample$i', (tester) async {
+    testWidgets('sample$i smoke test', (tester) async {
       final binding = tester.binding as AutomatedTestWidgetsFlutterBinding;
       binding.addTime(Duration(seconds: 10));
       Widget widget = getWidget('example$i', 'host_config');
@@ -20,6 +23,7 @@ void main() {
 }
 
 class MyTestHttpOverrides extends HttpOverrides{
+
 }
 
 Widget getWidget(String path, String hostConfigPath){

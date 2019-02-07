@@ -58,3 +58,5 @@ class _FadeAnimationState extends State<FadeAnimation>
         : Container();
   }
 }
+
+String firstCharacterToLowerCase(String s) => s.isNotEmpty? s[0].toLowerCase() + s.substring(1): "";
