@@ -3,17 +3,12 @@ library flutter_adaptive_cards;
 import 'dart:async';
 import 'package:uuid/uuid.dart';
 import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_cards/src/elements/actions.dart';
 import 'package:flutter_adaptive_cards/src/elements/basics.dart';
 import 'package:flutter_adaptive_cards/src/elements/input.dart';
 import 'package:flutter_adaptive_cards/src/utils.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:uuid/uuid.dart';
-import 'package:video_player/video_player.dart';
-import 'package:chewie/chewie.dart';
 import 'package:http/http.dart' as http;
 
 abstract class AdaptiveCardContentProvider {
@@ -146,6 +141,8 @@ class _AdaptiveCardState extends State<AdaptiveCard> {
   }
 }
 
+
+
 /// Main entry point to adaptive cards.
 ///
 /// This widget takes a [map] (which usually is just a json decoded string) and
@@ -165,7 +162,7 @@ class RawAdaptiveCard extends StatefulWidget {
 class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   // Wrapper around the host config
   ReferenceResolver resolver;
-  UUIDGenerator idGenerator;
+  UUIDGenerator _idGenerator;
   CardRegistry cardRegistry;
 
   // The root element
@@ -177,7 +174,7 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   void initState() {
     super.initState();
     resolver = ReferenceResolver(widget.hostConfig);
-    idGenerator = UUIDGenerator();
+    _idGenerator = UUIDGenerator();
     cardRegistry = widget.cardRegistry;
 
     /// TODO no need to pass atomicIdGenerator because it is not re constructed every time
@@ -329,7 +326,7 @@ abstract class AdaptiveElement {
     if (adaptiveMap.containsKey("id")) {
       id = adaptiveMap["id"];
     } else {
-      id = widgetState.idGenerator.getId();
+      id = widgetState._idGenerator.getId();
     }
   }
 
@@ -359,7 +356,8 @@ abstract class AdaptiveElement {
 
 class CardRegistry {
 
-  const CardRegistry({this.addedElements = const {}, this.removedElements = const []});
+  const CardRegistry({Map<String, AdaptiveElement> addedElements = const {}, List<String> removedElements = const []})
+  : _elements = const {}, removedElements = const [], addedElements = const {} ;
 
   /// Provide custom elements to use.
   /// When providing an element which is already defined, it is overwritten
@@ -367,6 +365,10 @@ class CardRegistry {
 
   /// Remove specific elements fomr the list
   final List<String> removedElements;
+
+  /// The resolved elements mape
+  final Map<String, AdaptiveElement> _elements;
+
 
   // TODO implement
 
