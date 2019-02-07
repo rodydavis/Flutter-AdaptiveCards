@@ -163,7 +163,9 @@ class RawAdaptiveCard extends StatefulWidget {
 
 class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   // Wrapper around the host config
-  ReferenceResolver _referenceResolver;
+  ReferenceResolver resolver;
+  AtomicIdGenerator idGenerator;
+  CardRegistry cardRegistry;
 
   // The root element
   AdaptiveElement _adaptiveElement;
@@ -173,11 +175,13 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   @override
   void initState() {
     super.initState();
-    _referenceResolver = ReferenceResolver(widget.hostConfig);
+    resolver = ReferenceResolver(widget.hostConfig);
+    idGenerator = AtomicIdGenerator();
+    cardRegistry = widget.cardRegistry;
 
     /// TODO no need to pass atomicIdGenerator because it is not re constructed every time
     _adaptiveElement =
-        widget.cardRegistry.getElement(widget.map, _referenceResolver, this, AtomicIdGenerator());
+        widget.cardRegistry.getElement(widget.map, this);
   }
 
   /// Every widget can access method of this class, meaning setting the state
@@ -278,17 +282,11 @@ typedef AdaptiveElementVisitor = void Function(AdaptiveElement element);
 abstract class AdaptiveElement {
   AdaptiveElement(
       {@required this.adaptiveMap,
-      @required this.resolver,
-      @required this.widgetState,
-      @required this.cardRegistry,
-      @required this.idGenerator}) {
+      @required this.widgetState}) {
     loadTree();
   }
 
   final Map adaptiveMap;
-  final ReferenceResolver resolver;
-  final AtomicIdGenerator idGenerator;
-  final CardRegistry cardRegistry;
 
   String id;
 
@@ -303,7 +301,7 @@ abstract class AdaptiveElement {
 
   /// Use this method to obtain the widget tree of the adaptive card.
   ///
-  /// Easy mixin has the opportunity to add something to the widget hierarchy.
+  /// Each mixin has the opportunity to add something to the widget hierarchy.
   ///
   /// An example:
   /// @override
@@ -319,7 +317,7 @@ abstract class AdaptiveElement {
   ///
   /// This works because each mixin calls [generateWidget] in its generateWidget
   /// and adds the returned value into the widget tree. Eventually the base
-  /// implementation (this) will be called and the elementa actual build method is
+  /// implementation (this) will be called and the elements actual build method is
   /// included.
   @mustCallSuper
   Widget generateWidget() {
@@ -330,7 +328,7 @@ abstract class AdaptiveElement {
     if (adaptiveMap.containsKey("id")) {
       id = adaptiveMap["id"];
     } else {
-      id = idGenerator.getId();
+      id = widgetState.idGenerator.getId();
     }
   }
 
@@ -364,7 +362,7 @@ mixin SeparatorElementMixin on AdaptiveElement {
   @override
   void loadTree() {
     super.loadTree();
-    topSpacing = resolver.resolveSpacing(adaptiveMap["spacing"]);
+    topSpacing = widgetState.resolver.resolveSpacing(adaptiveMap["spacing"]);
     separator = adaptiveMap["separator"] ?? false;
   }
 
@@ -394,8 +392,7 @@ mixin TappableElementMixin on AdaptiveElement {
   void loadTree() {
     super.loadTree();
     if (adaptiveMap.containsKey("selectAction")) {
-      action = cardRegistry.getAction(adaptiveMap["selectAction"], resolver, widgetState,
-          null, idGenerator);
+      action = widgetState.cardRegistry.getAction(adaptiveMap["selectAction"], widgetState,null);
     }
   }
 
@@ -419,7 +416,7 @@ mixin ChildStylerMixin on AdaptiveElement {
   void styleChild() {
     // The container needs to set the style in every iteration
     if (style != null) {
-      resolver.setContainerStyle(style);
+      widgetState.resolver.setContainerStyle(style);
     }
   }
 }
@@ -478,60 +475,56 @@ class CardRegistry {
 /// It looks at the [type] property and decides which object to construct
 AdaptiveElement getElement(
     Map<String, dynamic> map,
-    ReferenceResolver resolver,
-    RawAdaptiveCardState widgetState,
-    AtomicIdGenerator idGenerator) {
+    RawAdaptiveCardState widgetState) {
   String stringType = map["type"];
 
   switch (stringType) {
     case "Media":
-      return AdaptiveMedia(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveMedia(map, widgetState);
     case "Container":
-      return AdaptiveContainer(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveContainer(map, widgetState);
     case "TextBlock":
-      return AdaptiveTextBlock(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveTextBlock(map, widgetState);
     case "AdaptiveCard":
-      return AdaptiveCardElement(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveCardElement(map, widgetState);
     case "ColumnSet":
-      return AdaptiveColumnSet(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveColumnSet(map, widgetState);
     case "Image":
-      return AdaptiveImage(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveImage(map, widgetState);
     case "FactSet":
-      return AdaptiveFactSet(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveFactSet(map, widgetState);
     case "ImageSet":
-      return AdaptiveImageSet(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveImageSet(map, widgetState);
     case "Input.Text":
-      return AdaptiveTextInput(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveTextInput(map, widgetState);
     case "Input.Number":
-      return AdaptiveNumberInput(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveNumberInput(map, widgetState);
     case "Input.Date":
-      return AdaptiveDateInput(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveDateInput(map, widgetState);
     case "Input.Time":
-      return AdaptiveTimeInput(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveTimeInput(map, widgetState);
     case "Input.Toggle":
-      return AdaptiveToggle(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveToggle(map, widgetState);
     case "Input.ChoiceSet":
-      return AdaptiveChoiceSet(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveChoiceSet(map, widgetState);
   }
   throw StateError("Could not find: $stringType");
 }
 
 AdaptiveAction getAction(
     Map<String, dynamic> map,
-    ReferenceResolver resolver,
     RawAdaptiveCardState widgetState,
-    AdaptiveCardElement adaptiveCardElement,
-    AtomicIdGenerator idGenerator) {
+    AdaptiveCardElement adaptiveCardElement) {
   String stringType = map["type"];
 
   switch (stringType) {
     case "Action.ShowCard":
       return AdaptiveActionShowCard(
-          map, resolver, widgetState, idGenerator, adaptiveCardElement, this);
+          map, widgetState, adaptiveCardElement);
     case "Action.OpenUrl":
-      return AdaptiveActionOpenUrl(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveActionOpenUrl(map, widgetState);
     case "Action.Submit":
-      return AdaptiveActionSubmit(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveActionSubmit(map, widgetState);
   }
   throw StateError("Could not find: $stringType");
 }

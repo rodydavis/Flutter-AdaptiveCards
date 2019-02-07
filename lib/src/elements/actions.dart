@@ -5,17 +5,8 @@ import 'package:flutter_adaptive_cards/src/elements/basics.dart';
 /// Actions
 
 abstract class AdaptiveAction extends AdaptiveElement {
-  AdaptiveAction(
-      {Map adaptiveMap,
-        ReferenceResolver resolver,
-        widgetState,
-        AtomicIdGenerator idGenerator, @required CardRegistry cardRegistry})
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      widgetState: widgetState,
-      cardRegistry: cardRegistry,
-      idGenerator: idGenerator);
+  AdaptiveAction({Map adaptiveMap, widgetState,})
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   String get title => adaptiveMap["title"];
 
@@ -23,14 +14,9 @@ abstract class AdaptiveAction extends AdaptiveElement {
 }
 
 class AdaptiveActionShowCard extends AdaptiveAction {
-  AdaptiveActionShowCard(Map adaptiveMap, ReferenceResolver resolver,
-      widgetState, AtomicIdGenerator idGenerator, this._adaptiveCardElement, CardRegistry cardRegistry)
+  AdaptiveActionShowCard(Map adaptiveMap, widgetState,this._adaptiveCardElement)
       : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+      adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   AdaptiveElement card;
 
@@ -41,7 +27,7 @@ class AdaptiveActionShowCard extends AdaptiveAction {
   @override
   void loadTree() {
     super.loadTree();
-    card = cardRegistry.getElement(adaptiveMap["card"], resolver, widgetState, idGenerator);
+    card = widgetState.cardRegistry.getElement(adaptiveMap["card"], widgetState);
   }
 
   @override
@@ -73,14 +59,9 @@ class AdaptiveActionShowCard extends AdaptiveAction {
 }
 
 class AdaptiveActionSubmit extends AdaptiveAction {
-  AdaptiveActionSubmit(Map adaptiveMap, ReferenceResolver resolver,
-      widgetState, AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveActionSubmit(Map adaptiveMap, widgetState)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+
 
   Map data;
 
@@ -105,14 +86,8 @@ class AdaptiveActionSubmit extends AdaptiveAction {
 }
 
 class AdaptiveActionOpenUrl extends AdaptiveAction with IconButtonMixin {
-  AdaptiveActionOpenUrl(Map adaptiveMap, ReferenceResolver resolver,
-      widgetState, AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveActionOpenUrl(Map adaptiveMap, widgetState,)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   String url;
   String iconUrl;

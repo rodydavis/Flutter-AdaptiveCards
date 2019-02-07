@@ -10,14 +10,8 @@ import 'package:video_player/video_player.dart';
 ///
 /// This container behaves like a Column/ a Container
 class AdaptiveCardElement extends AdaptiveElement {
-  AdaptiveCardElement(Map adaptiveMap, ReferenceResolver resolver,
-      widgetState, AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveCardElement(Map adaptiveMap, widgetState,)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   AdaptiveActionShowCard currentlyActiveShowCardAction;
 
@@ -38,7 +32,7 @@ class AdaptiveCardElement extends AdaptiveElement {
     if (adaptiveMap.containsKey("actions")) {
       allActions = List<Map>.from(adaptiveMap["actions"])
           .map(
-              (map) => cardRegistry.getAction(map, resolver, widgetState, this, idGenerator))
+              (map) => widgetState.cardRegistry.getAction(map, widgetState, this))
           .toList();
       showCardActions = List<AdaptiveActionShowCard>.from(allActions
           .where((action) => action is AdaptiveActionShowCard)
@@ -48,13 +42,13 @@ class AdaptiveCardElement extends AdaptiveElement {
       showCardActions = [];
     }
 
-    String stringAxis = resolver.resolve("actions", "actionsOrientation");
+    String stringAxis = widgetState.resolver.resolve("actions", "actionsOrientation");
     if (stringAxis == "Horizontal")
       actionsOrientation = Axis.horizontal;
     else if (stringAxis == "Vertical") actionsOrientation = Axis.vertical;
 
     children = List<Map>.from(adaptiveMap["body"])
-        .map((map) => cardRegistry.getElement(map, resolver, widgetState, idGenerator))
+        .map((map) => widgetState.cardRegistry.getElement(map, widgetState))
         .toList();
 
     backgroundImage = adaptiveMap['backgroundImage'];
@@ -131,14 +125,8 @@ class AdaptiveCardElement extends AdaptiveElement {
 }
 
 class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
-  AdaptiveTextBlock(Map adaptiveMap, ReferenceResolver resolver, widgetState,
-      AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveTextBlock(Map adaptiveMap, widgetState)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   FontWeight fontWeight;
   double fontSize;
@@ -150,10 +138,10 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
   @override
   void loadTree() {
     super.loadTree();
-    fontSize = resolver.resolveFontSize(adaptiveMap["size"]);
-    fontWeight = resolver.resolveFontWeight(adaptiveMap["weight"]);
+    fontSize = widgetState.resolver.resolveFontSize(adaptiveMap["size"]);
+    fontWeight = widgetState.resolver.resolveFontWeight(adaptiveMap["weight"]);
     color =
-        resolver.resolveColor(adaptiveMap["color"], adaptiveMap["isSubtle"]);
+        widgetState.resolver.resolveColor(adaptiveMap["color"], adaptiveMap["isSubtle"]);
     horizontalAlignment = loadAlignment();
     maxLines = loadMaxLines();
     markdownStyleSheet = loadMarkdownStyleSheet();
@@ -218,14 +206,8 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
 // TODO implement verticalContentAlignment
 class AdaptiveContainer extends AdaptiveElement
     with SeparatorElementMixin, TappableElementMixin, ChildStylerMixin {
-  AdaptiveContainer(Map adaptiveMap, ReferenceResolver resolver, widgetState,
-      AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveContainer(Map adaptiveMap, widgetState)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   List<AdaptiveElement> children;
 
@@ -236,10 +218,10 @@ class AdaptiveContainer extends AdaptiveElement
     super.loadTree();
     children = List<Map>.from(adaptiveMap["items"]).map((child) {
       styleChild();
-      return cardRegistry.getElement(child, resolver, widgetState, idGenerator);
+      return widgetState.cardRegistry.getElement(child, widgetState);
     }).toList();
 
-    String colorString = resolver.hostConfig["containerStyles"]
+    String colorString = widgetState.resolver.hostConfig["containerStyles"]
     [adaptiveMap["style"] ?? "default"]["backgroundColor"];
     backgroundColor = parseColor(colorString);
   }
@@ -265,14 +247,8 @@ class AdaptiveContainer extends AdaptiveElement
 }
 
 class AdaptiveColumnSet extends AdaptiveElement with TappableElementMixin {
-  AdaptiveColumnSet(Map adaptiveMap, ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveColumnSet(Map adaptiveMap, RawAdaptiveCardState widgetState)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   List<AdaptiveColumn> columns;
 
@@ -282,7 +258,7 @@ class AdaptiveColumnSet extends AdaptiveElement with TappableElementMixin {
     // TODO handle case where there are no children elegantly
     columns = List<Map>.from(adaptiveMap["columns"])
         .map((child) =>
-        AdaptiveColumn(child, resolver, widgetState, idGenerator, cardRegistry))
+        AdaptiveColumn(child, widgetState ))
         .toList();
   }
 
@@ -306,14 +282,8 @@ class AdaptiveColumnSet extends AdaptiveElement with TappableElementMixin {
 
 class AdaptiveColumn extends AdaptiveElement
     with SeparatorElementMixin, TappableElementMixin, ChildStylerMixin {
-  AdaptiveColumn(Map adaptiveMap, ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveColumn(Map adaptiveMap, RawAdaptiveCardState widgetState)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   List<AdaptiveElement> items;
   //TODO implement
@@ -325,7 +295,7 @@ class AdaptiveColumn extends AdaptiveElement
     super.loadTree();
     items = List<Map>.from(adaptiveMap["items"]).map((child) {
       styleChild();
-      return cardRegistry.getElement(child, resolver, widgetState, idGenerator);
+      return widgetState.cardRegistry.getElement(child, widgetState);
     }).toList();
   }
 
@@ -345,14 +315,8 @@ class AdaptiveColumn extends AdaptiveElement
 }
 
 class AdaptiveFactSet extends AdaptiveElement with SeparatorElementMixin {
-  AdaptiveFactSet(Map adaptiveMap, ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveFactSet(Map adaptiveMap, RawAdaptiveCardState widgetState)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   List<Map> facts;
 
@@ -389,14 +353,8 @@ class AdaptiveFactSet extends AdaptiveElement with SeparatorElementMixin {
 }
 
 class AdaptiveImage extends AdaptiveElement with SeparatorElementMixin {
-  AdaptiveImage(Map adaptiveMap, ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveImage(Map adaptiveMap, RawAdaptiveCardState widgetState )
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   Alignment horizontalAlignment;
   bool isPerson;
@@ -472,20 +430,14 @@ class AdaptiveImage extends AdaptiveElement with SeparatorElementMixin {
   Tuple<double, double> loadSize() {
     String sizeDescription = adaptiveMap["size"] ?? "auto";
     if(sizeDescription == "auto" || sizeDescription == "stretch") return null;
-    int size = resolver.resolve("imageSizes", sizeDescription);
+    int size = widgetState.resolver.resolve("imageSizes", sizeDescription);
     return Tuple(size.toDouble(), size.toDouble());
   }
 }
 
 class AdaptiveImageSet extends AdaptiveElement with SeparatorElementMixin {
-  AdaptiveImageSet(Map adaptiveMap, ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveImageSet(Map adaptiveMap, RawAdaptiveCardState widgetState)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   List<AdaptiveImage> images;
 
@@ -497,7 +449,7 @@ class AdaptiveImageSet extends AdaptiveElement with SeparatorElementMixin {
     super.loadTree();
     images = List<Map>.from(adaptiveMap["images"])
         .map((child) =>
-        AdaptiveImage(child, resolver, widgetState, idGenerator, cardRegistry))
+        AdaptiveImage(child, widgetState))
         .toList();
 
     loadSize();
@@ -540,7 +492,7 @@ class AdaptiveImageSet extends AdaptiveElement with SeparatorElementMixin {
       imageSize = "stretch";
       return;
     }
-    int size = resolver.resolve("imageSizes", sizeDescription);
+    int size = widgetState.resolver.resolve("imageSizes", sizeDescription);
     maybeSize = size.toDouble();
   }
 
@@ -552,14 +504,10 @@ class AdaptiveImageSet extends AdaptiveElement with SeparatorElementMixin {
 }
 
 class AdaptiveMedia extends AdaptiveElement with SeparatorElementMixin {
-  AdaptiveMedia(Map adaptiveMap, ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
+  AdaptiveMedia(Map adaptiveMap, RawAdaptiveCardState widgetState)
       : super(
       adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+      widgetState: widgetState);
 
   VideoPlayerController controller;
 

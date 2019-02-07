@@ -5,17 +5,8 @@ import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
 /// Text input elements
 
 abstract class AdaptiveInput extends AdaptiveElement {
-  AdaptiveInput(
-      {Map adaptiveMap,
-        ReferenceResolver resolver,
-        widgetState,
-        AtomicIdGenerator idGenerator, @required CardRegistry cardRegistry})
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveInput({Map adaptiveMap, widgetState,})
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   String value;
 
@@ -32,17 +23,8 @@ abstract class AdaptiveInput extends AdaptiveElement {
 
 abstract class AdaptiveTextualInput extends AdaptiveInput
     with SeparatorElementMixin {
-  AdaptiveTextualInput(
-      {Map adaptiveMap,
-        ReferenceResolver resolver,
-        widgetState,
-        AtomicIdGenerator idGenerator, @required CardRegistry cardRegistry})
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveTextualInput({Map adaptiveMap, widgetState,})
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   String placeholder;
   @override
@@ -53,14 +35,8 @@ abstract class AdaptiveTextualInput extends AdaptiveInput
 }
 
 class AdaptiveTextInput extends AdaptiveTextualInput {
-  AdaptiveTextInput(Map adaptiveMap, ReferenceResolver resolver, widgetState,
-      AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveTextInput(Map adaptiveMap, widgetState,)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   TextEditingController controller = TextEditingController();
   bool isMultiline;
@@ -117,14 +93,8 @@ class AdaptiveTextInput extends AdaptiveTextualInput {
 }
 
 class AdaptiveNumberInput extends AdaptiveTextualInput {
-  AdaptiveNumberInput(Map adaptiveMap, ReferenceResolver resolver,
-      widgetState, AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveNumberInput(Map adaptiveMap, widgetState)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   TextEditingController controller = TextEditingController();
 
@@ -165,14 +135,8 @@ class AdaptiveNumberInput extends AdaptiveTextualInput {
 }
 
 class AdaptiveDateInput extends AdaptiveTextualInput {
-  AdaptiveDateInput(Map adaptiveMap, ReferenceResolver resolver, widgetState,
-      AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveDateInput(Map adaptiveMap, widgetState)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   DateTime selectedDateTime;
   DateTime min;
@@ -208,14 +172,8 @@ class AdaptiveDateInput extends AdaptiveTextualInput {
 }
 
 class AdaptiveTimeInput extends AdaptiveTextualInput {
-  AdaptiveTimeInput(Map adaptiveMap, ReferenceResolver resolver, widgetState,
-      AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      cardRegistry: cardRegistry,
-      resolver: resolver,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveTimeInput(Map adaptiveMap, widgetState)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   TimeOfDay selectedTime;
   TimeOfDay min;
@@ -267,14 +225,8 @@ class AdaptiveTimeInput extends AdaptiveTextualInput {
 }
 
 class AdaptiveToggle extends AdaptiveInput {
-  AdaptiveToggle(Map adaptiveMap, ReferenceResolver resolver, widgetState,
-      AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveToggle(Map adaptiveMap, widgetState)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   bool boolValue = false;
 
@@ -317,14 +269,8 @@ class AdaptiveToggle extends AdaptiveInput {
 }
 
 class AdaptiveChoiceSet extends AdaptiveInput {
-  AdaptiveChoiceSet(Map adaptiveMap, ReferenceResolver resolver, widgetState,
-      AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-      adaptiveMap: adaptiveMap,
-      resolver: resolver,
-      cardRegistry: cardRegistry,
-      widgetState: widgetState,
-      idGenerator: idGenerator);
+  AdaptiveChoiceSet(Map adaptiveMap, widgetState,)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState);
 
   // Map from title to value
   Map<String, String> choices;
