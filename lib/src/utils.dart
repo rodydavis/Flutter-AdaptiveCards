@@ -60,3 +60,21 @@ class _FadeAnimationState extends State<FadeAnimation>
 }
 
 String firstCharacterToLowerCase(String s) => s.isNotEmpty? s[0].toLowerCase() + s.substring(1): "";
+
+
+class Tuple<A, B> {
+  final A a;
+  final B b;
+
+  Tuple(this.a, this.b);
+}
+
+class FullCircleClipper extends CustomClipper<Rect> {
+  @override
+  Rect getClip(Size size) {
+    return Rect.fromLTWH(0.0, 0.0, size.width, size.height);
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Rect> oldClipper) => false;
+}

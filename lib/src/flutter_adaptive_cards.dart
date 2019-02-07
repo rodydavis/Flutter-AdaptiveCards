@@ -65,13 +65,16 @@ class NetworkAdaptiveCardContentProvider extends AdaptiveCardContentProvider {
 }
 
 class AdaptiveCard extends StatefulWidget {
+
   AdaptiveCard(
-      {Key key, @required this.adaptiveCardContentProvider, this.placeholder})
+      {Key key, @required this.adaptiveCardContentProvider, this.placeholder,
+      this.cardRegistry = const CardRegistry()})
       : super(key: key);
 
   AdaptiveCard.network({
     Key key,
     this.placeholder,
+    this.cardRegistry = const CardRegistry(),
     @required String url,
     @required String hostConfigPath,
   }) : adaptiveCardContentProvider = NetworkAdaptiveCardContentProvider(
@@ -80,6 +83,7 @@ class AdaptiveCard extends StatefulWidget {
   AdaptiveCard.asset({
     Key key,
     this.placeholder,
+    this.cardRegistry = const CardRegistry(),
     @required String assetPath,
     @required String hostConfigPath,
   }) : adaptiveCardContentProvider = AssetAdaptiveCardContentProvider(
@@ -88,6 +92,7 @@ class AdaptiveCard extends StatefulWidget {
   AdaptiveCard.memory({
     Key key,
     this.placeholder,
+    this.cardRegistry = const CardRegistry(),
     @required Map content,
     @required String hostConfigPath,
   }) : adaptiveCardContentProvider = MemoryAdaptiveCardContentProvider(
@@ -96,6 +101,8 @@ class AdaptiveCard extends StatefulWidget {
   final AdaptiveCardContentProvider adaptiveCardContentProvider;
 
   final Widget placeholder;
+
+  final CardRegistry cardRegistry;
 
   @override
   _AdaptiveCardState createState() => new _AdaptiveCardState();
@@ -130,7 +137,7 @@ class _AdaptiveCardState extends State<AdaptiveCard> {
     }
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: RawAdaptiveCard.fromMap(map, hostConfig),
+      child: RawAdaptiveCard.fromMap(map, hostConfig, cardRegistry: widget.cardRegistry),
     );
   }
 }
@@ -141,10 +148,11 @@ class _AdaptiveCardState extends State<AdaptiveCard> {
 /// displays in natively. Additionally a host config needs to be provided for
 /// styling.
 class RawAdaptiveCard extends StatefulWidget {
-  RawAdaptiveCard.fromMap(this.map, this.hostConfig);
+  RawAdaptiveCard.fromMap(this.map, this.hostConfig, {this.cardRegistry = const CardRegistry()});
 
   final Map map;
   final Map hostConfig;
+  final CardRegistry cardRegistry;
 
   @override
   RawAdaptiveCardState createState() => RawAdaptiveCardState();
@@ -166,7 +174,7 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
 
     /// TODO no need to pass atomicIdGenerator because it is not re constructed every time
     _adaptiveElement =
-        getElement(widget.map, _referenceResolver, this, _AtomicIdGenerator());
+        widget.cardRegistry.getElement(widget.map, _referenceResolver, this, _AtomicIdGenerator());
   }
 
   /// Every widget can access method of this class, meaning setting the state
@@ -269,6 +277,7 @@ abstract class _AdaptiveElement {
       {@required this.adaptiveMap,
       @required this.resolver,
       @required this.widgetState,
+      @required this.cardRegistry,
       @required this.idGenerator}) {
     loadTree();
   }
@@ -276,6 +285,7 @@ abstract class _AdaptiveElement {
   final Map adaptiveMap;
   final _ReferenceResolver resolver;
   final _AtomicIdGenerator idGenerator;
+  final CardRegistry cardRegistry;
 
   String id;
 
@@ -347,10 +357,11 @@ abstract class _AdaptiveElement {
 /// This container behaves like a Column/ a Container
 class _AdaptiveCardElement extends _AdaptiveElement {
   _AdaptiveCardElement(Map adaptiveMap, _ReferenceResolver resolver,
-      widgetState, _AtomicIdGenerator idGenerator)
+      widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -373,7 +384,7 @@ class _AdaptiveCardElement extends _AdaptiveElement {
     if (adaptiveMap.containsKey("actions")) {
       allActions = List<Map>.from(adaptiveMap["actions"])
           .map(
-              (map) => getAction(map, resolver, widgetState, this, idGenerator))
+              (map) => cardRegistry.getAction(map, resolver, widgetState, this, idGenerator))
           .toList();
       showCardActions = List<_AdaptiveActionShowCard>.from(allActions
           .where((action) => action is _AdaptiveActionShowCard)
@@ -389,7 +400,7 @@ class _AdaptiveCardElement extends _AdaptiveElement {
     else if (stringAxis == "Vertical") actionsOrientation = Axis.vertical;
 
     children = List<Map>.from(adaptiveMap["body"])
-        .map((map) => getElement(map, resolver, widgetState, idGenerator))
+        .map((map) => cardRegistry.getElement(map, resolver, widgetState, idGenerator))
         .toList();
 
     backgroundImage = adaptiveMap['backgroundImage'];
@@ -502,7 +513,7 @@ mixin _TappableElementMixin on _AdaptiveElement {
   void loadTree() {
     super.loadTree();
     if (adaptiveMap.containsKey("selectAction")) {
-      action = getAction(adaptiveMap["selectAction"], resolver, widgetState,
+      action = cardRegistry.getAction(adaptiveMap["selectAction"], resolver, widgetState,
           null, idGenerator);
     }
   }
@@ -534,10 +545,11 @@ mixin _ChildStylerMixin on _AdaptiveElement {
 
 class _AdaptiveTextBlock extends _AdaptiveElement with _SeparatorElementMixin {
   _AdaptiveTextBlock(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator)
+      _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -620,10 +632,11 @@ class _AdaptiveTextBlock extends _AdaptiveElement with _SeparatorElementMixin {
 class _AdaptiveContainer extends _AdaptiveElement
     with _SeparatorElementMixin, _TappableElementMixin, _ChildStylerMixin {
   _AdaptiveContainer(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator)
+      _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -636,7 +649,7 @@ class _AdaptiveContainer extends _AdaptiveElement
     super.loadTree();
     children = List<Map>.from(adaptiveMap["items"]).map((child) {
       styleChild();
-      return getElement(child, resolver, widgetState, idGenerator);
+      return cardRegistry.getElement(child, resolver, widgetState, idGenerator);
     }).toList();
 
     String colorString = resolver.hostConfig["containerStyles"]
@@ -666,10 +679,11 @@ class _AdaptiveContainer extends _AdaptiveElement
 
 class _AdaptiveColumnSet extends _AdaptiveElement with _TappableElementMixin {
   _AdaptiveColumnSet(Map adaptiveMap, _ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -681,7 +695,7 @@ class _AdaptiveColumnSet extends _AdaptiveElement with _TappableElementMixin {
     // TODO handle case where there are no children elegantly
     columns = List<Map>.from(adaptiveMap["columns"])
         .map((child) =>
-            _AdaptiveColumn(child, resolver, widgetState, idGenerator))
+            _AdaptiveColumn(child, resolver, widgetState, idGenerator, cardRegistry))
         .toList();
   }
 
@@ -706,10 +720,11 @@ class _AdaptiveColumnSet extends _AdaptiveElement with _TappableElementMixin {
 class _AdaptiveColumn extends _AdaptiveElement
     with _SeparatorElementMixin, _TappableElementMixin, _ChildStylerMixin {
   _AdaptiveColumn(Map adaptiveMap, _ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -723,7 +738,7 @@ class _AdaptiveColumn extends _AdaptiveElement
     super.loadTree();
     items = List<Map>.from(adaptiveMap["items"]).map((child) {
       styleChild();
-      return getElement(child, resolver, widgetState, idGenerator);
+      return cardRegistry.getElement(child, resolver, widgetState, idGenerator);
     }).toList();
   }
 
@@ -744,10 +759,11 @@ class _AdaptiveColumn extends _AdaptiveElement
 
 class _AdaptiveFactSet extends _AdaptiveElement with _SeparatorElementMixin {
   _AdaptiveFactSet(Map adaptiveMap, _ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -787,10 +803,11 @@ class _AdaptiveFactSet extends _AdaptiveElement with _SeparatorElementMixin {
 
 class _AdaptiveImage extends _AdaptiveElement with _SeparatorElementMixin {
   _AdaptiveImage(Map adaptiveMap, _ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -875,10 +892,11 @@ class _AdaptiveImage extends _AdaptiveElement with _SeparatorElementMixin {
 
 class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin {
   _AdaptiveImageSet(Map adaptiveMap, _ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -892,7 +910,7 @@ class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin {
     super.loadTree();
     images = List<Map>.from(adaptiveMap["images"])
         .map((child) =>
-            _AdaptiveImage(child, resolver, widgetState, idGenerator))
+            _AdaptiveImage(child, resolver, widgetState, idGenerator, cardRegistry))
         .toList();
 
     loadSize();
@@ -948,10 +966,11 @@ class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin {
 
 class _AdaptiveMedia extends _AdaptiveElement with _SeparatorElementMixin {
   _AdaptiveMedia(Map adaptiveMap, _ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator)
+      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -998,10 +1017,11 @@ abstract class _AdaptiveInput extends _AdaptiveElement {
       {Map adaptiveMap,
       _ReferenceResolver resolver,
       widgetState,
-      _AtomicIdGenerator idGenerator})
+      _AtomicIdGenerator idGenerator, @required CardRegistry cardRegistry})
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -1024,10 +1044,11 @@ abstract class _AdaptiveTextualInput extends _AdaptiveInput
       {Map adaptiveMap,
       _ReferenceResolver resolver,
       widgetState,
-      _AtomicIdGenerator idGenerator})
+      _AtomicIdGenerator idGenerator, @required CardRegistry cardRegistry})
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -1041,10 +1062,11 @@ abstract class _AdaptiveTextualInput extends _AdaptiveInput
 
 class _AdaptiveTextInput extends _AdaptiveTextualInput {
   _AdaptiveTextInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator)
+      _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -1104,10 +1126,11 @@ class _AdaptiveTextInput extends _AdaptiveTextualInput {
 
 class _AdaptiveNumberInput extends _AdaptiveTextualInput {
   _AdaptiveNumberInput(Map adaptiveMap, _ReferenceResolver resolver,
-      widgetState, _AtomicIdGenerator idGenerator)
+      widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -1151,10 +1174,11 @@ class _AdaptiveNumberInput extends _AdaptiveTextualInput {
 
 class _AdaptiveDateInput extends _AdaptiveTextualInput {
   _AdaptiveDateInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator)
+      _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -1193,9 +1217,10 @@ class _AdaptiveDateInput extends _AdaptiveTextualInput {
 
 class _AdaptiveTimeInput extends _AdaptiveTextualInput {
   _AdaptiveTimeInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator)
+      _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
+            cardRegistry: cardRegistry,
             resolver: resolver,
             widgetState: widgetState,
             idGenerator: idGenerator);
@@ -1251,10 +1276,11 @@ class _AdaptiveTimeInput extends _AdaptiveTextualInput {
 
 class _AdaptiveToggle extends _AdaptiveInput {
   _AdaptiveToggle(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator)
+      _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -1300,10 +1326,11 @@ class _AdaptiveToggle extends _AdaptiveInput {
 
 class _AdaptiveChoiceSet extends _AdaptiveInput {
   _AdaptiveChoiceSet(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator)
+      _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -1426,11 +1453,12 @@ abstract class _AdaptiveAction extends _AdaptiveElement {
       {Map adaptiveMap,
       _ReferenceResolver resolver,
       widgetState,
-      _AtomicIdGenerator idGenerator})
+      _AtomicIdGenerator idGenerator, @required CardRegistry cardRegistry})
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
             widgetState: widgetState,
+            cardRegistry: cardRegistry,
             idGenerator: idGenerator);
 
   String get title => adaptiveMap["title"];
@@ -1440,10 +1468,11 @@ abstract class _AdaptiveAction extends _AdaptiveElement {
 
 class _AdaptiveActionShowCard extends _AdaptiveAction {
   _AdaptiveActionShowCard(Map adaptiveMap, _ReferenceResolver resolver,
-      widgetState, _AtomicIdGenerator idGenerator, this._adaptiveCardElement)
+      widgetState, _AtomicIdGenerator idGenerator, this._adaptiveCardElement, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -1456,7 +1485,7 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
   @override
   void loadTree() {
     super.loadTree();
-    card = getElement(adaptiveMap["card"], resolver, widgetState, idGenerator);
+    card = cardRegistry.getElement(adaptiveMap["card"], resolver, widgetState, idGenerator);
   }
 
   @override
@@ -1489,10 +1518,11 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
 
 class _AdaptiveActionSubmit extends _AdaptiveAction {
   _AdaptiveActionSubmit(Map adaptiveMap, _ReferenceResolver resolver,
-      widgetState, _AtomicIdGenerator idGenerator)
+      widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -1520,10 +1550,11 @@ class _AdaptiveActionSubmit extends _AdaptiveAction {
 
 class _AdaptiveActionOpenUrl extends _AdaptiveAction with _IconButtonMixin {
   _AdaptiveActionOpenUrl(Map adaptiveMap, _ReferenceResolver resolver,
-      widgetState, _AtomicIdGenerator idGenerator)
+      widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
             adaptiveMap: adaptiveMap,
             resolver: resolver,
+            cardRegistry: cardRegistry,
             widgetState: widgetState,
             idGenerator: idGenerator);
 
@@ -1548,6 +1579,13 @@ class _AdaptiveActionOpenUrl extends _AdaptiveAction with _IconButtonMixin {
   }
 }
 
+
+
+
+class CardRegistry {
+
+  const CardRegistry();
+
 /// This returns an [_AdaptiveElement] with the correct type.
 ///
 /// It looks at the [type] property and decides which object to construct
@@ -1560,33 +1598,33 @@ _AdaptiveElement getElement(
 
   switch (stringType) {
     case "Media":
-      return _AdaptiveMedia(map, resolver, widgetState, idGenerator);
+      return _AdaptiveMedia(map, resolver, widgetState, idGenerator, this);
     case "Container":
-      return _AdaptiveContainer(map, resolver, widgetState, idGenerator);
+      return _AdaptiveContainer(map, resolver, widgetState, idGenerator, this);
     case "TextBlock":
-      return _AdaptiveTextBlock(map, resolver, widgetState, idGenerator);
+      return _AdaptiveTextBlock(map, resolver, widgetState, idGenerator, this);
     case "AdaptiveCard":
-      return _AdaptiveCardElement(map, resolver, widgetState, idGenerator);
+      return _AdaptiveCardElement(map, resolver, widgetState, idGenerator, this);
     case "ColumnSet":
-      return _AdaptiveColumnSet(map, resolver, widgetState, idGenerator);
+      return _AdaptiveColumnSet(map, resolver, widgetState, idGenerator, this);
     case "Image":
-      return _AdaptiveImage(map, resolver, widgetState, idGenerator);
+      return _AdaptiveImage(map, resolver, widgetState, idGenerator, this);
     case "FactSet":
-      return _AdaptiveFactSet(map, resolver, widgetState, idGenerator);
+      return _AdaptiveFactSet(map, resolver, widgetState, idGenerator, this);
     case "ImageSet":
-      return _AdaptiveImageSet(map, resolver, widgetState, idGenerator);
+      return _AdaptiveImageSet(map, resolver, widgetState, idGenerator, this);
     case "Input.Text":
-      return _AdaptiveTextInput(map, resolver, widgetState, idGenerator);
+      return _AdaptiveTextInput(map, resolver, widgetState, idGenerator, this);
     case "Input.Number":
-      return _AdaptiveNumberInput(map, resolver, widgetState, idGenerator);
+      return _AdaptiveNumberInput(map, resolver, widgetState, idGenerator, this);
     case "Input.Date":
-      return _AdaptiveDateInput(map, resolver, widgetState, idGenerator);
+      return _AdaptiveDateInput(map, resolver, widgetState, idGenerator, this);
     case "Input.Time":
-      return _AdaptiveTimeInput(map, resolver, widgetState, idGenerator);
+      return _AdaptiveTimeInput(map, resolver, widgetState, idGenerator, this);
     case "Input.Toggle":
-      return _AdaptiveToggle(map, resolver, widgetState, idGenerator);
+      return _AdaptiveToggle(map, resolver, widgetState, idGenerator, this);
     case "Input.ChoiceSet":
-      return _AdaptiveChoiceSet(map, resolver, widgetState, idGenerator);
+      return _AdaptiveChoiceSet(map, resolver, widgetState, idGenerator, this);
   }
   throw StateError("Could not find: $stringType");
 }
@@ -1602,14 +1640,17 @@ _AdaptiveAction getAction(
   switch (stringType) {
     case "Action.ShowCard":
       return _AdaptiveActionShowCard(
-          map, resolver, widgetState, idGenerator, adaptiveCardElement);
+          map, resolver, widgetState, idGenerator, adaptiveCardElement, this);
     case "Action.OpenUrl":
-      return _AdaptiveActionOpenUrl(map, resolver, widgetState, idGenerator);
+      return _AdaptiveActionOpenUrl(map, resolver, widgetState, idGenerator, this);
     case "Action.Submit":
-      return _AdaptiveActionSubmit(map, resolver, widgetState, idGenerator);
+      return _AdaptiveActionSubmit(map, resolver, widgetState, idGenerator, this);
   }
   throw StateError("Could not find: $stringType");
 }
+
+}
+
 
 /// Resolves values based on the host config.
 ///
@@ -1727,19 +1768,4 @@ class _AtomicIdGenerator {
   }
 }
 
-class Tuple<A, B> {
-  final A a;
-  final B b;
 
-  Tuple(this.a, this.b);
-}
-
-class FullCircleClipper extends CustomClipper<Rect> {
-  @override
-  Rect getClip(Size size) {
-    return Rect.fromLTWH(0.0, 0.0, size.width, size.height);
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Rect> oldClipper) => false;
-}
