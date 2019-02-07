@@ -163,7 +163,7 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   _ReferenceResolver _referenceResolver;
 
   // The root element
-  _AdaptiveElement _adaptiveElement;
+  AdaptiveElement _adaptiveElement;
 
   List<VoidCallback> deactivateListeners = [];
 
@@ -239,7 +239,7 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
 }
 
 /// The visitor, the function is called once for every element in the tree
-typedef _AdaptiveElementVisitor = void Function(_AdaptiveElement element);
+typedef _AdaptiveElementVisitor = void Function(AdaptiveElement element);
 
 /// The base class for every element (widget) drawn on the screen.
 ///
@@ -272,8 +272,8 @@ typedef _AdaptiveElementVisitor = void Function(_AdaptiveElement element);
 /// leaf):
 /// implement the method [visitChildren] and call visitor(this) in addition call
 /// [visitChildren] on each child with the passed visitor.
-abstract class _AdaptiveElement {
-  _AdaptiveElement(
+abstract class AdaptiveElement {
+  AdaptiveElement(
       {@required this.adaptiveMap,
       @required this.resolver,
       @required this.widgetState,
@@ -344,7 +344,7 @@ abstract class _AdaptiveElement {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is _AdaptiveElement &&
+      other is AdaptiveElement &&
           runtimeType == other.runtimeType &&
           id == other.id;
 
@@ -355,7 +355,7 @@ abstract class _AdaptiveElement {
 /// Usually the root element of every adaptive card.
 ///
 /// This container behaves like a Column/ a Container
-class _AdaptiveCardElement extends _AdaptiveElement {
+class _AdaptiveCardElement extends AdaptiveElement {
   _AdaptiveCardElement(Map adaptiveMap, _ReferenceResolver resolver,
       widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
@@ -367,7 +367,7 @@ class _AdaptiveCardElement extends _AdaptiveElement {
 
   _AdaptiveActionShowCard currentlyActiveShowCardAction;
 
-  List<_AdaptiveElement> children;
+  List<AdaptiveElement> children;
 
   List<_AdaptiveAction> allActions;
 
@@ -476,7 +476,7 @@ class _AdaptiveCardElement extends _AdaptiveElement {
   }
 }
 
-mixin _SeparatorElementMixin on _AdaptiveElement {
+mixin _SeparatorElementMixin on AdaptiveElement {
   double topSpacing;
   bool separator;
 
@@ -506,7 +506,7 @@ mixin _SeparatorElementMixin on _AdaptiveElement {
   }
 }
 
-mixin _TappableElementMixin on _AdaptiveElement {
+mixin _TappableElementMixin on AdaptiveElement {
   _AdaptiveAction action;
 
   @override
@@ -526,7 +526,7 @@ mixin _TappableElementMixin on _AdaptiveElement {
     );
   }
 }
-mixin _ChildStylerMixin on _AdaptiveElement {
+mixin _ChildStylerMixin on AdaptiveElement {
   String style;
 
   @override
@@ -543,7 +543,7 @@ mixin _ChildStylerMixin on _AdaptiveElement {
   }
 }
 
-class _AdaptiveTextBlock extends _AdaptiveElement with _SeparatorElementMixin {
+class _AdaptiveTextBlock extends AdaptiveElement with _SeparatorElementMixin {
   _AdaptiveTextBlock(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
       _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
@@ -629,7 +629,7 @@ class _AdaptiveTextBlock extends _AdaptiveElement with _SeparatorElementMixin {
 }
 
 // TODO implement verticalContentAlignment
-class _AdaptiveContainer extends _AdaptiveElement
+class _AdaptiveContainer extends AdaptiveElement
     with _SeparatorElementMixin, _TappableElementMixin, _ChildStylerMixin {
   _AdaptiveContainer(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
       _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
@@ -640,7 +640,7 @@ class _AdaptiveContainer extends _AdaptiveElement
             widgetState: widgetState,
             idGenerator: idGenerator);
 
-  List<_AdaptiveElement> children;
+  List<AdaptiveElement> children;
 
   Color backgroundColor;
 
@@ -677,7 +677,7 @@ class _AdaptiveContainer extends _AdaptiveElement
   }
 }
 
-class _AdaptiveColumnSet extends _AdaptiveElement with _TappableElementMixin {
+class _AdaptiveColumnSet extends AdaptiveElement with _TappableElementMixin {
   _AdaptiveColumnSet(Map adaptiveMap, _ReferenceResolver resolver,
       RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
@@ -717,7 +717,7 @@ class _AdaptiveColumnSet extends _AdaptiveElement with _TappableElementMixin {
   }
 }
 
-class _AdaptiveColumn extends _AdaptiveElement
+class _AdaptiveColumn extends AdaptiveElement
     with _SeparatorElementMixin, _TappableElementMixin, _ChildStylerMixin {
   _AdaptiveColumn(Map adaptiveMap, _ReferenceResolver resolver,
       RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
@@ -728,7 +728,7 @@ class _AdaptiveColumn extends _AdaptiveElement
             widgetState: widgetState,
             idGenerator: idGenerator);
 
-  List<_AdaptiveElement> items;
+  List<AdaptiveElement> items;
   //TODO implement
   double width;
 
@@ -757,7 +757,7 @@ class _AdaptiveColumn extends _AdaptiveElement
   }
 }
 
-class _AdaptiveFactSet extends _AdaptiveElement with _SeparatorElementMixin {
+class _AdaptiveFactSet extends AdaptiveElement with _SeparatorElementMixin {
   _AdaptiveFactSet(Map adaptiveMap, _ReferenceResolver resolver,
       RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
@@ -801,7 +801,7 @@ class _AdaptiveFactSet extends _AdaptiveElement with _SeparatorElementMixin {
   }
 }
 
-class _AdaptiveImage extends _AdaptiveElement with _SeparatorElementMixin {
+class _AdaptiveImage extends AdaptiveElement with _SeparatorElementMixin {
   _AdaptiveImage(Map adaptiveMap, _ReferenceResolver resolver,
       RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
@@ -890,7 +890,7 @@ class _AdaptiveImage extends _AdaptiveElement with _SeparatorElementMixin {
   }
 }
 
-class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin {
+class _AdaptiveImageSet extends AdaptiveElement with _SeparatorElementMixin {
   _AdaptiveImageSet(Map adaptiveMap, _ReferenceResolver resolver,
       RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
@@ -964,7 +964,7 @@ class _AdaptiveImageSet extends _AdaptiveElement with _SeparatorElementMixin {
   }
 }
 
-class _AdaptiveMedia extends _AdaptiveElement with _SeparatorElementMixin {
+class _AdaptiveMedia extends AdaptiveElement with _SeparatorElementMixin {
   _AdaptiveMedia(Map adaptiveMap, _ReferenceResolver resolver,
       RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
       : super(
@@ -1012,7 +1012,7 @@ class _AdaptiveMedia extends _AdaptiveElement with _SeparatorElementMixin {
 
 /// Text input elements
 
-abstract class _AdaptiveInput extends _AdaptiveElement {
+abstract class _AdaptiveInput extends AdaptiveElement {
   _AdaptiveInput(
       {Map adaptiveMap,
       _ReferenceResolver resolver,
@@ -1448,7 +1448,7 @@ mixin _IconButtonMixin on _AdaptiveAction {
 
 /// Actions
 
-abstract class _AdaptiveAction extends _AdaptiveElement {
+abstract class _AdaptiveAction extends AdaptiveElement {
   _AdaptiveAction(
       {Map adaptiveMap,
       _ReferenceResolver resolver,
@@ -1476,7 +1476,7 @@ class _AdaptiveActionShowCard extends _AdaptiveAction {
             widgetState: widgetState,
             idGenerator: idGenerator);
 
-  _AdaptiveElement card;
+  AdaptiveElement card;
 
   final _AdaptiveCardElement _adaptiveCardElement;
 
@@ -1584,12 +1584,21 @@ class _AdaptiveActionOpenUrl extends _AdaptiveAction with _IconButtonMixin {
 
 class CardRegistry {
 
-  const CardRegistry();
+  const CardRegistry({this.addedElements = const {}, this.removedElements = const []});
 
-/// This returns an [_AdaptiveElement] with the correct type.
+  /// Provide custom elements to use.
+  /// When providing an element which is already defined, it is overwritten
+  final Map<String, AdaptiveElement> addedElements;
+
+  /// Remove specific elements fomr the list
+  final List<String> removedElements;
+
+  // TODO implement 
+
+/// This returns an [AdaptiveElement] with the correct type.
 ///
 /// It looks at the [type] property and decides which object to construct
-_AdaptiveElement getElement(
+AdaptiveElement getElement(
     Map<String, dynamic> map,
     _ReferenceResolver resolver,
     RawAdaptiveCardState widgetState,
