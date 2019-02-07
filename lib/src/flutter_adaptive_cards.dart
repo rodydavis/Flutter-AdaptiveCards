@@ -5,6 +5,9 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_adaptive_cards/src/elements/actions.dart';
+import 'package:flutter_adaptive_cards/src/elements/basics.dart';
+import 'package:flutter_adaptive_cards/src/elements/input.dart';
 import 'package:flutter_adaptive_cards/src/utils.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:uuid/uuid.dart';
@@ -160,7 +163,7 @@ class RawAdaptiveCard extends StatefulWidget {
 
 class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   // Wrapper around the host config
-  _ReferenceResolver _referenceResolver;
+  ReferenceResolver _referenceResolver;
 
   // The root element
   AdaptiveElement _adaptiveElement;
@@ -170,11 +173,11 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   @override
   void initState() {
     super.initState();
-    _referenceResolver = _ReferenceResolver(widget.hostConfig);
+    _referenceResolver = ReferenceResolver(widget.hostConfig);
 
     /// TODO no need to pass atomicIdGenerator because it is not re constructed every time
     _adaptiveElement =
-        widget.cardRegistry.getElement(widget.map, _referenceResolver, this, _AtomicIdGenerator());
+        widget.cardRegistry.getElement(widget.map, _referenceResolver, this, AtomicIdGenerator());
   }
 
   /// Every widget can access method of this class, meaning setting the state
@@ -199,7 +202,7 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   void submit(Map map) {
     _adaptiveElement.visitChildren((element) {
       print("visiting ${element.runtimeType}");
-      if (element is _AdaptiveInput) {
+      if (element is AdaptiveInput) {
         element.appendInput(map);
       }
     });
@@ -239,7 +242,7 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
 }
 
 /// The visitor, the function is called once for every element in the tree
-typedef _AdaptiveElementVisitor = void Function(AdaptiveElement element);
+typedef AdaptiveElementVisitor = void Function(AdaptiveElement element);
 
 /// The base class for every element (widget) drawn on the screen.
 ///
@@ -283,8 +286,8 @@ abstract class AdaptiveElement {
   }
 
   final Map adaptiveMap;
-  final _ReferenceResolver resolver;
-  final _AtomicIdGenerator idGenerator;
+  final ReferenceResolver resolver;
+  final AtomicIdGenerator idGenerator;
   final CardRegistry cardRegistry;
 
   String id;
@@ -337,7 +340,7 @@ abstract class AdaptiveElement {
   }
 
   /// Visits the children
-  void visitChildren(_AdaptiveElementVisitor visitor) {
+  void visitChildren(AdaptiveElementVisitor visitor) {
     visitor(this);
   }
 
@@ -352,131 +355,9 @@ abstract class AdaptiveElement {
   int get hashCode => id.hashCode;
 }
 
-/// Usually the root element of every adaptive card.
-///
-/// This container behaves like a Column/ a Container
-class _AdaptiveCardElement extends AdaptiveElement {
-  _AdaptiveCardElement(Map adaptiveMap, _ReferenceResolver resolver,
-      widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  _AdaptiveActionShowCard currentlyActiveShowCardAction;
-
-  List<AdaptiveElement> children;
-
-  List<_AdaptiveAction> allActions;
-
-  List<_AdaptiveActionShowCard> showCardActions;
-
-  Axis actionsOrientation;
-
-  String backgroundImage;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-
-    if (adaptiveMap.containsKey("actions")) {
-      allActions = List<Map>.from(adaptiveMap["actions"])
-          .map(
-              (map) => cardRegistry.getAction(map, resolver, widgetState, this, idGenerator))
-          .toList();
-      showCardActions = List<_AdaptiveActionShowCard>.from(allActions
-          .where((action) => action is _AdaptiveActionShowCard)
-          .toList());
-    } else {
-      allActions = [];
-      showCardActions = [];
-    }
-
-    String stringAxis = resolver.resolve("actions", "actionsOrientation");
-    if (stringAxis == "Horizontal")
-      actionsOrientation = Axis.horizontal;
-    else if (stringAxis == "Vertical") actionsOrientation = Axis.vertical;
-
-    children = List<Map>.from(adaptiveMap["body"])
-        .map((map) => cardRegistry.getElement(map, resolver, widgetState, idGenerator))
-        .toList();
-
-    backgroundImage = adaptiveMap['backgroundImage'];
-  }
-
-  @override
-  Widget build() {
-    List<Widget> widgetChildren =
-        children.map((element) => element.generateWidget()).toList();
-
-    // Adds the actions
-    List<Widget> actionWidgets =
-        allActions.map((action) => action.generateWidget()).toList();
-    Widget actionWidget;
-    if (actionsOrientation == Axis.vertical) {
-      actionWidget = Column(
-        children: actionWidgets,
-        mainAxisAlignment: MainAxisAlignment.start,
-      );
-    } else {
-      actionWidget = Row(
-        children: actionWidgets,
-        crossAxisAlignment: CrossAxisAlignment.start,
-      );
-    }
-    widgetChildren.add(actionWidget);
-
-    if (currentlyActiveShowCardAction != null) {
-      widgetChildren.add(currentlyActiveShowCardAction.card.build());
-    }
-    Widget result = Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: widgetChildren,
-        crossAxisAlignment: CrossAxisAlignment.start,
-      ),
-    );
 
 
-    if(backgroundImage != null) {
-      result = Stack(
-        children: <Widget>[
-          Positioned.fill(child: Image.network(backgroundImage, fit: BoxFit.cover,)),
-          result,
-        ],
-      );
-    }
-
-
-    return result;
-  }
-
-  /// This is called when an [_AdaptiveActionShowCard] triggers it.
-  void showCard(_AdaptiveActionShowCard showCardAction) {
-    if (currentlyActiveShowCardAction == showCardAction) {
-      currentlyActiveShowCardAction = null;
-    } else {
-      currentlyActiveShowCardAction = showCardAction;
-    }
-    showCardAction.expanded = !showCardAction.expanded;
-    showCardActions.where((it) => it != showCardAction).forEach((it) => () {
-          it.expanded = false;
-        }());
-    widgetState.rebuild();
-  }
-
-  @override
-  void visitChildren(_AdaptiveElementVisitor visitor) {
-    visitor(this);
-    children?.forEach((it) => it.visitChildren(visitor));
-    allActions?.forEach((it) => it.visitChildren(visitor));
-    showCardActions?.forEach((it) => it.visitChildren(visitor));
-  }
-}
-
-mixin _SeparatorElementMixin on AdaptiveElement {
+mixin SeparatorElementMixin on AdaptiveElement {
   double topSpacing;
   bool separator;
 
@@ -506,8 +387,8 @@ mixin _SeparatorElementMixin on AdaptiveElement {
   }
 }
 
-mixin _TappableElementMixin on AdaptiveElement {
-  _AdaptiveAction action;
+mixin TappableElementMixin on AdaptiveElement {
+  AdaptiveAction action;
 
   @override
   void loadTree() {
@@ -526,7 +407,7 @@ mixin _TappableElementMixin on AdaptiveElement {
     );
   }
 }
-mixin _ChildStylerMixin on AdaptiveElement {
+mixin ChildStylerMixin on AdaptiveElement {
   String style;
 
   @override
@@ -543,883 +424,11 @@ mixin _ChildStylerMixin on AdaptiveElement {
   }
 }
 
-class _AdaptiveTextBlock extends AdaptiveElement with _SeparatorElementMixin {
-  _AdaptiveTextBlock(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
 
-  FontWeight fontWeight;
-  double fontSize;
-  Color color;
-  Alignment horizontalAlignment;
-  int maxLines;
-  MarkdownStyleSheet markdownStyleSheet;
 
-  @override
-  void loadTree() {
-    super.loadTree();
-    fontSize = resolver.resolveFontSize(adaptiveMap["size"]);
-    fontWeight = resolver.resolveFontWeight(adaptiveMap["weight"]);
-    color =
-        resolver.resolveColor(adaptiveMap["color"], adaptiveMap["isSubtle"]);
-    horizontalAlignment = loadAlignment();
-    maxLines = loadMaxLines();
-    markdownStyleSheet = loadMarkdownStyleSheet();
-  }
 
-  // TODO create own widget that parses _basic_ markdown. This might help: https://docs.flutter.io/flutter/widgets/Wrap-class.html
-  Widget build() {
-    return Align(
-        alignment: horizontalAlignment,
-        child: Text(
-          text,
-          style: TextStyle(
-              fontWeight: fontWeight, fontSize: fontSize, color: color),
-          maxLines: maxLines,
-        )
-        /* child: MarkdownBody(
-        data: text,
-        styleSheet: markdownStyleSheet,
-      )*/
-        );
-  }
 
-  String get text => adaptiveMap["text"];
-
-  Alignment loadAlignment() {
-    String alignmentString = adaptiveMap["horizontalAlignment"] ?? "left";
-    switch (alignmentString) {
-      case "left":
-        return Alignment.centerLeft;
-      case "center":
-        return Alignment.center;
-      case "right":
-        return Alignment.centerRight;
-      default:
-        return Alignment.centerLeft;
-    }
-  }
-
-  /// This also takes care of the wrap property, because maxLines = 1 => no wrap
-  int loadMaxLines() {
-    bool wrap = adaptiveMap["wrap"] ?? true;
-    if (!wrap) return 1;
-    // can be null, but that's okay for the text widget.
-    return adaptiveMap["maxLines"];
-  }
-
-  /// TODO Markdown still has some problems
-  MarkdownStyleSheet loadMarkdownStyleSheet() {
-    TextStyle style =
-        TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
-    return MarkdownStyleSheet(
-      a: style,
-      blockquote: style,
-      code: style,
-      em: style,
-      strong: style.copyWith(fontWeight: FontWeight.bold),
-      p: style,
-    );
-  }
-}
-
-// TODO implement verticalContentAlignment
-class _AdaptiveContainer extends AdaptiveElement
-    with _SeparatorElementMixin, _TappableElementMixin, _ChildStylerMixin {
-  _AdaptiveContainer(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  List<AdaptiveElement> children;
-
-  Color backgroundColor;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    children = List<Map>.from(adaptiveMap["items"]).map((child) {
-      styleChild();
-      return cardRegistry.getElement(child, resolver, widgetState, idGenerator);
-    }).toList();
-
-    String colorString = resolver.hostConfig["containerStyles"]
-        [adaptiveMap["style"] ?? "default"]["backgroundColor"];
-    backgroundColor = _parseColor(colorString);
-  }
-
-  Widget build() {
-    return Container(
-      color: backgroundColor,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: children.map((it) => it.generateWidget()).toList(),
-        ),
-      ),
-    );
-  }
-
-  @override
-  void visitChildren(_AdaptiveElementVisitor visitor) {
-    visitor(this);
-    children?.forEach((it) => it.visitChildren(visitor));
-    action?.visitChildren(visitor);
-  }
-}
-
-class _AdaptiveColumnSet extends AdaptiveElement with _TappableElementMixin {
-  _AdaptiveColumnSet(Map adaptiveMap, _ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  List<_AdaptiveColumn> columns;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    // TODO handle case where there are no children elegantly
-    columns = List<Map>.from(adaptiveMap["columns"])
-        .map((child) =>
-            _AdaptiveColumn(child, resolver, widgetState, idGenerator, cardRegistry))
-        .toList();
-  }
-
-  @override
-  Widget build() {
-    return Row(
-      children:
-          columns.map((it) => Flexible(child: it.generateWidget())).toList(),
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-    );
-  }
-
-  @override
-  void visitChildren(_AdaptiveElementVisitor visitor) {
-    visitor(this);
-    columns?.forEach((it) => it.visitChildren(visitor));
-    action?.visitChildren(visitor);
-  }
-}
-
-class _AdaptiveColumn extends AdaptiveElement
-    with _SeparatorElementMixin, _TappableElementMixin, _ChildStylerMixin {
-  _AdaptiveColumn(Map adaptiveMap, _ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  List<AdaptiveElement> items;
-  //TODO implement
-  double width;
-
-  //TODO fix style (column/example3)
-  @override
-  void loadTree() {
-    super.loadTree();
-    items = List<Map>.from(adaptiveMap["items"]).map((child) {
-      styleChild();
-      return cardRegistry.getElement(child, resolver, widgetState, idGenerator);
-    }).toList();
-  }
-
-  @override
-  Widget build() {
-    return Column(
-      children: items.map((it) => it.generateWidget()).toList(),
-      crossAxisAlignment: CrossAxisAlignment.start,
-    );
-  }
-
-  @override
-  void visitChildren(_AdaptiveElementVisitor visitor) {
-    visitor(this);
-    items?.forEach((it) => it.visitChildren(visitor));
-  }
-}
-
-class _AdaptiveFactSet extends AdaptiveElement with _SeparatorElementMixin {
-  _AdaptiveFactSet(Map adaptiveMap, _ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  List<Map> facts;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    facts = List<Map>.from(adaptiveMap["facts"]).toList();
-  }
-
-  @override
-  Widget build() {
-    return Row(
-      children: [
-        Column(
-          children: facts
-              .map((fact) => Text(
-                    fact["title"],
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ))
-              .toList(),
-          crossAxisAlignment: CrossAxisAlignment.start,
-        ),
-        SizedBox(
-          width: 8.0,
-        ),
-        Column(
-          children: facts.map((fact) => Text(fact["value"])).toList(),
-          crossAxisAlignment: CrossAxisAlignment.start,
-        ),
-      ],
-      crossAxisAlignment: CrossAxisAlignment.start,
-    );
-  }
-}
-
-class _AdaptiveImage extends AdaptiveElement with _SeparatorElementMixin {
-  _AdaptiveImage(Map adaptiveMap, _ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  Alignment horizontalAlignment;
-  bool isPerson;
-  Tuple<double, double> size;
-
-  String _sizeDesciption;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    horizontalAlignment = loadAlignment();
-    isPerson = loadIsPerson();
-    size = loadSize();
-
-    _sizeDesciption = adaptiveMap["size"] ?? "auto";
-  }
-
-  @override
-  Widget build() {
-
-    //TODO alt text
-    Widget image = Image(image: NetworkImage(url));
-
-    if (isPerson) {
-      image = ClipOval(
-        clipper: FullCircleClipper(),
-        child: image,
-      );
-    }
-
-    if(_sizeDesciption != "auto" && _sizeDesciption != "stretch") {
-      image = ConstrainedBox(
-        constraints: BoxConstraints(
-            minWidth: size.a,
-            minHeight: size.a,
-            maxHeight: size.b,
-            maxWidth: size.b),
-        child: Image(image: NetworkImage(url)),
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Align(
-        alignment: horizontalAlignment,
-        child: image,
-      ),
-    );
-  }
-
-  Alignment loadAlignment() {
-    String alignmentString = adaptiveMap["horizontalAlignment"] ?? "left";
-    switch (alignmentString) {
-      case "left":
-        return Alignment.centerLeft;
-      case "center":
-        return Alignment.center;
-      case "right":
-        return Alignment.centerRight;
-      default:
-        return Alignment.centerLeft;
-    }
-  }
-
-  bool loadIsPerson() {
-    if (adaptiveMap["style"] == null || adaptiveMap["style"] == "default")
-      return false;
-    return true;
-  }
-
-  String get url => adaptiveMap["url"];
-
-  Tuple<double, double> loadSize() {
-    String sizeDescription = adaptiveMap["size"] ?? "auto";
-    if(sizeDescription == "auto" || sizeDescription == "stretch") return null;
-    int size = resolver.resolve("imageSizes", sizeDescription);
-    return Tuple(size.toDouble(), size.toDouble());
-  }
-}
-
-class _AdaptiveImageSet extends AdaptiveElement with _SeparatorElementMixin {
-  _AdaptiveImageSet(Map adaptiveMap, _ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  List<_AdaptiveImage> images;
-
-  String imageSize;
-  double maybeSize;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    images = List<Map>.from(adaptiveMap["images"])
-        .map((child) =>
-            _AdaptiveImage(child, resolver, widgetState, idGenerator, cardRegistry))
-        .toList();
-
-    loadSize();
-  }
-
-  @override
-  Widget build() {
-    return LayoutBuilder(builder: (context, constraints) {
-      return Wrap(
-        //maxCrossAxisExtent: 200.0,
-        children: images
-            .map((img) => SizedBox(
-                width: calculateSize(constraints), child: img.generateWidget()))
-            .toList(),
-        //shrinkWrap: true,
-      );
-    });
-  }
-
-  double calculateSize(BoxConstraints constraints) {
-    if (maybeSize != null) return maybeSize;
-    if (imageSize == "stretch") return constraints.maxWidth;
-    // Display a maximum of 5 children
-    if (images.length >= 5) {
-      return constraints.maxWidth / 5;
-    } else if (images.length == 0) {
-      return 0.0;
-    } else {
-      return constraints.maxWidth / images.length;
-    }
-  }
-
-  void loadSize() {
-    String sizeDescription = adaptiveMap["imageSize"] ?? "auto";
-    if (sizeDescription == "auto") {
-      imageSize = "auto";
-      return;
-    }
-    if (sizeDescription == "stretch") {
-      imageSize = "stretch";
-      return;
-    }
-    int size = resolver.resolve("imageSizes", sizeDescription);
-    maybeSize = size.toDouble();
-  }
-
-  @override
-  void visitChildren(_AdaptiveElementVisitor visitor) {
-    visitor(this);
-    images?.forEach((it) => it.visitChildren(visitor));
-  }
-}
-
-class _AdaptiveMedia extends AdaptiveElement with _SeparatorElementMixin {
-  _AdaptiveMedia(Map adaptiveMap, _ReferenceResolver resolver,
-      RawAdaptiveCardState widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  VideoPlayerController controller;
-
-  String sourceUrl;
-  String postUrl;
-  String altText;
-
-  FadeAnimation imageFadeAnim =
-      FadeAnimation(child: const Icon(Icons.play_arrow, size: 100.0));
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    postUrl = adaptiveMap["poster"];
-    sourceUrl = adaptiveMap["sources"][0]["url"];
-    controller = VideoPlayerController.network(sourceUrl);
-
-    widgetState.addDeactivateListener(() {
-      controller.dispose();
-      controller = null;
-    });
-  }
-
-  @override
-  Widget build() {
-    return Chewie(
-      controller,
-      aspectRatio: 3 / 2,
-      autoPlay: false,
-      looping: true,
-      autoInitialize: true,
-      placeholder:
-          postUrl != null ? Center(child: Image.network(postUrl)) : SizedBox(),
-    );
-  }
-}
-
-/// Text input elements
-
-abstract class _AdaptiveInput extends AdaptiveElement {
-  _AdaptiveInput(
-      {Map adaptiveMap,
-      _ReferenceResolver resolver,
-      widgetState,
-      _AtomicIdGenerator idGenerator, @required CardRegistry cardRegistry})
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  String value;
-
-  void appendInput(Map map);
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    value = adaptiveMap["value"].toString() == "null"
-        ? ""
-        : adaptiveMap["value"].toString();
-  }
-}
-
-abstract class _AdaptiveTextualInput extends _AdaptiveInput
-    with _SeparatorElementMixin {
-  _AdaptiveTextualInput(
-      {Map adaptiveMap,
-      _ReferenceResolver resolver,
-      widgetState,
-      _AtomicIdGenerator idGenerator, @required CardRegistry cardRegistry})
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  String placeholder;
-  @override
-  void loadTree() {
-    super.loadTree();
-    placeholder = adaptiveMap["placeholder"] ?? "";
-  }
-}
-
-class _AdaptiveTextInput extends _AdaptiveTextualInput {
-  _AdaptiveTextInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  TextEditingController controller = TextEditingController();
-  bool isMultiline;
-  int maxLength;
-  TextInputType style;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    isMultiline = adaptiveMap["isMultiline"] ?? false;
-    maxLength = adaptiveMap["maxLength"];
-    style = loadTextInputType();
-    controller.text = value;
-  }
-
-  @override
-  Widget build() {
-    return TextField(
-      controller: controller,
-      maxLength: maxLength,
-      keyboardType: style,
-      maxLines: isMultiline ? null : 1,
-      decoration: InputDecoration(
-        labelText: placeholder,
-      ),
-    );
-  }
-
-  @override
-  void appendInput(Map map) {
-    map[id] = controller.text;
-  }
-
-  TextInputType loadTextInputType() {
-    /// Can be one of the following:
-    /// - "text"
-    /// - "tel"
-    /// - "url"
-    /// - "email"
-    String style = adaptiveMap["style"] ?? "text";
-    switch (style) {
-      case "text":
-        return TextInputType.text;
-      case "tel":
-        return TextInputType.phone;
-      case "url":
-        return TextInputType.url;
-      case "email":
-        return TextInputType.emailAddress;
-      default:
-        return null;
-    }
-  }
-}
-
-class _AdaptiveNumberInput extends _AdaptiveTextualInput {
-  _AdaptiveNumberInput(Map adaptiveMap, _ReferenceResolver resolver,
-      widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  TextEditingController controller = TextEditingController();
-
-  int min;
-  int max;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    controller.text = value;
-    min = adaptiveMap["min"];
-    max = adaptiveMap["max"];
-  }
-
-  @override
-  Widget build() {
-    return TextField(
-      keyboardType: TextInputType.number,
-      inputFormatters: [
-        TextInputFormatter.withFunction((oldVal, newVal) {
-          if (newVal.text == "") return newVal;
-          int newNumber = int.parse(newVal.text);
-          if (newNumber >= min && newNumber <= max) return newVal;
-          return oldVal;
-        })
-      ],
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: placeholder,
-      ),
-    );
-  }
-
-  @override
-  void appendInput(Map map) {
-    map[id] = controller.text;
-  }
-}
-
-class _AdaptiveDateInput extends _AdaptiveTextualInput {
-  _AdaptiveDateInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  DateTime selectedDateTime;
-  DateTime min;
-  DateTime max;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    try {
-      selectedDateTime = DateTime.parse(value);
-      min = DateTime.parse(adaptiveMap["min"]);
-      max = DateTime.parse(adaptiveMap["max"]);
-    } catch (formatException) {}
-  }
-
-  @override
-  Widget build() {
-    return RaisedButton(
-      onPressed: () async {
-        selectedDateTime = await widgetState.pickDate(min, max);
-        widgetState.rebuild();
-      },
-      child: Text(selectedDateTime == null
-          ? placeholder
-          : selectedDateTime.toIso8601String()),
-    );
-  }
-
-  @override
-  void appendInput(Map map) {
-    map[id] = selectedDateTime.toIso8601String();
-  }
-}
-
-class _AdaptiveTimeInput extends _AdaptiveTextualInput {
-  _AdaptiveTimeInput(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            cardRegistry: cardRegistry,
-            resolver: resolver,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  TimeOfDay selectedTime;
-  TimeOfDay min;
-  TimeOfDay max;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    selectedTime = parseTime(value) ?? TimeOfDay.now();
-    min = parseTime(adaptiveMap["min"]) ?? TimeOfDay(minute: 0, hour: 0);
-    max = parseTime(adaptiveMap["max"]) ?? TimeOfDay(minute: 59, hour: 23);
-  }
-
-  TimeOfDay parseTime(String time) {
-    if (time == null) return null;
-    List<String> times = time.split(":");
-    assert(times.length == 2, "Invalid TimeOfDay format");
-    return TimeOfDay(
-      hour: int.parse(times[0]),
-      minute: int.parse(times[1]),
-    );
-  }
-
-  @override
-  Widget build() {
-    return RaisedButton(
-      onPressed: () async {
-        TimeOfDay result = await widgetState.pickTime();
-        //TODO compare times
-        if (result.hour >= min.hour && result.hour <= max.hour) {
-          widgetState
-              .showError("Time must be after ${min.format(widgetState.context)}"
-                  " and before ${max.format(widgetState.context)}");
-        } else {
-          selectedTime = result;
-          widgetState.rebuild();
-        }
-      },
-      child: Text(selectedTime == null
-          ? placeholder
-          : selectedTime.format(widgetState.context)),
-    );
-  }
-
-  @override
-  void appendInput(Map map) {
-    map[id] = selectedTime.toString();
-  }
-}
-
-class _AdaptiveToggle extends _AdaptiveInput {
-  _AdaptiveToggle(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  bool boolValue = false;
-
-  String valueOff;
-  String valueOn;
-
-  String title;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    valueOff = adaptiveMap["valueOff"] ?? "false";
-    valueOn = adaptiveMap["valueOn"] ?? "true";
-    boolValue = value == valueOn;
-    title = adaptiveMap["title"] ?? "";
-  }
-
-  @override
-  Widget build() {
-    return Row(
-      children: <Widget>[
-        Switch(
-          value: boolValue,
-          onChanged: (newValue) {
-            boolValue = newValue;
-            widgetState.rebuild();
-          },
-        ),
-        Expanded(
-          child: Text(title),
-        ),
-      ],
-    );
-  }
-
-  @override
-  void appendInput(Map map) {
-    map[id] = boolValue ? valueOn : valueOff;
-  }
-}
-
-class _AdaptiveChoiceSet extends _AdaptiveInput {
-  _AdaptiveChoiceSet(Map adaptiveMap, _ReferenceResolver resolver, widgetState,
-      _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  // Map from title to value
-  Map<String, String> choices;
-
-  // Contains the values (the things to send as request)
-  Set<String> _selectedChoice = Set();
-
-  bool isCompact;
-  bool isMultiSelect;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    choices = Map();
-    for (Map map in adaptiveMap["choices"]) {
-      choices[map["title"]] = map["value"].toString();
-    }
-    isCompact = loadCompact();
-    isMultiSelect = adaptiveMap["isMultiSelect"] ?? false;
-    _selectedChoice.addAll(value.split(","));
-  }
-
-  @override
-  void appendInput(Map map) {
-    map[id] = _selectedChoice;
-  }
-
-  @override
-  Widget build() {
-    return isCompact
-        ? isMultiSelect ? _buildExpanded() : _buildCompact()
-        : _buildExpanded();
-  }
-
-  /// This is built when multiSelect is false and isCompact is true
-  Widget _buildCompact() {
-    return DropdownButton<String>(
-      items: choices.keys
-          .map((choice) => DropdownMenuItem<String>(
-                value: choices[choice],
-                child: Text(choice),
-              ))
-          .toList(),
-      onChanged: select,
-      value: _selectedChoice.single,
-    );
-  }
-
-  Widget _buildExpanded() {
-    return Column(
-      children: choices.keys.map((key) {
-        return RadioListTile<String>(
-            value: choices[key],
-            groupValue:
-                _selectedChoice.contains(choices[key]) ? choices[key] : null,
-            title: Text(key),
-            onChanged: select);
-      }).toList(),
-    );
-  }
-
-  void select(String choice) {
-    if (!isMultiSelect) {
-      _selectedChoice.clear();
-      _selectedChoice.add(choice);
-    } else {
-      if (_selectedChoice.contains(choice)) {
-        _selectedChoice.remove(choice);
-      } else {
-        _selectedChoice.add(choice);
-      }
-    }
-    widgetState.rebuild();
-  }
-
-  bool loadCompact() {
-    if (!adaptiveMap.containsKey("style")) return false;
-    if (adaptiveMap["style"] == "compact") return true;
-    if (adaptiveMap["style"] == "expanded") return false;
-    throw StateError(
-        "The style of the ChoiceSet needs to be either compact or expanded");
-  }
-}
-
-///
-
-mixin _IconButtonMixin on _AdaptiveAction {
+mixin IconButtonMixin on AdaptiveAction {
   String iconUrl;
 
   void loadSeparator() {
@@ -1446,138 +455,7 @@ mixin _IconButtonMixin on _AdaptiveAction {
   }
 }
 
-/// Actions
 
-abstract class _AdaptiveAction extends AdaptiveElement {
-  _AdaptiveAction(
-      {Map adaptiveMap,
-      _ReferenceResolver resolver,
-      widgetState,
-      _AtomicIdGenerator idGenerator, @required CardRegistry cardRegistry})
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            widgetState: widgetState,
-            cardRegistry: cardRegistry,
-            idGenerator: idGenerator);
-
-  String get title => adaptiveMap["title"];
-
-  void onTapped();
-}
-
-class _AdaptiveActionShowCard extends _AdaptiveAction {
-  _AdaptiveActionShowCard(Map adaptiveMap, _ReferenceResolver resolver,
-      widgetState, _AtomicIdGenerator idGenerator, this._adaptiveCardElement, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  AdaptiveElement card;
-
-  final _AdaptiveCardElement _adaptiveCardElement;
-
-  bool expanded = false;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    card = cardRegistry.getElement(adaptiveMap["card"], resolver, widgetState, idGenerator);
-  }
-
-  @override
-  Widget build() {
-    return RaisedButton(
-      onPressed: onTapped,
-      child: Row(
-        children: <Widget>[
-          Text(title),
-          expanded
-              ? Icon(Icons.keyboard_arrow_up)
-              : Icon(Icons.keyboard_arrow_down),
-        ],
-      ),
-    );
-  }
-
-  @override
-  void onTapped() {
-    if (_adaptiveCardElement != null) {
-      _adaptiveCardElement.showCard(this);
-    }
-  }
-
-  @override
-  void visitChildren(_AdaptiveElementVisitor visitor) {
-    card.visitChildren(visitor);
-  }
-}
-
-class _AdaptiveActionSubmit extends _AdaptiveAction {
-  _AdaptiveActionSubmit(Map adaptiveMap, _ReferenceResolver resolver,
-      widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  Map data;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    data = adaptiveMap["data"] ?? {};
-  }
-
-  @override
-  Widget build() {
-    return RaisedButton(
-      onPressed: onTapped,
-      child: Text(title),
-    );
-  }
-
-  @override
-  void onTapped() {
-    widgetState.submit(data);
-  }
-}
-
-class _AdaptiveActionOpenUrl extends _AdaptiveAction with _IconButtonMixin {
-  _AdaptiveActionOpenUrl(Map adaptiveMap, _ReferenceResolver resolver,
-      widgetState, _AtomicIdGenerator idGenerator, CardRegistry cardRegistry)
-      : super(
-            adaptiveMap: adaptiveMap,
-            resolver: resolver,
-            cardRegistry: cardRegistry,
-            widgetState: widgetState,
-            idGenerator: idGenerator);
-
-  String url;
-  String iconUrl;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    url = adaptiveMap["url"];
-    iconUrl = adaptiveMap["iconUrl"];
-  }
-
-  @override
-  Widget build() {
-    return getButton();
-  }
-
-  @override
-  void onTapped() {
-    widgetState.openUrl(url);
-  }
-}
 
 
 
@@ -1593,67 +471,67 @@ class CardRegistry {
   /// Remove specific elements fomr the list
   final List<String> removedElements;
 
-  // TODO implement 
+  // TODO implement
 
 /// This returns an [AdaptiveElement] with the correct type.
 ///
 /// It looks at the [type] property and decides which object to construct
 AdaptiveElement getElement(
     Map<String, dynamic> map,
-    _ReferenceResolver resolver,
+    ReferenceResolver resolver,
     RawAdaptiveCardState widgetState,
-    _AtomicIdGenerator idGenerator) {
+    AtomicIdGenerator idGenerator) {
   String stringType = map["type"];
 
   switch (stringType) {
     case "Media":
-      return _AdaptiveMedia(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveMedia(map, resolver, widgetState, idGenerator, this);
     case "Container":
-      return _AdaptiveContainer(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveContainer(map, resolver, widgetState, idGenerator, this);
     case "TextBlock":
-      return _AdaptiveTextBlock(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveTextBlock(map, resolver, widgetState, idGenerator, this);
     case "AdaptiveCard":
-      return _AdaptiveCardElement(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveCardElement(map, resolver, widgetState, idGenerator, this);
     case "ColumnSet":
-      return _AdaptiveColumnSet(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveColumnSet(map, resolver, widgetState, idGenerator, this);
     case "Image":
-      return _AdaptiveImage(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveImage(map, resolver, widgetState, idGenerator, this);
     case "FactSet":
-      return _AdaptiveFactSet(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveFactSet(map, resolver, widgetState, idGenerator, this);
     case "ImageSet":
-      return _AdaptiveImageSet(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveImageSet(map, resolver, widgetState, idGenerator, this);
     case "Input.Text":
-      return _AdaptiveTextInput(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveTextInput(map, resolver, widgetState, idGenerator, this);
     case "Input.Number":
-      return _AdaptiveNumberInput(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveNumberInput(map, resolver, widgetState, idGenerator, this);
     case "Input.Date":
-      return _AdaptiveDateInput(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveDateInput(map, resolver, widgetState, idGenerator, this);
     case "Input.Time":
-      return _AdaptiveTimeInput(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveTimeInput(map, resolver, widgetState, idGenerator, this);
     case "Input.Toggle":
-      return _AdaptiveToggle(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveToggle(map, resolver, widgetState, idGenerator, this);
     case "Input.ChoiceSet":
-      return _AdaptiveChoiceSet(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveChoiceSet(map, resolver, widgetState, idGenerator, this);
   }
   throw StateError("Could not find: $stringType");
 }
 
-_AdaptiveAction getAction(
+AdaptiveAction getAction(
     Map<String, dynamic> map,
-    _ReferenceResolver resolver,
+    ReferenceResolver resolver,
     RawAdaptiveCardState widgetState,
-    _AdaptiveCardElement adaptiveCardElement,
-    _AtomicIdGenerator idGenerator) {
+    AdaptiveCardElement adaptiveCardElement,
+    AtomicIdGenerator idGenerator) {
   String stringType = map["type"];
 
   switch (stringType) {
     case "Action.ShowCard":
-      return _AdaptiveActionShowCard(
+      return AdaptiveActionShowCard(
           map, resolver, widgetState, idGenerator, adaptiveCardElement, this);
     case "Action.OpenUrl":
-      return _AdaptiveActionOpenUrl(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveActionOpenUrl(map, resolver, widgetState, idGenerator, this);
     case "Action.Submit":
-      return _AdaptiveActionSubmit(map, resolver, widgetState, idGenerator, this);
+      return AdaptiveActionSubmit(map, resolver, widgetState, idGenerator, this);
   }
   throw StateError("Could not find: $stringType");
 }
@@ -1664,8 +542,8 @@ _AdaptiveAction getAction(
 /// Resolves values based on the host config.
 ///
 /// All values can also be null, in that case the default is used
-class _ReferenceResolver {
-  _ReferenceResolver(this.hostConfig);
+class ReferenceResolver {
+  ReferenceResolver(this.hostConfig);
 
   final Map hostConfig;
 
@@ -1723,7 +601,7 @@ class _ReferenceResolver {
     String colorValue = hostConfig["containerStyles"][_currentStyle]
             ["foregroundColors"][firstCharacterToLowerCase(myColor)]
         [subtleOrDefault];
-    return _parseColor(colorValue);
+    return parseColor(colorValue);
   }
 
   /// This is to correctly resolve corresponding styles in a container
@@ -1745,19 +623,9 @@ class _ReferenceResolver {
   }
 }
 
-Color _parseColor(String colorValue) {
-  // No alpha
-  if (colorValue.length == 7) {
-    return Color(int.parse(colorValue.substring(1, 7), radix: 16) + 0xFF000000);
-  } else if (colorValue.length == 9) {
-    return Color(int.parse(colorValue.substring(1, 9), radix: 16));
-  } else {
-    throw StateError("$colorValue is not a valid color");
-  }
-}
 
 /// Some elements always need an id to function
-/// (Looking at you [_AdaptiveActionShowCard]) because the objects are rebuilt
+/// (Looking at you [AdaptiveActionShowCard]) because the objects are rebuilt
 /// every build time using a UUID generator wouldn't work (different ids for
 /// the same objects). But the elements are traversed the same way every time.
 ///
@@ -1765,7 +633,7 @@ Color _parseColor(String colorValue) {
 /// are different but same objects maintain their ids.
 ///
 /// TODO replace with UUID
-class _AtomicIdGenerator {
+class AtomicIdGenerator {
   int index = 0;
 
   String _idPrefix = "pleaseDontUseThisIdAnywhereElse";

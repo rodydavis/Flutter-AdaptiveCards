@@ -78,3 +78,14 @@ class FullCircleClipper extends CustomClipper<Rect> {
   @override
   bool shouldReclip(CustomClipper<Rect> oldClipper) => false;
 }
+
+Color parseColor(String colorValue) {
+  // No alpha
+  if (colorValue.length == 7) {
+    return Color(int.parse(colorValue.substring(1, 7), radix: 16) + 0xFF000000);
+  } else if (colorValue.length == 9) {
+    return Color(int.parse(colorValue.substring(1, 9), radix: 16));
+  } else {
+    throw StateError("$colorValue is not a valid color");
+  }
+}
