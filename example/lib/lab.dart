@@ -39,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: new Text('Adpative cards lab'),
       ),
       body: new Center(
-       child: DemoAdaptiveCard("lib/samples/example10",),
+       child: SingleChildScrollView(child: IntrinsicHeight(child: DemoAdaptiveCard("lib/samples/example8",))),
       ),
     );
   }

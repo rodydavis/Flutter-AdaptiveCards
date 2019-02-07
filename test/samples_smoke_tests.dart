@@ -17,6 +17,13 @@ void main() {
       final binding = tester.binding as AutomatedTestWidgetsFlutterBinding;
       binding.addTime(Duration(seconds: 10));
       Widget widget = getWidget('example$i', 'host_config');
+
+      // This ones pretty big, we need to wrap in in a scrollable
+      if(i == 8) {
+        widget = SingleChildScrollView(
+          child: IntrinsicHeight(child: widget),
+        );
+      }
       await tester.pumpWidget(widget);
     });
   }
