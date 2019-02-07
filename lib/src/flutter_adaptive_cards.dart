@@ -1,6 +1,7 @@
 library flutter_adaptive_cards;
 
 import 'dart:async';
+import 'package:uuid/uuid.dart';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
@@ -164,7 +165,7 @@ class RawAdaptiveCard extends StatefulWidget {
 class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   // Wrapper around the host config
   ReferenceResolver resolver;
-  AtomicIdGenerator idGenerator;
+  UUIDGenerator idGenerator;
   CardRegistry cardRegistry;
 
   // The root element
@@ -176,7 +177,7 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   void initState() {
     super.initState();
     resolver = ReferenceResolver(widget.hostConfig);
-    idGenerator = AtomicIdGenerator();
+    idGenerator = UUIDGenerator();
     cardRegistry = widget.cardRegistry;
 
     /// TODO no need to pass atomicIdGenerator because it is not re constructed every time
@@ -617,25 +618,19 @@ class ReferenceResolver {
 }
 
 
-/// Some elements always need an id to function
-/// (Looking at you [AdaptiveActionShowCard]) because the objects are rebuilt
-/// every build time using a UUID generator wouldn't work (different ids for
-/// the same objects). But the elements are traversed the same way every time.
-///
-/// A new instance of this class is used every build time to ensure that all ids
-/// are different but same objects maintain their ids.
-///
-/// TODO replace with UUID
-class AtomicIdGenerator {
-  int index = 0;
 
-  String _idPrefix = "pleaseDontUseThisIdAnywhereElse";
+
+class UUIDGenerator {
+
+  UUIDGenerator(): uuid = Uuid();
+
+  final Uuid uuid;
 
   String getId() {
-    String id = "$_idPrefix.$index";
-    index++;
-    return id;
+   return uuid.v1();
   }
-}
 
+
+
+}
 
