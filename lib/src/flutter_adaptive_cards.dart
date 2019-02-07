@@ -356,107 +356,6 @@ abstract class AdaptiveElement {
 
 
 
-mixin SeparatorElementMixin on AdaptiveElement {
-  double topSpacing;
-  bool separator;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    topSpacing = widgetState.resolver.resolveSpacing(adaptiveMap["spacing"]);
-    separator = adaptiveMap["separator"] ?? false;
-  }
-
-  @override
-  Widget generateWidget() {
-    assert(separator != null,
-        "Did you forget to call loadSeperator in this class?");
-    return Column(
-      children: <Widget>[
-        separator
-            ? Divider(
-                height: topSpacing,
-              )
-            : SizedBox(
-                height: topSpacing,
-              ),
-        super.generateWidget(),
-      ],
-    );
-  }
-}
-
-mixin TappableElementMixin on AdaptiveElement {
-  AdaptiveAction action;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    if (adaptiveMap.containsKey("selectAction")) {
-      action = widgetState.cardRegistry.getAction(adaptiveMap["selectAction"], widgetState,null);
-    }
-  }
-
-  @override
-  Widget generateWidget() {
-    return InkWell(
-      onTap: action?.onTapped,
-      child: super.generateWidget(),
-    );
-  }
-}
-mixin ChildStylerMixin on AdaptiveElement {
-  String style;
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    style = adaptiveMap["style"];
-  }
-
-  void styleChild() {
-    // The container needs to set the style in every iteration
-    if (style != null) {
-      widgetState.resolver.setContainerStyle(style);
-    }
-  }
-}
-
-
-
-
-
-mixin IconButtonMixin on AdaptiveAction {
-  String iconUrl;
-
-  void loadSeparator() {
-    iconUrl = adaptiveMap["iconUrl"];
-  }
-
-  Widget getButton() {
-    Widget result = RaisedButton(
-      onPressed: onTapped,
-      child: Text(title),
-    );
-
-    if (iconUrl != null) {
-      result = RaisedButton.icon(
-        onPressed: onTapped,
-        icon: Image.network(
-          iconUrl,
-          height: 36.0,
-        ),
-        label: Text(title),
-      );
-    }
-    return result;
-  }
-}
-
-
-
-
-
 
 class CardRegistry {
 
@@ -629,8 +528,5 @@ class UUIDGenerator {
   String getId() {
    return uuid.v1();
   }
-
-
-
 }
 

@@ -2,7 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
 import 'package:flutter_adaptive_cards/src/elements/basics.dart';
 
-/// Actions
+
+
+mixin IconButtonMixin on AdaptiveAction {
+  String iconUrl;
+
+  void loadSeparator() {
+    iconUrl = adaptiveMap["iconUrl"];
+  }
+
+  Widget getButton() {
+    Widget result = RaisedButton(
+      onPressed: onTapped,
+      child: Text(title),
+    );
+
+    if (iconUrl != null) {
+      result = RaisedButton.icon(
+        onPressed: onTapped,
+        icon: Image.network(
+          iconUrl,
+          height: 36.0,
+        ),
+        label: Text(title),
+      );
+    }
+    return result;
+  }
+}
 
 abstract class AdaptiveAction extends AdaptiveElement {
   AdaptiveAction({Map adaptiveMap, widgetState,})

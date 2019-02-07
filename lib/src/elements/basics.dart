@@ -6,6 +6,74 @@ import 'package:flutter_adaptive_cards/src/utils.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:video_player/video_player.dart';
 
+
+mixin SeparatorElementMixin on AdaptiveElement {
+  double topSpacing;
+  bool separator;
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    topSpacing = widgetState.resolver.resolveSpacing(adaptiveMap["spacing"]);
+    separator = adaptiveMap["separator"] ?? false;
+  }
+
+  @override
+  Widget generateWidget() {
+    assert(separator != null,
+    "Did you forget to call loadSeperator in this class?");
+    return Column(
+      children: <Widget>[
+        separator
+            ? Divider(
+          height: topSpacing,
+        )
+            : SizedBox(
+          height: topSpacing,
+        ),
+        super.generateWidget(),
+      ],
+    );
+  }
+}
+
+mixin TappableElementMixin on AdaptiveElement {
+  AdaptiveAction action;
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    if (adaptiveMap.containsKey("selectAction")) {
+      action = widgetState.cardRegistry.getAction(adaptiveMap["selectAction"], widgetState,null);
+    }
+  }
+
+  @override
+  Widget generateWidget() {
+    return InkWell(
+      onTap: action?.onTapped,
+      child: super.generateWidget(),
+    );
+  }
+}
+mixin ChildStylerMixin on AdaptiveElement {
+  String style;
+
+  @override
+  void loadTree() {
+    super.loadTree();
+    style = adaptiveMap["style"];
+  }
+
+  void styleChild() {
+    // The container needs to set the style in every iteration
+    if (style != null) {
+      widgetState.resolver.setContainerStyle(style);
+    }
+  }
+}
+
+
 /// Usually the root element of every adaptive card.
 ///
 /// This container behaves like a Column/ a Container

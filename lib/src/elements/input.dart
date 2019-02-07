@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
+import 'package:flutter_adaptive_cards/src/elements/basics.dart';
 
 /// Text input elements
 
