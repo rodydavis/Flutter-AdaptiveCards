@@ -456,10 +456,10 @@ class AdaptiveImage extends AdaptiveElement with SeparatorElementMixin {
       padding: const EdgeInsets.all(8.0),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-            minWidth: size.a,
-            minHeight: size.a,
-            maxHeight: size.b,
-            maxWidth: size.b),
+            minWidth: size == null? 0 : size.a,
+            minHeight: size == null? 0 : size.a,
+            maxHeight: size == null? double.infinity : size.b,
+            maxWidth: size == null? double.infinity : size.b),
         child: Align(
           alignment: horizontalAlignment,
           child: image,

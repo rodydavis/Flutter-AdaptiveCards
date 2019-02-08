@@ -82,6 +82,14 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 See also the list of [contributors](https://github.com/Norbert515/flutter_adaptive_cards/contributors) who participated in this project.
 
+
+## Testing
+
+To update the golden files run:
+```
+flutter test --update-goldens test/sample_golden_test.dart
+```
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
