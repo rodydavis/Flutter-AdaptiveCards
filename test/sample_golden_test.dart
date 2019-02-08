@@ -111,5 +111,89 @@ void main() {
 
   });
 
+  testWidgets('Golden Sample 3', (tester) async {
 
+    final binding = tester.binding as AutomatedTestWidgetsFlutterBinding;
+    binding.addTime(Duration(seconds: 4));
+
+    ValueKey key = ValueKey('paint');
+    Widget sample1 = getSampleForGoldenTest(key, 'example3');
+
+    await tester.pumpWidget(sample1);
+    await tester.pumpAndSettle();
+
+    await expectLater(
+        find.byKey(key),
+        matchesGoldenFile('gold_files/sample3-base.png')
+    );
+
+  });
+
+  testWidgets('Golden Sample 4', (tester) async {
+
+    final binding = tester.binding as AutomatedTestWidgetsFlutterBinding;
+    binding.addTime(Duration(seconds: 4));
+
+    ValueKey key = ValueKey('paint');
+    Widget sample1 = getSampleForGoldenTest(key, 'example4');
+
+    await tester.pumpWidget(sample1);
+    await tester.pumpAndSettle();
+
+    await expectLater(
+        find.byKey(key),
+        matchesGoldenFile('gold_files/sample4-base.png')
+    );
+
+  });
+
+
+  testWidgets('Golden Sample 5', (tester) async {
+
+    final binding = tester.binding as AutomatedTestWidgetsFlutterBinding;
+    binding.addTime(Duration(seconds: 4));
+
+    ValueKey key = ValueKey('paint');
+    Widget sample1 = getSampleForGoldenTest(key, 'example5');
+
+    await tester.pumpWidget(sample1);
+    await tester.pumpAndSettle();
+
+    await expectLater(
+        find.byKey(key),
+        matchesGoldenFile('gold_files/sample5-base.png')
+    );
+
+    expect(find.widgetWithText(RaisedButton, "Steak"), findsOneWidget);
+    expect(find.widgetWithText(RaisedButton, "Chicken"), findsOneWidget);
+    expect(find.widgetWithText(RaisedButton, "Tofu"), findsOneWidget);
+
+
+    await tester.tap(find.widgetWithText(RaisedButton, 'Steak'));
+    await tester.pump();
+
+    await expectLater(
+        find.byKey(key),
+        matchesGoldenFile('gold_files/sample5-steak.png')
+    );
+
+    await tester.tap(find.widgetWithText(RaisedButton, 'Chicken'));
+    await tester.pump();
+
+
+    await expectLater(
+        find.byKey(key),
+        matchesGoldenFile('gold_files/sample5-chicken.png')
+    );
+
+
+    await tester.tap(find.widgetWithText(RaisedButton, 'Tofu'));
+    await tester.pump();
+
+
+    await expectLater(
+        find.byKey(key),
+        matchesGoldenFile('gold_files/sample5-tofu.png')
+    );
+  });
 }
