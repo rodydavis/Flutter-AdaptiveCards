@@ -577,7 +577,8 @@ class AdaptiveMedia extends AdaptiveElement with SeparatorElementMixin {
       adaptiveMap: adaptiveMap,
       widgetState: widgetState);
 
-  VideoPlayerController controller;
+  VideoPlayerController videoPlayerController;
+  ChewieController controller;
 
   String sourceUrl;
   String postUrl;
@@ -591,8 +592,17 @@ class AdaptiveMedia extends AdaptiveElement with SeparatorElementMixin {
     super.loadTree();
     postUrl = adaptiveMap["poster"];
     sourceUrl = adaptiveMap["sources"][0]["url"];
-    controller = VideoPlayerController.network(sourceUrl);
+    videoPlayerController = VideoPlayerController.network(sourceUrl);
 
+    controller = ChewieController(
+      aspectRatio: 3 / 2,
+      autoPlay: false,
+      looping: true,
+      autoInitialize: true,
+      placeholder:
+      postUrl != null ? Center(child: Image.network(postUrl)) : SizedBox(),
+      videoPlayerController: videoPlayerController,
+    );
     widgetState.addDeactivateListener(() {
       controller.dispose();
       controller = null;
@@ -601,14 +611,6 @@ class AdaptiveMedia extends AdaptiveElement with SeparatorElementMixin {
 
   @override
   Widget build() {
-    return Chewie(
-      controller,
-      aspectRatio: 3 / 2,
-      autoPlay: false,
-      looping: true,
-      autoInitialize: true,
-      placeholder:
-      postUrl != null ? Center(child: Image.network(postUrl)) : SizedBox(),
-    );
+    return Chewie(controller: controller,);
   }
 }
