@@ -196,4 +196,23 @@ void main() {
         matchesGoldenFile('gold_files/sample5-tofu.png')
     );
   });
+ // TODO add other tests
+  testWidgets('Golden Sample 14', (tester) async {
+
+    final binding = tester.binding as AutomatedTestWidgetsFlutterBinding;
+    binding.addTime(Duration(seconds: 4));
+
+    ValueKey key = ValueKey('paint');
+    Widget sample1 = getSampleForGoldenTest(key, 'example14');
+
+    await tester.pumpWidget(sample1);
+    await tester.pumpAndSettle();
+
+    await expectLater(
+        find.byKey(key),
+        matchesGoldenFile('gold_files/sample14-base.png')
+    );
+
+  });
+
 }
