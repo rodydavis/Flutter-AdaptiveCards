@@ -603,6 +603,7 @@ class AdaptiveMedia extends AdaptiveElement with SeparatorElementMixin {
       postUrl != null ? Center(child: Image.network(postUrl)) : SizedBox(),
       videoPlayerController: videoPlayerController,
     );
+
     widgetState.addDeactivateListener(() {
       controller.dispose();
       controller = null;

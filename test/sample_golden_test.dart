@@ -16,6 +16,9 @@ Widget getSampleForGoldenTest(Key key, String sampleName) {
       key: key,
       child: Scaffold(
         appBar: AppBar(),
+        body: Center(
+          child: sample,
+        ),
       ),
     ),
   );
@@ -28,35 +31,84 @@ void main() {
     HttpOverrides.global = MyTestHttpOverrides();
   });
 
-  testWidgets('Golden test 1', (tester) async {
-
+  testWidgets('Golden Sample 1', (tester) async {
 
     final binding = tester.binding as AutomatedTestWidgetsFlutterBinding;
     binding.addTime(Duration(seconds: 4));
 
     ValueKey key = ValueKey('paint');
-    Widget sample1 = getWidthDefaultHostConfig('example1');
+    Widget sample1 = getSampleForGoldenTest(key, 'example1');
 
     //await tester.pumpWidget(SizedBox(width:100,height:100,child: Center(child: RepaintBoundary(child: SizedBox(width:500, height: 1200,child: sample1), key: key,))));
-    await tester.pumpWidget(MaterialApp(
-      home: RepaintBoundary(
-        key: key,
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text("hi"),
-          ),
-          body: Center(
-            child: sample1,
-          ),
-        ),
-      ),
-    ));
+    await tester.pumpWidget(sample1);
     await tester.pumpAndSettle();
 
     await expectLater(
       find.byKey(key),
-      matchesGoldenFile('gold_files/sample1-golden.png')
+      matchesGoldenFile('gold_files/sample1-base.png')
     );
+
+    expect(find.widgetWithText(RaisedButton, 'Set due date'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(RaisedButton, 'Set due date'));
+    await tester.pump();
+
+    await expectLater(
+      find.byKey(key),
+      matchesGoldenFile('gold_files/sample1_set_due_date.png')
+    );
+
+    expect(find.widgetWithText(RaisedButton, "OK"), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(RaisedButton, "Comment"));
+    await tester.pump();
+
+
+    await expectLater(
+        find.byKey(key),
+        matchesGoldenFile('gold_files/sample1_comment.png')
+    );
+
+  });
+  testWidgets('Golden Sample 2', (tester) async {
+
+    final binding = tester.binding as AutomatedTestWidgetsFlutterBinding;
+    binding.addTime(Duration(seconds: 4));
+
+    ValueKey key = ValueKey('paint');
+    Widget sample1 = getSampleForGoldenTest(key, 'example2');
+
+    //await tester.pumpWidget(SizedBox(width:100,height:100,child: Center(child: RepaintBoundary(child: SizedBox(width:500, height: 1200,child: sample1), key: key,))));
+    await tester.pumpWidget(sample1);
+    await tester.pumpAndSettle();
+
+    await expectLater(
+        find.byKey(key),
+        matchesGoldenFile('gold_files/sample2-base.png')
+    );
+
+
+    expect(find.widgetWithText(RaisedButton, "I'll be late"), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(RaisedButton, "I'll be late"));
+    await tester.pumpAndSettle();
+
+
+    await expectLater(
+        find.byKey(key),
+        matchesGoldenFile('gold_files/sample2_ill_be_late.png')
+    );
+
+    expect(find.widgetWithText(RaisedButton, 'Snooze'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(RaisedButton, 'Snooze'));
+    await tester.pumpAndSettle();
+
+    await expectLater(
+        find.byKey(key),
+        matchesGoldenFile('gold_files/sample2_snooze.png')
+    );
+
   });
 
 
