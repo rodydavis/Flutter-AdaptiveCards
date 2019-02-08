@@ -325,8 +325,7 @@ class AdaptiveColumnSet extends AdaptiveElement with TappableElementMixin {
     super.loadTree();
     // TODO handle case where there are no children elegantly
     columns = List<Map>.from(adaptiveMap["columns"])
-        .map((child) =>
-        AdaptiveColumn(child, widgetState ))
+        .map((child) => AdaptiveColumn(child, widgetState))
         .toList();
   }
 
@@ -453,22 +452,18 @@ class AdaptiveImage extends AdaptiveElement with SeparatorElementMixin {
       );
     }
 
-    if(_sizeDesciption != "auto" && _sizeDesciption != "stretch") {
-      image = ConstrainedBox(
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ConstrainedBox(
         constraints: BoxConstraints(
             minWidth: size.a,
             minHeight: size.a,
             maxHeight: size.b,
             maxWidth: size.b),
-        child: Image(image: NetworkImage(url)),
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Align(
-        alignment: horizontalAlignment,
-        child: image,
+        child: Align(
+          alignment: horizontalAlignment,
+          child: image,
+        ),
       ),
     );
   }
