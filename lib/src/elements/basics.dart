@@ -202,6 +202,7 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
   Alignment horizontalAlignment;
   int maxLines;
   MarkdownStyleSheet markdownStyleSheet;
+  String text;
 
   @override
   void loadTree() {
@@ -213,6 +214,8 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
     horizontalAlignment = loadAlignment();
     maxLines = loadMaxLines();
     markdownStyleSheet = loadMarkdownStyleSheet();
+
+    text = parseTextString(adaptiveMap['text']);
   }
 
   // TODO create own widget that parses _basic_ markdown. This might help: https://docs.flutter.io/flutter/widgets/Wrap-class.html
@@ -232,7 +235,6 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
     );
   }
 
-  String get text => adaptiveMap["text"];
 
   Alignment loadAlignment() {
     String alignmentString = adaptiveMap["horizontalAlignment"] ?? "left";
