@@ -91,6 +91,7 @@ Color parseColor(String colorValue) {
 }
 
 
+// TODO localize
 String _weekDayToString(int weekday, bool short) {
 
   switch(weekday) {
@@ -134,10 +135,12 @@ String _numberToText(int number) {
   }
 }
 
+
+
 /// Parses a given text string to property handle DATE() and TIME()
 /// TODO this needs a bunch of tests
 String parseTextString(String text) {
-  text.replaceAllMapped(RegExp(r'{{.*}}'), (match) {
+  return text.replaceAllMapped(RegExp(r'{{.*}}'), (match) {
     String res = match.group(0);
     String input = res.substring(2, res.length -2);
     input = input.replaceAll(" ", "");
@@ -149,9 +152,12 @@ String parseTextString(String text) {
       if(items.length == 1) {
         items.add("COMPACT");
       }
-      if(items.length != 2) throw StateError("$dateFunction is not valid");
+      //if(items.length != 2) throw StateError("$dateFunction is not valid");
+      // Wrong format
+      if(items.length != 2) return res;
 
-      DateTime dateTime = DateTime.parse(items[0]);
+      DateTime dateTime = DateTime.tryParse(items[0]);
+      if(dateTime == null) return res;
       if(items[1] == "COMPACT") {
         return "${dateTime.day}/${dateTime.month}/${dateTime.year}";
       } else if(items[1] == "SHORT") {
@@ -161,18 +167,33 @@ String parseTextString(String text) {
         return "${_weekDayToString(dateTime.weekday, false)}, ${_monthToString(dateTime.month, false)} "
             "${_numberToText(dateTime.day)}, ${dateTime.year}";
       } else {
-        throw StateError("${items[1]} is not a valid format");
+        //throw StateError("${items[1]} is not a valid format");
+        // Wrong format
+        return res;
       }
 
 
     } else if(type == "TIME") {
+      String time = input.substring(5, input.length - 1);
+      DateTime dateTime = DateTime.tryParse(time);
+      if(dateTime == null) return res;
+
+      int hour;
+      String postFix;
+      if(dateTime.hour > 12) {
+        hour = dateTime.hour - 12;
+        postFix = "PM";
+      } else {
+        hour = dateTime.hour;
+        postFix = "AM";
+      }
+      return "$hour:${dateTime.minute.toString().padLeft(2,'0')} $postFix";
 
     } else {
-      throw StateError("Function $type not found");
+      // Wrong format
+      return res;
+      //throw StateError("Function $type not found");
     }
-
-    print("Match: ${type}");
   });
-  return text;
 
 }
