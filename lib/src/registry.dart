@@ -12,11 +12,17 @@ typedef ActionCreator = AdaptiveAction Function(Map<String, dynamic> map,
 /// Entry point for registering adaptive cards
 ///
 /// 1. Providing custom elements
-///  TODO
+/// Add the element to [addedElements]. It takes the name of the element
+/// as its key and it takes a function which generates an [AdaptiveElement] with
+/// a given map and a widgetState
 ///
 /// 2. Overwriting custom elements
+/// Just use the same name as the element you want to override
 ///
 /// 3. Deleting existing elements
+///
+/// Delete an element even if you have provided it yourself via the [addedElements]
+///
 class CardRegistry {
   const CardRegistry(
       {this.removedElements = const [],

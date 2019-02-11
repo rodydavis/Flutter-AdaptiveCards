@@ -178,7 +178,6 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
     idGenerator = UUIDGenerator();
     cardRegistry = widget.cardRegistry;
 
-    /// TODO no need to pass atomicIdGenerator because it is not re constructed every time
     _adaptiveElement =
         widget.cardRegistry.getElement(widget.map, this);
   }
