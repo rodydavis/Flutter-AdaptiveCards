@@ -13,6 +13,12 @@ Widget getWidthDefaultHostConfig(String name) {
   return getWidget(name, 'host_config');
 }
 
+Map getDefaultHostConfig() {
+  var hostConfigFile = File('test/host_configs/host_config');
+  String config = hostConfigFile.readAsStringSync();
+  return json.decode(config);
+}
+
 
 Widget getWidget(String path, String hostConfigPath){
   var file = File('test/samples/$path');

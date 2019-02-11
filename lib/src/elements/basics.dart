@@ -612,3 +612,57 @@ class AdaptiveMedia extends AdaptiveElement with SeparatorElementMixin {
     return Chewie(controller: controller,);
   }
 }
+
+/// Element for an unknown type
+///
+/// This Element is returned when an unknown element type is encountered.
+///
+/// When in production, these are blank elements which don't render anything.
+///
+/// In debug mode these contain an error message describing the problem.
+class AdaptiveUnknown extends AdaptiveElement
+    with SeparatorElementMixin, TappableElementMixin, ChildStylerMixin {
+  AdaptiveUnknown (Map adaptiveMap, widgetState, this.type)
+      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+
+
+  /// Type of the unknown elements
+  final String type;
+
+
+  Widget build() {
+
+    Widget result = SizedBox();
+
+    // Only do this in debug mode
+    assert(() {
+      result = ErrorWidget(
+        "Type $type not found. \n\n"
+        "Because of this, a portion of the tree was dropped: \n"
+        "$adaptiveMap"
+      );
+
+      return true;
+    }());
+
+    return result;
+
+  }
+
+}
+
+class AdaptiveActionUnknown extends AdaptiveAction with IconButtonMixin {
+  AdaptiveActionUnknown (Map adaptiveMap, widgetState, String type)
+      : adaptiveUnknown = AdaptiveUnknown(adaptiveMap, widgetState, type),
+        super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+
+  final AdaptiveUnknown adaptiveUnknown;
+
+  @override
+  Widget build() {
+    return adaptiveUnknown.build();
+  }
+
+  @override
+  void onTapped() {}
+}

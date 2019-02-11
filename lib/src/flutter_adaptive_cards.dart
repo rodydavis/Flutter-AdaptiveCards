@@ -1,6 +1,7 @@
 library flutter_adaptive_cards;
 
 import 'dart:async';
+import 'package:flutter_adaptive_cards/src/registry.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -162,7 +163,7 @@ class RawAdaptiveCard extends StatefulWidget {
 class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   // Wrapper around the host config
   ReferenceResolver resolver;
-  UUIDGenerator _idGenerator;
+  UUIDGenerator idGenerator;
   CardRegistry cardRegistry;
 
   // The root element
@@ -174,7 +175,7 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   void initState() {
     super.initState();
     resolver = ReferenceResolver(widget.hostConfig);
-    _idGenerator = UUIDGenerator();
+    idGenerator = UUIDGenerator();
     cardRegistry = widget.cardRegistry;
 
     /// TODO no need to pass atomicIdGenerator because it is not re constructed every time
@@ -326,7 +327,7 @@ abstract class AdaptiveElement {
     if (adaptiveMap.containsKey("id")) {
       id = adaptiveMap["id"];
     } else {
-      id = widgetState._idGenerator.getId();
+      id = widgetState.idGenerator.getId();
     }
   }
 
@@ -354,84 +355,7 @@ abstract class AdaptiveElement {
 
 
 
-class CardRegistry {
 
-  const CardRegistry({Map<String, AdaptiveElement> addedElements = const {}, List<String> removedElements = const []})
-  : _elements = const {}, removedElements = const [], addedElements = const {} ;
-
-  /// Provide custom elements to use.
-  /// When providing an element which is already defined, it is overwritten
-  final Map<String, AdaptiveElement> addedElements;
-
-  /// Remove specific elements fomr the list
-  final List<String> removedElements;
-
-  /// The resolved elements mape
-  final Map<String, AdaptiveElement> _elements;
-
-
-  // TODO implement
-
-/// This returns an [AdaptiveElement] with the correct type.
-///
-/// It looks at the [type] property and decides which object to construct
-AdaptiveElement getElement(
-    Map<String, dynamic> map,
-    RawAdaptiveCardState widgetState) {
-  String stringType = map["type"];
-
-  switch (stringType) {
-    case "Media":
-      return AdaptiveMedia(map, widgetState);
-    case "Container":
-      return AdaptiveContainer(map, widgetState);
-    case "TextBlock":
-      return AdaptiveTextBlock(map, widgetState);
-    case "AdaptiveCard":
-      return AdaptiveCardElement(map, widgetState);
-    case "ColumnSet":
-      return AdaptiveColumnSet(map, widgetState);
-    case "Image":
-      return AdaptiveImage(map, widgetState);
-    case "FactSet":
-      return AdaptiveFactSet(map, widgetState);
-    case "ImageSet":
-      return AdaptiveImageSet(map, widgetState);
-    case "Input.Text":
-      return AdaptiveTextInput(map, widgetState);
-    case "Input.Number":
-      return AdaptiveNumberInput(map, widgetState);
-    case "Input.Date":
-      return AdaptiveDateInput(map, widgetState);
-    case "Input.Time":
-      return AdaptiveTimeInput(map, widgetState);
-    case "Input.Toggle":
-      return AdaptiveToggle(map, widgetState);
-    case "Input.ChoiceSet":
-      return AdaptiveChoiceSet(map, widgetState);
-  }
-  throw StateError("Could not find: $stringType");
-}
-
-AdaptiveAction getAction(
-    Map<String, dynamic> map,
-    RawAdaptiveCardState widgetState,
-    AdaptiveCardElement adaptiveCardElement) {
-  String stringType = map["type"];
-
-  switch (stringType) {
-    case "Action.ShowCard":
-      return AdaptiveActionShowCard(
-          map, widgetState, adaptiveCardElement);
-    case "Action.OpenUrl":
-      return AdaptiveActionOpenUrl(map, widgetState);
-    case "Action.Submit":
-      return AdaptiveActionSubmit(map, widgetState);
-  }
-  throw StateError("Could not find: $stringType");
-}
-
-}
 
 
 /// Resolves values based on the host config.
