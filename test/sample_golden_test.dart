@@ -29,6 +29,8 @@ void main() {
   // Deliver actual images
   setUp(() {
     HttpOverrides.global = MyTestHttpOverrides();
+    WidgetsBinding.instance.renderView.configuration =
+        TestViewConfiguration(size: const Size(500, 700));
   });
 
   testWidgets('Golden Sample 1', (tester) async {
@@ -126,6 +128,7 @@ void main() {
         find.byKey(key),
         matchesGoldenFile('gold_files/sample3-base.png')
     );
+    await tester.pump(Duration(seconds: 1));
 
   });
 
@@ -213,6 +216,7 @@ void main() {
         matchesGoldenFile('gold_files/sample14-base.png')
     );
 
+    await tester.pump(Duration(seconds: 1));
   });
 
 }
