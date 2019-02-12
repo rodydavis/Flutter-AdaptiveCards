@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_cards/src/elements/basics.dart';
 import 'package:flutter_adaptive_cards/src/elements/actions.dart';
 import 'package:flutter_adaptive_cards/src/elements/input.dart';
@@ -124,4 +125,22 @@ class CardRegistry {
     }
     return AdaptiveActionUnknown(map, widgetState, stringType);
   }
+}
+
+class DefaultCardRegistry extends InheritedWidget {
+  DefaultCardRegistry({
+    Key key,
+    @required this.cardRegistry,
+    @required Widget child,
+  }) : super(key: key, child: child);
+
+  final CardRegistry cardRegistry;
+
+  static CardRegistry of(BuildContext context) {
+    DefaultCardRegistry cardRegistry = context.inheritFromWidgetOfExactType(DefaultCardRegistry);
+    if(cardRegistry == null) return null;
+    return cardRegistry.cardRegistry;
+  }
+  @override
+  bool updateShouldNotify(DefaultCardRegistry oldWidget) => oldWidget != this;
 }

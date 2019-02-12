@@ -6,8 +6,6 @@ import 'package:uuid/uuid.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_adaptive_cards/src/elements/actions.dart';
-import 'package:flutter_adaptive_cards/src/elements/basics.dart';
 import 'package:flutter_adaptive_cards/src/elements/input.dart';
 import 'package:flutter_adaptive_cards/src/utils.dart';
 import 'package:http/http.dart' as http;
@@ -74,7 +72,7 @@ class AdaptiveCard extends StatefulWidget {
   AdaptiveCard.network({
     Key key,
     this.placeholder,
-    this.cardRegistry = const CardRegistry(),
+    this.cardRegistry,
     @required String url,
     @required String hostConfigPath,
   }) : adaptiveCardContentProvider = NetworkAdaptiveCardContentProvider(
@@ -83,7 +81,7 @@ class AdaptiveCard extends StatefulWidget {
   AdaptiveCard.asset({
     Key key,
     this.placeholder,
-    this.cardRegistry = const CardRegistry(),
+    this.cardRegistry,
     @required String assetPath,
     @required String hostConfigPath,
   }) : adaptiveCardContentProvider = AssetAdaptiveCardContentProvider(
@@ -92,7 +90,7 @@ class AdaptiveCard extends StatefulWidget {
   AdaptiveCard.memory({
     Key key,
     this.placeholder,
-    this.cardRegistry = const CardRegistry(),
+    this.cardRegistry,
     @required Map content,
     @required String hostConfigPath,
   }) : adaptiveCardContentProvider = MemoryAdaptiveCardContentProvider(
@@ -112,10 +110,12 @@ class _AdaptiveCardState extends State<AdaptiveCard> {
   Map map;
   Map hostConfig;
 
+
+  CardRegistry cardRegistry;
+
   @override
   void initState() {
     super.initState();
-
     widget.adaptiveCardContentProvider.loadHostConfig().then((hostConfigMap) {
       setState(() {
         hostConfig = hostConfigMap;
@@ -131,13 +131,28 @@ class _AdaptiveCardState extends State<AdaptiveCard> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if(widget.cardRegistry != null) {
+      cardRegistry = widget.cardRegistry;
+    } else {
+      CardRegistry cardRegistry = DefaultCardRegistry.of(context);
+      if(cardRegistry != null) {
+        this.cardRegistry = cardRegistry;
+      } else {
+        this.cardRegistry = const CardRegistry();
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (map == null || hostConfig == null) {
-      return widget.placeholder ?? SizedBox();
+      return widget.placeholder ?? const SizedBox();
     }
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: RawAdaptiveCard.fromMap(map, hostConfig, cardRegistry: widget.cardRegistry),
+      child: RawAdaptiveCard.fromMap(map, hostConfig, cardRegistry: cardRegistry),
     );
   }
 }

@@ -86,11 +86,14 @@ class AdaptiveActionShowCard extends AdaptiveAction {
 }
 
 class AdaptiveActionSubmit extends AdaptiveAction {
-  AdaptiveActionSubmit(Map adaptiveMap, widgetState)
+  AdaptiveActionSubmit(Map adaptiveMap, widgetState, {this.color})
       : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
 
   Map data;
+
+  // Native styling
+  final Color color;
 
   @override
   void loadTree() {
@@ -101,6 +104,7 @@ class AdaptiveActionSubmit extends AdaptiveAction {
   @override
   Widget build() {
     return RaisedButton(
+      color: color,
       onPressed: onTapped,
       child: Text(title),
     );
