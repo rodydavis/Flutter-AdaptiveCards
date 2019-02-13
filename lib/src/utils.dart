@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class FadeAnimation extends StatefulWidget {
   FadeAnimation(
@@ -91,50 +92,19 @@ Color parseColor(String colorValue) {
 }
 
 
-// TODO localize
-String _weekDayToString(int weekday, bool short) {
 
-  switch(weekday) {
-    case 1: return short? "Mon" : "Monday";
-    case 2: return short? "Tue" : "Tuesday";
-    case 3: return short? "Wed" : "Wednesday";
-    case 4: return short? "Thu" : "Thursday";
-    case 5: return short? "Fri" : "Friday";
-    case 6: return short? "Sat" : "Saturday";
-    case 7: return short? "Sun" : "Sunday";
-    default: throw StateError("Weekday $weekday is not valid");
+String getDayOfMonthSuffix(final int n) {
+  assert(n >= 1 && n <= 31, "illegal day of month: " + n.toString());
+  if (n >= 11 && n <= 13) {
+    return "th";
+  }
+  switch (n % 10) {
+    case 1:  return "st";
+    case 2:  return "nd";
+    case 3:  return "rd";
+    default: return "th";
   }
 }
-
-String _monthToString(int month, bool short) {
-
-  switch(month) {
-    case 1: return short? "Jan" : "January";
-    case 2: return short? "Feb" : "February";
-    case 3: return short? "Mar" : "March";
-    case 4: return short? "Apr" : "April";
-    case 5: return short? "May" : "May";
-    case 6: return short? "Jun" : "June";
-    case 7: return short? "Jul" : "July";
-    case 8: return short? "Aug" : "August";
-    case 9: return short? "Sept" : "September";
-    case 10: return short? "Oct" : "October";
-    case 11: return short? "Nov" : "November";
-    case 12: return short? "Dec" : "December";
-    default: throw StateError("Moneth $month is not valid");
-  }
-}
-
-String _numberToText(int number) {
-  switch(number) {
-    case 1: return "1st";
-    case 2: return "2nd";
-    case 3: return "3rd";
-    default: return "${number}th";
-
-  }
-}
-
 
 
 /// Parses a given text string to property handle DATE() and TIME()
@@ -157,17 +127,21 @@ String parseTextString(String text) {
       if(items.length != 2) return res;
 
       DateTime dateTime = DateTime.tryParse(items[0]);
+
+      // TODO use locale
+      DateFormat dateFormat;
+
       if(dateTime == null) return res;
       if(items[1] == "COMPACT") {
-        return "${dateTime.day}/${dateTime.month}/${dateTime.year}";
+        dateFormat = DateFormat.yMd();
+        return dateFormat.format(dateTime);
       } else if(items[1] == "SHORT") {
-        return "${_weekDayToString(dateTime.weekday, true)}, ${_monthToString(dateTime.month, true)} "
-            "${_numberToText(dateTime.day)}, ${dateTime.year}";
+        dateFormat = DateFormat("E, MMM d{n}, y");
+        return dateFormat.format(dateTime).replaceFirst('{n}', getDayOfMonthSuffix(dateTime.day));
       } else if(items[1] == "LONG") {
-        return "${_weekDayToString(dateTime.weekday, false)}, ${_monthToString(dateTime.month, false)} "
-            "${_numberToText(dateTime.day)}, ${dateTime.year}";
+        dateFormat = DateFormat("EEEE, MMMM d{n}, y");
+        return dateFormat.format(dateTime).replaceFirst('{n}', getDayOfMonthSuffix(dateTime.day));
       } else {
-        //throw StateError("${items[1]} is not a valid format");
         // Wrong format
         return res;
       }
@@ -178,16 +152,9 @@ String parseTextString(String text) {
       DateTime dateTime = DateTime.tryParse(time);
       if(dateTime == null) return res;
 
-      int hour;
-      String postFix;
-      if(dateTime.hour > 12) {
-        hour = dateTime.hour - 12;
-        postFix = "PM";
-      } else {
-        hour = dateTime.hour;
-        postFix = "AM";
-      }
-      return "$hour:${dateTime.minute.toString().padLeft(2,'0')} $postFix";
+      DateFormat dateFormat = DateFormat("jm");
+
+      return dateFormat.format(dateTime);
 
     } else {
       // Wrong format

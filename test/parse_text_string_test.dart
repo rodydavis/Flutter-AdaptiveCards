@@ -35,9 +35,9 @@ void main() {
   
   test('Basic parsing', () {
     checkCorrectTransform('{{DATE(2017-02-14T06:00Z, SHORT)}}', 'Tue, Feb 14th, 2017');
-    checkCorrectTransform('{{DATE(2017-02-14T06:00Z, COMPACT)}}', '14/2/2017');
-    // TODO this is european formatting, need localization to switch it up
-    checkCorrectTransform('{{DATE(2017-02-14T06:00Z)}}', '14/2/2017');
+    // TODO add locale to test
+    checkCorrectTransform('{{DATE(2017-02-14T06:00Z, COMPACT)}}', '2/14/2017');
+    checkCorrectTransform('{{DATE(2017-02-14T06:00Z)}}', '2/14/2017');
     checkCorrectTransform('{{DATE(2017-02-14T06:00Z, LONG)}}', 'Tuesday, February 14th, 2017');
 
     checkCorrectTransform('{{TIME(2017-02-14T06:00Z)}}', '6:00 AM');
