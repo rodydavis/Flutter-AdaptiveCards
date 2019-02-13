@@ -1,6 +1,7 @@
 library flutter_adaptive_cards;
 
 import 'dart:async';
+import 'package:flutter_adaptive_cards/src/action_handler.dart';
 import 'package:flutter_adaptive_cards/src/registry.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:convert';
@@ -66,7 +67,7 @@ class AdaptiveCard extends StatefulWidget {
 
   AdaptiveCard(
       {Key key, @required this.adaptiveCardContentProvider, this.placeholder,
-      this.cardRegistry = const CardRegistry()})
+      this.cardRegistry = const CardRegistry(), this.onSubmit, this.onOpenUrl})
       : super(key: key);
 
   AdaptiveCard.network({
@@ -75,6 +76,8 @@ class AdaptiveCard extends StatefulWidget {
     this.cardRegistry,
     @required String url,
     @required String hostConfigPath,
+    this.onSubmit,
+    this.onOpenUrl,
   }) : adaptiveCardContentProvider = NetworkAdaptiveCardContentProvider(
             url: url, hostConfigPath: hostConfigPath);
 
@@ -84,6 +87,8 @@ class AdaptiveCard extends StatefulWidget {
     this.cardRegistry,
     @required String assetPath,
     @required String hostConfigPath,
+    this.onSubmit,
+    this.onOpenUrl,
   }) : adaptiveCardContentProvider = AssetAdaptiveCardContentProvider(
             path: assetPath, hostConfigPath: hostConfigPath);
 
@@ -93,6 +98,8 @@ class AdaptiveCard extends StatefulWidget {
     this.cardRegistry,
     @required Map content,
     @required String hostConfigPath,
+    this.onSubmit,
+    this.onOpenUrl,
   }) : adaptiveCardContentProvider = MemoryAdaptiveCardContentProvider(
             content: content, hostConfigPath: hostConfigPath);
 
@@ -101,6 +108,9 @@ class AdaptiveCard extends StatefulWidget {
   final Widget placeholder;
 
   final CardRegistry cardRegistry;
+
+  final Function(Map map) onSubmit;
+  final Function(String url) onOpenUrl;
 
   @override
   _AdaptiveCardState createState() => new _AdaptiveCardState();
@@ -112,6 +122,12 @@ class _AdaptiveCardState extends State<AdaptiveCard> {
 
 
   CardRegistry cardRegistry;
+
+
+
+  Function(Map map) onSubmit;
+  Function(String url) onOpenUrl;
+
 
   @override
   void initState() {
@@ -143,6 +159,36 @@ class _AdaptiveCardState extends State<AdaptiveCard> {
         this.cardRegistry = const CardRegistry();
       }
     }
+
+
+    if(widget.onSubmit != null) {
+      onSubmit = widget.onSubmit;
+    } else {
+      var foundOnSubmit = DefaultAdaptiveCardHandlers.of(context).onSubmit;
+      if(foundOnSubmit != null) {
+        onSubmit = foundOnSubmit;
+      } else {
+        onSubmit = (it) {
+          Scaffold.of(context).showSnackBar(SnackBar(
+              content: Text("No handler found for: \n" + it.toString())));
+        };
+      }
+    }
+
+    if(widget.onOpenUrl != null) {
+      onOpenUrl = widget.onOpenUrl;
+    } else {
+      var foundOpenUrl = DefaultAdaptiveCardHandlers.of(context).onOpenUrl;
+      if(foundOpenUrl  != null) {
+        onOpenUrl = foundOpenUrl;
+      } else {
+        onOpenUrl = (it) {
+          Scaffold.of(context).showSnackBar(SnackBar(
+              content: Text("No handler found for: \n" + it.toString())));
+        };
+      }
+    }
+
   }
 
   @override
@@ -152,7 +198,11 @@ class _AdaptiveCardState extends State<AdaptiveCard> {
     }
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: RawAdaptiveCard.fromMap(map, hostConfig, cardRegistry: cardRegistry),
+      child: RawAdaptiveCard.fromMap(map, hostConfig,
+        cardRegistry: cardRegistry,
+        onOpenUrl: onOpenUrl,
+        onSubmit: onSubmit,
+      ),
     );
   }
 }
@@ -165,11 +215,18 @@ class _AdaptiveCardState extends State<AdaptiveCard> {
 /// displays in natively. Additionally a host config needs to be provided for
 /// styling.
 class RawAdaptiveCard extends StatefulWidget {
-  RawAdaptiveCard.fromMap(this.map, this.hostConfig, {this.cardRegistry = const CardRegistry()});
+  RawAdaptiveCard.fromMap(this.map, this.hostConfig, {
+    this.cardRegistry = const CardRegistry(),
+    @required this.onSubmit,
+    @required this.onOpenUrl,
+  });
 
   final Map map;
   final Map hostConfig;
   final CardRegistry cardRegistry;
+
+  final Function(Map map) onSubmit;
+  final Function(String url) onOpenUrl;
 
   @override
   RawAdaptiveCardState createState() => RawAdaptiveCardState();
@@ -217,17 +274,15 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   /// visiting the elements in the tree
   void submit(Map map) {
     _adaptiveElement.visitChildren((element) {
-      print("visiting ${element.runtimeType}");
       if (element is AdaptiveInput) {
         element.appendInput(map);
       }
     });
-    Scaffold.of(context).showSnackBar(SnackBar(content: Text(map.toString())));
+    widget.onSubmit(map);
   }
 
   void openUrl(String url) {
-    Scaffold.of(context)
-        .showSnackBar(SnackBar(content: Text("Open url: $url")));
+    widget.onOpenUrl(url);
   }
 
   void showError(String message) {
