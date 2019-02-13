@@ -203,7 +203,6 @@ class AdaptiveTimeInput extends AdaptiveTextualInput {
     return RaisedButton(
       onPressed: () async {
         TimeOfDay result = await widgetState.pickTime();
-        //TODO compare times
         if (result.hour >= min.hour && result.hour <= max.hour) {
           widgetState
               .showError("Time must be after ${min.format(widgetState.context)}"

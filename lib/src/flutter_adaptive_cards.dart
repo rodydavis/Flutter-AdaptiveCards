@@ -213,7 +213,6 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
     deactivateListeners.forEach((it) => it());
   }
 
-  //TODO abstract these methods to an interface
   /// Submits all the inputs of this adaptive card, does it by recursively
   /// visiting the elements in the tree
   void submit(Map map) {
@@ -285,7 +284,6 @@ typedef AdaptiveElementVisitor = void Function(AdaptiveElement element);
 /// The [resolver] is a handy wrapper around the hostConfig, which makes accessing
 /// it easier.
 ///
-/// //TODO refactor
 /// The [widgetState] provides access to flutter specific implementations.
 ///
 /// If the element has children (you don't need to do this if the element is a
@@ -303,7 +301,6 @@ abstract class AdaptiveElement {
 
   String id;
 
-  // TODO abstract
   /// Because some widgets (looking at you ShowCardAction) need to set the state
   /// all elements get a way to set the state.
   final RawAdaptiveCardState widgetState;

@@ -325,8 +325,7 @@ class AdaptiveColumnSet extends AdaptiveElement with TappableElementMixin {
   @override
   void loadTree() {
     super.loadTree();
-    // TODO handle case where there are no children elegantly
-    columns = List<Map>.from(adaptiveMap["columns"])
+    columns = List<Map>.from(adaptiveMap["columns"] ?? [])
         .map((child) => AdaptiveColumn(child, widgetState))
         .toList();
   }
@@ -358,7 +357,6 @@ class AdaptiveColumn extends AdaptiveElement
   //TODO implement
   double width;
 
-  //TODO fix style (column/example3)
   @override
   void loadTree() {
     super.loadTree();
