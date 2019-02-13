@@ -11,7 +11,7 @@ class DefaultAdaptiveCardHandlers extends InheritedWidget {
   final Function(Map map) onSubmit;
   final Function(String url) onOpenUrl;
 
-  static DefaultAdaptiveCardHandlers  of(BuildContext context) {
+  static DefaultAdaptiveCardHandlers of(BuildContext context) {
     DefaultAdaptiveCardHandlers handlers = context.inheritFromWidgetOfExactType(DefaultAdaptiveCardHandlers);
     if(handlers == null) return null;
     return handlers;
