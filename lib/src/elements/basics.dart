@@ -5,6 +5,7 @@ import 'package:flutter_adaptive_cards/src/elements/actions.dart';
 import 'package:flutter_adaptive_cards/src/utils.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:video_player/video_player.dart';
+import 'package:tinycolor/tinycolor.dart';
 
 
 mixin SeparatorElementMixin on AdaptiveElement {
@@ -198,7 +199,6 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
 
   FontWeight fontWeight;
   double fontSize;
-  Color color;
   Alignment horizontalAlignment;
   int maxLines;
   MarkdownStyleSheet markdownStyleSheet;
@@ -209,8 +209,6 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
     super.loadTree();
     fontSize = widgetState.resolver.resolveFontSize(adaptiveMap["size"]);
     fontWeight = widgetState.resolver.resolveFontWeight(adaptiveMap["weight"]);
-    color =
-        widgetState.resolver.resolveColor(adaptiveMap["color"], adaptiveMap["isSubtle"]);
     horizontalAlignment = loadAlignment();
     maxLines = loadMaxLines();
     markdownStyleSheet = loadMarkdownStyleSheet();
@@ -218,20 +216,42 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
     text = parseTextString(adaptiveMap['text']);
   }
 
+
+  Color getColor(Brightness brightness) {
+    Color color = widgetState.resolver.resolveColor(adaptiveMap["color"], adaptiveMap["isSubtle"]);
+    if(brightness == Brightness.light) {
+      return color;
+    } else {
+      TinyColor tinyColor = TinyColor(color);
+      if(tinyColor.isDark()) {
+        double luminance = tinyColor.getLuminance();
+        return tinyColor.lighten(((1-luminance) * 100).round()).color;
+      }
+      return color;
+    }
+  }
+
   // TODO create own widget that parses _basic_ markdown. This might help: https://docs.flutter.io/flutter/widgets/Wrap-class.html
   Widget build() {
-    return Align(
-        alignment: horizontalAlignment,
-        child: Text(
-          text,
-          style: TextStyle(
-              fontWeight: fontWeight, fontSize: fontSize, color: color),
-          maxLines: maxLines,
-        )
-      /* child: MarkdownBody(
-        data: text,
-        styleSheet: markdownStyleSheet,
-      )*/
+    return Builder(
+      builder: (context) {
+        return Align(
+            alignment: horizontalAlignment,
+            child: Text(
+              text,
+              style: TextStyle(
+                fontWeight: fontWeight,
+                fontSize: fontSize,
+                color: getColor(Theme.of(context).brightness),
+              ),
+              maxLines: maxLines,
+            )
+          /* child: MarkdownBody(
+            data: text,
+            styleSheet: markdownStyleSheet,
+          )*/
+        );
+      }
     );
   }
 
@@ -261,7 +281,7 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
   /// TODO Markdown still has some problems
   MarkdownStyleSheet loadMarkdownStyleSheet() {
     TextStyle style =
-    TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
+    TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: getColor(Brightness.light));
     return MarkdownStyleSheet(
       a: style,
       blockquote: style,

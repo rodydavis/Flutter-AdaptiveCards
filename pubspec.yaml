@@ -15,6 +15,8 @@ dependencies:
   chewie: ^0.9.5
   http: ^0.11.3+16
   intl: ^0.15.7
+  tinycolor: ^1.0.2
+
 
 
 

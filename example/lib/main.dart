@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: new ThemeData(
         primarySwatch: Colors.blue,
-        brightness: Brightness.dark
+        brightness: Brightness.light
       ),
       home: new MyHomePage(),
       routes: {
