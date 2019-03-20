@@ -67,7 +67,7 @@ class AdaptiveCard extends StatefulWidget {
 
   AdaptiveCard(
       {Key key, @required this.adaptiveCardContentProvider, this.placeholder,
-      this.cardRegistry = const CardRegistry(), this.onSubmit, this.onOpenUrl})
+      this.cardRegistry = const CardRegistry(), this.onSubmit, this.onOpenUrl, this.showDebugJson = true})
       : super(key: key);
 
   AdaptiveCard.network({
@@ -78,6 +78,7 @@ class AdaptiveCard extends StatefulWidget {
     @required String hostConfigPath,
     this.onSubmit,
     this.onOpenUrl,
+    this.showDebugJson = true,
   }) : adaptiveCardContentProvider = NetworkAdaptiveCardContentProvider(
             url: url, hostConfigPath: hostConfigPath);
 
@@ -89,6 +90,7 @@ class AdaptiveCard extends StatefulWidget {
     @required String hostConfigPath,
     this.onSubmit,
     this.onOpenUrl,
+    this.showDebugJson = true,
   }) : adaptiveCardContentProvider = AssetAdaptiveCardContentProvider(
             path: assetPath, hostConfigPath: hostConfigPath);
 
@@ -100,6 +102,7 @@ class AdaptiveCard extends StatefulWidget {
     @required String hostConfigPath,
     this.onSubmit,
     this.onOpenUrl,
+    this.showDebugJson = true,
   }) : adaptiveCardContentProvider = MemoryAdaptiveCardContentProvider(
             content: content, hostConfigPath: hostConfigPath);
 
@@ -111,6 +114,7 @@ class AdaptiveCard extends StatefulWidget {
 
   final Function(Map map) onSubmit;
   final Function(String url) onOpenUrl;
+  final bool showDebugJson;
 
   @override
   _AdaptiveCardState createState() => new _AdaptiveCardState();
@@ -202,6 +206,7 @@ class _AdaptiveCardState extends State<AdaptiveCard> {
         cardRegistry: cardRegistry,
         onOpenUrl: onOpenUrl,
         onSubmit: onSubmit,
+        showDebugJson: widget.showDebugJson,
       ),
     );
   }
@@ -219,6 +224,7 @@ class RawAdaptiveCard extends StatefulWidget {
     this.cardRegistry = const CardRegistry(),
     @required this.onSubmit,
     @required this.onOpenUrl,
+    this.showDebugJson = true,
   });
 
   final Map map;
@@ -227,6 +233,8 @@ class RawAdaptiveCard extends StatefulWidget {
 
   final Function(Map map) onSubmit;
   final Function(String url) onOpenUrl;
+
+  final bool showDebugJson;
 
   @override
   RawAdaptiveCardState createState() => RawAdaptiveCardState();
@@ -306,8 +314,44 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
 
   @override
   Widget build(BuildContext context) {
+    Widget child = _adaptiveElement.generateWidget();
+
+    assert(() {
+      if(widget.showDebugJson) {
+        JsonEncoder encoder = new JsonEncoder.withIndent('  ');
+        String prettyprint = encoder.convert(widget.map);
+        child = Column(
+          children: <Widget>[
+            FlatButton(
+              textColor: Colors.indigo,
+              onPressed: () {
+                showDialog(context: context, builder: (context) {
+                  return AlertDialog(
+                    title: Text("JSON (only added in debug mode, you can also turn"
+                        "it of manually by passing showDebugJson = false)"),
+                    content: SingleChildScrollView(child: Text(prettyprint)),
+                    actions: <Widget>[
+                      Center(
+                        child: FlatButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text("Thanks"),
+                        ),
+                      )
+                    ],
+                    contentPadding: EdgeInsets.all(8.0),
+                  );
+                });
+              },
+              child: Text("Debug show the JSON"),
+            ),
+            child,
+          ],
+        );
+      }
+      return true;
+    }());
     return Card(
-      child: _adaptiveElement.generateWidget(),
+      child: child,
     );
   }
 }

@@ -52,7 +52,7 @@ class _DemoAdaptiveCardState extends State<DemoAdaptiveCard> with AutomaticKeepA
       child: Column(
         children: <Widget>[
           RawAdaptiveCard
-              .fromMap(adaptiveMap, hostConfig),
+              .fromMap(adaptiveMap, hostConfig, showDebugJson: false,),
           FlatButton(
             textColor: Colors.indigo,
             onPressed: () {
