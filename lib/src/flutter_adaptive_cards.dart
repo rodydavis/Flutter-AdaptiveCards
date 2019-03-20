@@ -435,12 +435,15 @@ class ReferenceResolver {
   String _currentStyle;
 
   dynamic resolve(String key, String value) {
-    // Make it case insensitive
-    return hostConfig[key][firstCharacterToLowerCase(value)];
+    dynamic res =  hostConfig[key][firstCharacterToLowerCase(value)];
+    assert(res != null, "Could not find hostConfig[$key][${firstCharacterToLowerCase(value)}]");
+    return res;
   }
 
   dynamic get(String key) {
-    return hostConfig[key];
+    dynamic res =  hostConfig[key];
+    assert(res != null, "Could not find hostConfig[$key]");
+    return res;
   }
 
   FontWeight resolveFontWeight(String value) {
@@ -503,7 +506,8 @@ class ReferenceResolver {
   double resolveSpacing(String spacing) {
     String mySpacing = spacing ?? "default";
     if (mySpacing == "none") return 0.0;
-    int intSpacing = hostConfig["spacing"][mySpacing];
+    int intSpacing = hostConfig["spacing"][firstCharacterToLowerCase(mySpacing)];
+    assert(intSpacing != null, "hostConfig[\"spacing\"][\"${firstCharacterToLowerCase(mySpacing)}\"] was null");
     return intSpacing.toDouble();
   }
 }
