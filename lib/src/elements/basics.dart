@@ -24,6 +24,7 @@ mixin SeparatorElementMixin on AdaptiveElement {
     assert(separator != null,
     "Did you forget to call loadSeperator in this class?");
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         separator
             ? Divider(
@@ -354,10 +355,10 @@ class AdaptiveColumnSet extends AdaptiveElement with TappableElementMixin {
   @override
   Widget build() {
     return Row(
-      children:
-      columns.map((it) => Flexible(child: it.generateWidget())).toList(),
+      children: columns.map((it) => it.generateWidget()).toList(),
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
     );
   }
 
@@ -370,30 +371,104 @@ class AdaptiveColumnSet extends AdaptiveElement with TappableElementMixin {
 }
 
 class AdaptiveColumn extends AdaptiveElement
-    with SeparatorElementMixin, TappableElementMixin, ChildStylerMixin {
+    with ChildStylerMixin {
   AdaptiveColumn(Map adaptiveMap, RawAdaptiveCardState widgetState)
       : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
   List<AdaptiveElement> items;
-  //TODO implement
-  double width;
+
+
+  /// Can be "auto", "stretch" or "manual"
+  String mode;
+  int width;
+
+
+  // Need to do the separator manually for this class
+  // because the flexible needs to be applied to the class above
+  double topSpacing;
+  bool separator;
+
+
+  AdaptiveAction action;
 
   @override
   void loadTree() {
     super.loadTree();
+
+
+    if (adaptiveMap.containsKey("selectAction")) {
+      action = widgetState.cardRegistry.getAction(adaptiveMap["selectAction"], widgetState,null);
+    }
+    topSpacing = widgetState.resolver.resolveSpacing(adaptiveMap["spacing"]);
+    separator = adaptiveMap["separator"] ?? false;
+
     items = List<Map>.from(adaptiveMap["items"]).map((child) {
       styleChild();
       return widgetState.cardRegistry.getElement(child, widgetState);
     }).toList();
+
+    var toParseWidth = adaptiveMap["width"];
+    if(toParseWidth  != null) {
+      if(toParseWidth == "auto") {
+        mode = "auto";
+      } else if(toParseWidth == "stretch") {
+        mode = "stretch";
+      } else if(toParseWidth is int){
+        if(toParseWidth != null) {
+          width = toParseWidth;
+          mode = "manual";
+        } else {
+          // Handle gracefully
+          mode = "auto";
+        }
+      } else {
+        // Handle gracefully
+        mode = "auto";
+      }
+    } else {
+      mode = "auto";
+    }
   }
 
   @override
   Widget build() {
-    return Column(
-      children: items.map((it) => it.generateWidget()).toList(),
+
+    Widget result = InkWell(
+      onTap: action?.onTapped,
+      child: Column(
+      children: []
+        ..add(separator ? Divider(
+          height: topSpacing,
+        ) : SizedBox(
+          height: topSpacing,
+        ),)
+        ..addAll(items.map((it) => it.generateWidget()).toList()),
       crossAxisAlignment: CrossAxisAlignment.start,
+    ),
     );
+
+    assert(mode == "auto" || mode == "stretch" || mode == "manual");
+    if(mode == "auto") {
+      result = Flexible(
+        child: result,
+      );
+    } else if(mode == "stretch") {
+      result = Expanded(
+        child: result,
+      );
+    } else if(mode == "manual") {
+       result = Flexible(
+        flex: width,
+        child: result,
+       );
+    }
+
+    return result;
   }
+
+
+
+
 
   @override
   void visitChildren(AdaptiveElementVisitor visitor) {
@@ -464,7 +539,7 @@ class AdaptiveImage extends AdaptiveElement with SeparatorElementMixin {
   Widget build() {
 
     //TODO alt text
-    Widget image = Image(image: NetworkImage(url));
+    Widget image = Image(image: NetworkImage(url), fit: BoxFit.contain,);
 
     if (isPerson) {
       image = ClipOval(
@@ -472,20 +547,26 @@ class AdaptiveImage extends AdaptiveElement with SeparatorElementMixin {
         child: image,
       );
     }
+    
 
+    image = Align(
+      alignment: horizontalAlignment,
+      child: image,
+    );
+
+    if(size != null) {
+      image = ConstrainedBox(
+        constraints: BoxConstraints(
+            minWidth: size.a,
+            minHeight: size.a,
+            maxHeight: size.b,
+            maxWidth: size.b),
+        child: image,
+      );
+    }
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-            minWidth: size == null? 0 : size.a,
-            minHeight: size == null? 0 : size.a,
-            maxHeight: size == null? double.infinity : size.b,
-            maxWidth: size == null? double.infinity : size.b),
-        child: Align(
-          alignment: horizontalAlignment,
-          child: image,
-        ),
-      ),
+      child: image,
     );
   }
 
