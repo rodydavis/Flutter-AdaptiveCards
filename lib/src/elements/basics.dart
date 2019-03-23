@@ -360,7 +360,7 @@ class AdaptiveColumnSet extends AdaptiveElement with TappableElementMixin {
     return Row(
       children: columns.map((it) => it.generateWidget()).toList(),
       mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
     );
   }
@@ -435,7 +435,6 @@ class AdaptiveColumn extends AdaptiveElement
 
   @override
   Widget build() {
-
     Widget result = InkWell(
       onTap: action?.onTapped,
       child: Column(
