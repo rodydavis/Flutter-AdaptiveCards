@@ -65,10 +65,16 @@ class NetworkAdaptiveCardContentProvider extends AdaptiveCardContentProvider {
 
 class AdaptiveCard extends StatefulWidget {
 
-  AdaptiveCard(
-      {Key key, @required this.adaptiveCardContentProvider, this.placeholder,
-      this.cardRegistry = const CardRegistry(), this.onSubmit, this.onOpenUrl, this.showDebugJson = true})
-      : super(key: key);
+  AdaptiveCard({
+    Key key,
+    @required this.adaptiveCardContentProvider,
+    this.placeholder,
+    this.cardRegistry = const CardRegistry(),
+    this.onSubmit,
+    this.onOpenUrl,
+    this.showDebugJson = true,
+    this.approximateDarkThemeColors = true,
+  }) : super(key: key);
 
   AdaptiveCard.network({
     Key key,
@@ -79,6 +85,7 @@ class AdaptiveCard extends StatefulWidget {
     this.onSubmit,
     this.onOpenUrl,
     this.showDebugJson = true,
+    this.approximateDarkThemeColors = true,
   }) : adaptiveCardContentProvider = NetworkAdaptiveCardContentProvider(
             url: url, hostConfigPath: hostConfigPath);
 
@@ -91,6 +98,7 @@ class AdaptiveCard extends StatefulWidget {
     this.onSubmit,
     this.onOpenUrl,
     this.showDebugJson = true,
+    this.approximateDarkThemeColors = true,
   }) : adaptiveCardContentProvider = AssetAdaptiveCardContentProvider(
             path: assetPath, hostConfigPath: hostConfigPath);
 
@@ -103,6 +111,7 @@ class AdaptiveCard extends StatefulWidget {
     this.onSubmit,
     this.onOpenUrl,
     this.showDebugJson = true,
+    this.approximateDarkThemeColors = true,
   }) : adaptiveCardContentProvider = MemoryAdaptiveCardContentProvider(
             content: content, hostConfigPath: hostConfigPath);
 
@@ -115,19 +124,18 @@ class AdaptiveCard extends StatefulWidget {
   final Function(Map map) onSubmit;
   final Function(String url) onOpenUrl;
   final bool showDebugJson;
+  final bool approximateDarkThemeColors;
 
   @override
   _AdaptiveCardState createState() => new _AdaptiveCardState();
 }
 
 class _AdaptiveCardState extends State<AdaptiveCard> {
+
   Map map;
   Map hostConfig;
 
-
   CardRegistry cardRegistry;
-
-
 
   Function(Map map) onSubmit;
   Function(String url) onOpenUrl;
@@ -207,6 +215,7 @@ class _AdaptiveCardState extends State<AdaptiveCard> {
         onOpenUrl: onOpenUrl,
         onSubmit: onSubmit,
         showDebugJson: widget.showDebugJson,
+        approximateDarkThemeColors: widget.approximateDarkThemeColors,
       ),
     );
   }
@@ -225,6 +234,7 @@ class RawAdaptiveCard extends StatefulWidget {
     @required this.onSubmit,
     @required this.onOpenUrl,
     this.showDebugJson = true,
+    this.approximateDarkThemeColors = true,
   });
 
   final Map map;
@@ -235,6 +245,7 @@ class RawAdaptiveCard extends StatefulWidget {
   final Function(String url) onOpenUrl;
 
   final bool showDebugJson;
+  final bool approximateDarkThemeColors;
 
   @override
   RawAdaptiveCardState createState() => RawAdaptiveCardState();

@@ -219,6 +219,7 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
 
   Color getColor(Brightness brightness) {
     Color color = widgetState.resolver.resolveColor(adaptiveMap["color"], adaptiveMap["isSubtle"]);
+    if(!widgetState.widget.approximateDarkThemeColors) return color;
     if(brightness == Brightness.light) {
       return color;
     } else {
