@@ -218,19 +218,11 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
   }
 
 
+  // Probably want to pass context down the tree, until now -> this
   Color getColor(Brightness brightness) {
     Color color = widgetState.resolver.resolveColor(adaptiveMap["color"], adaptiveMap["isSubtle"]);
     if(!widgetState.widget.approximateDarkThemeColors) return color;
-    if(brightness == Brightness.light) {
-      return color;
-    } else {
-      TinyColor tinyColor = TinyColor(color);
-      if(tinyColor.isDark()) {
-        double luminance = tinyColor.getLuminance();
-        return tinyColor.lighten(((1-luminance) * 100).round()).color;
-      }
-      return color;
-    }
+    return adjustColorToFitDarkTheme(color, brightness);
   }
 
   // TODO create own widget that parses _basic_ markdown. This might help: https://docs.flutter.io/flutter/widgets/Wrap-class.html
@@ -315,18 +307,26 @@ class AdaptiveContainer extends AdaptiveElement
 
     String colorString = widgetState.resolver.hostConfig["containerStyles"]
     [adaptiveMap["style"] ?? "default"]["backgroundColor"];
+
     backgroundColor = parseColor(colorString);
+
+
   }
 
   Widget build() {
-    return Container(
-      color: backgroundColor,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: children.map((it) => it.generateWidget()).toList(),
-        ),
-      ),
+    return Builder(
+      builder: (context) {
+        return Container(
+          color: Theme.of(context).brightness == Brightness.dark && adaptiveMap["style"] == null? null:
+            backgroundColor,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: children.map((it) => it.generateWidget()).toList(),
+            ),
+          ),
+        );
+      }
     );
   }
 

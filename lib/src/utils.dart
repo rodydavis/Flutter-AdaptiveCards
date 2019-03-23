@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:tinycolor/tinycolor.dart';
 
 class FadeAnimation extends StatefulWidget {
   FadeAnimation(
@@ -106,6 +107,19 @@ String getDayOfMonthSuffix(final int n) {
   }
 }
 
+
+Color adjustColorToFitDarkTheme(Color color, Brightness brightness) {
+  if(brightness == Brightness.light) {
+    return color;
+  } else {
+    TinyColor tinyColor = TinyColor(color);
+    if(tinyColor.isDark()) {
+      double luminance = tinyColor.getLuminance();
+      return tinyColor.lighten(((1-luminance) * 100).round()).color;
+    }
+    return color;
+  }
+}
 
 /// Parses a given text string to property handle DATE() and TIME()
 /// TODO this needs a bunch of tests
