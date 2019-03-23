@@ -355,6 +355,7 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
               },
               child: Text("Debug show the JSON"),
             ),
+            Divider(height: 0,),
             child,
           ],
         );
