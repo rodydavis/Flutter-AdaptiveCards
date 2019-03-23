@@ -131,7 +131,10 @@ class AdaptiveCardElement extends AdaptiveElement {
 
     // Adds the actions
     List<Widget> actionWidgets =
-    allActions.map((action) => action.generateWidget()).toList();
+    allActions.map((action) => Padding(
+      padding: EdgeInsets.only(right: 8),
+      child: action.generateWidget(),
+    )).toList();
     Widget actionWidget;
     if (actionsOrientation == Axis.vertical) {
       actionWidget = Column(
