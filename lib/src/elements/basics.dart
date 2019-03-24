@@ -303,10 +303,14 @@ class AdaptiveContainer extends AdaptiveElement
   @override
   void loadTree() {
     super.loadTree();
-    children = List<Map>.from(adaptiveMap["items"]).map((child) {
-      styleChild();
-      return widgetState.cardRegistry.getElement(child, widgetState);
-    }).toList();
+    if(adaptiveMap["items"] != null) {
+      children = List<Map>.from(adaptiveMap["items"]).map((child) {
+        styleChild();
+        return widgetState.cardRegistry.getElement(child, widgetState);
+      }).toList();
+    } else {
+      children = [];
+    }
 
     String colorString = widgetState.resolver.hostConfig["containerStyles"]
     [adaptiveMap["style"] ?? "default"]["backgroundColor"];
@@ -323,7 +327,7 @@ class AdaptiveContainer extends AdaptiveElement
           color: Theme.of(context).brightness == Brightness.dark && adaptiveMap["style"] == null? null:
             backgroundColor,
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Column(
               children: children.map((it) => it.generateWidget()).toList(),
             ),
