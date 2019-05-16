@@ -25,7 +25,7 @@ Widget getWidget(String path, String hostConfigPath){
   var hostConfigFile = File('test/host_configs/$hostConfigPath');
   var map = json.decode(file.readAsStringSync());
   var hostConfig = json.decode(hostConfigFile.readAsStringSync());
-  Widget adaptiveCard = RawAdaptiveCard.fromMap(map, hostConfig);
+  Widget adaptiveCard = RawAdaptiveCard.fromMap(map, hostConfig, onSubmit: (_) {}, onOpenUrl: (_) {},);
 
   return MaterialApp(
     home: adaptiveCard,

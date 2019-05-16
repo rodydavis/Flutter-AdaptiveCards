@@ -571,14 +571,4 @@ class ReferenceResolver {
 
 
 
-class UUIDGenerator {
-
-  UUIDGenerator(): uuid = Uuid();
-
-  final Uuid uuid;
-
-  String getId() {
-   return uuid.v1();
-  }
-}
 

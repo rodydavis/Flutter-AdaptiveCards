@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tinycolor/tinycolor.dart';
+import 'package:uuid/uuid.dart';
 
 class FadeAnimation extends StatefulWidget {
   FadeAnimation(
@@ -177,4 +178,15 @@ String parseTextString(String text) {
     }
   });
 
+}
+
+class UUIDGenerator {
+
+  UUIDGenerator(): uuid = Uuid();
+
+  final Uuid uuid;
+
+  String getId() {
+   return uuid.v1();
+  }
 }
