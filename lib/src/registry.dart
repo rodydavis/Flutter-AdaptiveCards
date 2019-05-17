@@ -4,11 +4,10 @@ import 'package:flutter_adaptive_cards/src/elements/actions.dart';
 import 'package:flutter_adaptive_cards/src/elements/input.dart';
 import 'package:flutter_adaptive_cards/src/flutter_adaptive_cards.dart';
 
-typedef ElementCreator = AdaptiveElement Function(
-    Map<String, dynamic> map, RawAdaptiveCardState widgetState);
+typedef ElementCreator = Widget Function(
+    Map<String, dynamic> map);
 
-typedef ActionCreator = AdaptiveAction Function(Map<String, dynamic> map,
-    RawAdaptiveCardState widgetState, AdaptiveCardElement cardElement);
+typedef ActionCreator = Widget Function(Map<String, dynamic> map);
 
 /// Entry point for registering adaptive cards
 ///
@@ -39,91 +38,93 @@ class CardRegistry {
   /// Remove specific elements from the list
   final List<String> removedElements;
 
-  AdaptiveElement getElement(
-      Map<String, dynamic> map, RawAdaptiveCardState widgetState) {
+  Widget getElement(
+      Map<String, dynamic> map) {
     String stringType = map["type"];
 
     if (removedElements.contains(stringType))
-      return AdaptiveUnknown(map, widgetState, stringType);
+    return AdaptiveUnknown(
+      type: stringType,
+      adaptiveMap: map,
+    );
 
     if (addedElements.containsKey(stringType)) {
-      return addedElements[stringType](map, widgetState);
+      return addedElements[stringType](map);
     } else {
-      return _getBaseElement(map, widgetState);
+      return _getBaseElement(map);
     }
   }
 
-  AdaptiveAction getAction(
-      Map<String, dynamic> map,
-      RawAdaptiveCardState widgetState,
-      AdaptiveCardElement adaptiveCardElement) {
+  Widget getAction(
+      Map<String, dynamic> map) {
     String stringType = map["type"];
 
     if (removedElements.contains(stringType))
-      return AdaptiveActionUnknown(map, widgetState, stringType);
+      return AdaptiveUnknown(
+        adaptiveMap: map,
+        type: stringType,
+      );
 
     if (addedActions.containsKey(stringType)) {
-      return addedActions[stringType](map, widgetState, adaptiveCardElement);
+      return addedActions[stringType](map);
     } else {
-      return _getBaseAction(map, widgetState, adaptiveCardElement);
+      return _getBaseAction(map);
     }
   }
 
   /// This returns an [AdaptiveElement] with the correct type.
   ///
   /// It looks at the [type] property and decides which object to construct
-  AdaptiveElement _getBaseElement(
-      Map<String, dynamic> map, RawAdaptiveCardState widgetState) {
+  Widget _getBaseElement(
+      Map<String, dynamic> map) {
     String stringType = map["type"];
 
     switch (stringType) {
       case "Media":
-        return AdaptiveMedia(map, widgetState);
+        return AdaptiveMedia(adaptiveMap: map);
       case "Container":
-        return AdaptiveContainer(map, widgetState);
+        return AdaptiveContainer(adaptiveMap: map,);
       case "TextBlock":
-        return AdaptiveTextBlock(map, widgetState);
+        return AdaptiveTextBlock(adaptiveMap: map,);
       case "AdaptiveCard":
-        return AdaptiveCardElement(map, widgetState);
+        return AdaptiveCardElement(adaptiveMap: map,);
       case "ColumnSet":
-        return AdaptiveColumnSet(map, widgetState);
+        return AdaptiveColumnSet(adaptiveMap: map,);
       case "Image":
-        return AdaptiveImage(map, widgetState);
+        return AdaptiveImage(adaptiveMap: map,);
       case "FactSet":
-        return AdaptiveFactSet(map, widgetState);
+        return AdaptiveFactSet(adaptiveMap: map,);
       case "ImageSet":
-        return AdaptiveImageSet(map, widgetState);
+        return AdaptiveImageSet(adaptiveMap: map);
       case "Input.Text":
-        return AdaptiveTextInput(map, widgetState);
+        return AdaptiveTextInput(adaptiveMap: map);
       case "Input.Number":
-        return AdaptiveNumberInput(map, widgetState);
+        return AdaptiveNumberInput(adaptiveMap: map);
       case "Input.Date":
-        return AdaptiveDateInput(map, widgetState);
+        return AdaptiveDateInput(adaptiveMap: map,);
       case "Input.Time":
-        return AdaptiveTimeInput(map, widgetState);
+        return AdaptiveTimeInput(adaptiveMap: map,);
       case "Input.Toggle":
-        return AdaptiveToggle(map, widgetState);
+        return AdaptiveToggle(adaptiveMap: map,);
       case "Input.ChoiceSet":
-        return AdaptiveChoiceSet(map, widgetState);
+        return AdaptiveChoiceSet(adaptiveMap: map,);
     }
-    return AdaptiveUnknown(map, widgetState, stringType);
+    return AdaptiveUnknown(adaptiveMap: map, type: stringType,);
   }
 
-  AdaptiveAction _getBaseAction(
-      Map<String, dynamic> map,
-      RawAdaptiveCardState widgetState,
-      AdaptiveCardElement adaptiveCardElement) {
+  Widget _getBaseAction(
+      Map<String, dynamic> map,) {
     String stringType = map["type"];
 
     switch (stringType) {
       case "Action.ShowCard":
-        return AdaptiveActionShowCard(map, widgetState, adaptiveCardElement);
+        return AdaptiveActionShowCard(adaptiveMap: map,);
       case "Action.OpenUrl":
-        return AdaptiveActionOpenUrl(map, widgetState);
+        return AdaptiveActionOpenUrl(adaptiveMap: map,);
       case "Action.Submit":
-        return AdaptiveActionSubmit(map, widgetState);
+        return AdaptiveActionSubmit(adaptiveMap: map,);
     }
-    return AdaptiveActionUnknown(map, widgetState, stringType);
+    return AdaptiveUnknown(adaptiveMap: map, type: stringType,);
   }
 }
 

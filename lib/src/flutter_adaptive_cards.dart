@@ -10,6 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_cards/src/elements/input.dart';
 import 'package:flutter_adaptive_cards/src/utils.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+
+import 'elements/fsadhfafd.dart';
 
 abstract class AdaptiveCardContentProvider {
   AdaptiveCardContentProvider({@required this.hostConfigPath});
@@ -258,7 +261,7 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   CardRegistry cardRegistry;
 
   // The root element
-  AdaptiveElement _adaptiveElement;
+  Widget _adaptiveElement;
 
   List<VoidCallback> deactivateListeners = [];
 
@@ -270,7 +273,7 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
     cardRegistry = widget.cardRegistry;
 
     _adaptiveElement =
-        widget.cardRegistry.getElement(widget.map, this);
+        widget.cardRegistry.getElement(widget.map);
   }
 
   /// Every widget can access method of this class, meaning setting the state
@@ -292,9 +295,12 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   /// Submits all the inputs of this adaptive card, does it by recursively
   /// visiting the elements in the tree
   void submit(Map map) {
-    _adaptiveElement.visitChildren((element) {
-      if (element is AdaptiveInput) {
-        element.appendInput(map);
+    // TODO redo flutter way
+    context.visitChildElements((element) {
+      if(element is StatefulElement) {
+        if(element.state is AdaptiveInputMixin) {
+          (element.state as AdaptiveInputMixin).appendInput(map);
+        }
       }
     });
     widget.onSubmit(map);
@@ -325,7 +331,7 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = _adaptiveElement.generateWidget();
+    Widget child = _adaptiveElement;
 
     assert(() {
       if(widget.showDebugJson) {
@@ -362,8 +368,11 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
       }
       return true;
     }());
-    return Card(
-      child: child,
+    return Provider<RawAdaptiveCardState>.value(
+      value: this,
+      child: Card(
+        child: child,
+      ),
     );
   }
 }

@@ -4,23 +4,42 @@ import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
 import 'package:flutter_adaptive_cards/src/elements/actions.dart';
 import 'package:flutter_adaptive_cards/src/utils.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:tinycolor/tinycolor.dart';
 
+import 'fsadhfafd.dart';
 
-mixin SeparatorElementMixin on AdaptiveElement {
+
+/// TODO lokk which classe used this before
+class SeparatorElement extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  final Map adaptiveMap;
+  final Widget child;
+
+  SeparatorElement({Key key, this.adaptiveMap, this.child}) : super(key: key);
+
+  @override
+  _SeparatorElementState createState() => _SeparatorElementState();
+}
+
+class _SeparatorElementState extends State<SeparatorElement> with AdaptiveElementMixin{
+
+
   double topSpacing;
   bool separator;
 
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
     topSpacing = widgetState.resolver.resolveSpacing(adaptiveMap["spacing"]);
     separator = adaptiveMap["separator"] ?? false;
+
   }
 
+
   @override
-  Widget generateWidget() {
+  Widget build(BuildContext context) {
     assert(separator != null,
     "Did you forget to call loadSeperator in this class?");
     return Column(
@@ -33,7 +52,7 @@ mixin SeparatorElementMixin on AdaptiveElement {
             : SizedBox(
           height: topSpacing,
         ),
-        super.generateWidget(),
+        widget.child
       ],
     );
   }
@@ -46,7 +65,7 @@ mixin TappableElementMixin on AdaptiveElement {
   void loadTree() {
     super.loadTree();
     if (adaptiveMap.containsKey("selectAction")) {
-      action = widgetState.cardRegistry.getAction(adaptiveMap["selectAction"], widgetState,null);
+      action = widgetState.cardRegistry.getAction(adaptiveMap["selectAction"]);
     }
   }
 
@@ -76,18 +95,24 @@ mixin ChildStylerMixin on AdaptiveElement {
 }
 
 
-/// Usually the root element of every adaptive card.
-///
-/// This container behaves like a Column/ a Container
-class AdaptiveCardElement extends AdaptiveElement {
-  AdaptiveCardElement(Map adaptiveMap, widgetState,)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+class AdaptiveCardElement extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveCardElement({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+
+  @override
+  AdaptiveCardElementState createState() => AdaptiveCardElementState();
+}
+
+class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveElementMixin, SeparatorElementMixin{
+
 
   AdaptiveActionShowCard currentlyActiveShowCardAction;
 
-  List<AdaptiveElement> children;
+  List<AdaptiveElementWidgetMixin> children;
 
-  List<AdaptiveAction> allActions;
+  List<AdaptiveElementWidgetMixin> allActions;
 
   List<AdaptiveActionShowCard> showCardActions;
 
@@ -95,14 +120,18 @@ class AdaptiveCardElement extends AdaptiveElement {
 
   String backgroundImage;
 
-  @override
-  void loadTree() {
-    super.loadTree();
 
-    if (adaptiveMap.containsKey("actions")) {
-      allActions = List<Map>.from(adaptiveMap["actions"])
+  static AdaptiveCardElementState of(BuildContext context) {
+    return Provider.of<AdaptiveCardElementState>(context, listen: false);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.adaptiveMap.containsKey("actions")) {
+      allActions = List<Map>.from(widget.adaptiveMap["actions"])
           .map(
-              (map) => widgetState.cardRegistry.getAction(map, widgetState, this))
+              (map) => widgetState.cardRegistry.getAction(map))
           .toList();
       showCardActions = List<AdaptiveActionShowCard>.from(allActions
           .where((action) => action is AdaptiveActionShowCard)
@@ -118,22 +147,22 @@ class AdaptiveCardElement extends AdaptiveElement {
     else if (stringAxis == "Vertical") actionsOrientation = Axis.vertical;
 
     children = List<Map>.from(adaptiveMap["body"])
-        .map((map) => widgetState.cardRegistry.getElement(map, widgetState))
+        .map((map) => widgetState.cardRegistry.getElement(map))
         .toList();
 
     backgroundImage = adaptiveMap['backgroundImage'];
   }
 
   @override
-  Widget build() {
+  Widget build(BuildContext context) {
     List<Widget> widgetChildren =
-    children.map((element) => element.generateWidget()).toList();
+    children.map((element) => element).toList();
 
     // Adds the actions
     List<Widget> actionWidgets =
     allActions.map((action) => Padding(
       padding: EdgeInsets.only(right: 8),
-      child: action.generateWidget(),
+      child: action,
     )).toList();
     Widget actionWidget;
     if (actionsOrientation == Axis.vertical) {
@@ -171,7 +200,10 @@ class AdaptiveCardElement extends AdaptiveElement {
     }
 
 
-    return result;
+    return Provider<AdaptiveCardElementState>.value(
+      value: this,
+      child: result,
+    );
   }
 
   /// This is called when an [_AdaptiveActionShowCard] triggers it.
@@ -185,21 +217,22 @@ class AdaptiveCardElement extends AdaptiveElement {
     showCardActions.where((it) => it != showCardAction).forEach((it) => () {
       it.expanded = false;
     }());
-    widgetState.rebuild();
+    setState(() {});
   }
 
-  @override
-  void visitChildren(AdaptiveElementVisitor visitor) {
-    visitor(this);
-    children?.forEach((it) => it.visitChildren(visitor));
-    allActions?.forEach((it) => it.visitChildren(visitor));
-    showCardActions?.forEach((it) => it.visitChildren(visitor));
-  }
 }
 
-class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
-  AdaptiveTextBlock(Map adaptiveMap, widgetState)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+class AdaptiveTextBlock extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveTextBlock({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+
+  @override
+  _AdaptiveTextBlockState createState() => _AdaptiveTextBlockState();
+}
+
+class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElementMixin{
 
   FontWeight fontWeight;
   double fontSize;
@@ -209,8 +242,8 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
   String text;
 
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
     fontSize = widgetState.resolver.resolveFontSize(adaptiveMap["size"]);
     fontWeight = widgetState.resolver.resolveFontWeight(adaptiveMap["weight"]);
     horizontalAlignment = loadAlignment();
@@ -221,42 +254,34 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
   }
 
 
-  // Probably want to pass context down the tree, until now -> this
-  Color getColor(Brightness brightness) {
-    Color color = widgetState.resolver.resolveColor(adaptiveMap["color"], adaptiveMap["isSubtle"]);
-    // TODO remove only here to pass test for now
-    if(widgetState.widget == null) return color;
-    if(!widgetState.widget.approximateDarkThemeColors) return color;
-    return adjustColorToFitDarkTheme(color, brightness);
-  }
-
   // TODO create own widget that parses _basic_ markdown. This might help: https://docs.flutter.io/flutter/widgets/Wrap-class.html
-  Widget build() {
+  @override
+  Widget build(BuildContext context) {
     return Builder(
-      builder: (context) {
-        return Align(
-            alignment: horizontalAlignment,
-            child: Text(
-              text,
-              style: TextStyle(
-                fontWeight: fontWeight,
-                fontSize: fontSize,
-                color: getColor(Theme.of(context).brightness),
-              ),
-              maxLines: maxLines,
-            )
-          /* child: MarkdownBody(
+        builder: (context) {
+          return Align(
+              alignment: horizontalAlignment,
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontWeight: fontWeight,
+                  fontSize: fontSize,
+                  color: getColor(Theme.of(context).brightness),
+                ),
+                maxLines: maxLines,
+              )
+            /* child: MarkdownBody(
             data: text,
             styleSheet: markdownStyleSheet,
           )*/
-        );
-      }
+          );
+        }
     );
   }
 
 
   Alignment loadAlignment() {
-    String alignmentString = adaptiveMap["horizontalAlignment"] ?? "left";
+    String alignmentString = widget.adaptiveMap["horizontalAlignment"] ?? "left";
     switch (alignmentString) {
       case "left":
         return Alignment.centerLeft;
@@ -271,10 +296,10 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
 
   /// This also takes care of the wrap property, because maxLines = 1 => no wrap
   int loadMaxLines() {
-    bool wrap = adaptiveMap["wrap"] ?? true;
+    bool wrap = widget.adaptiveMap["wrap"] ?? true;
     if (!wrap) return 1;
     // can be null, but that's okay for the text widget.
-    return adaptiveMap["maxLines"];
+    return widget.adaptiveMap["maxLines"];
   }
 
   /// TODO Markdown still has some problems
@@ -292,23 +317,34 @@ class AdaptiveTextBlock extends AdaptiveElement with SeparatorElementMixin {
   }
 }
 
-// TODO implement verticalContentAlignment
-class AdaptiveContainer extends AdaptiveElement
-    with SeparatorElementMixin, TappableElementMixin, ChildStylerMixin {
-  AdaptiveContainer(Map adaptiveMap, widgetState)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
-  List<AdaptiveElement> children;
+
+
+
+class AdaptiveContainer extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveContainer({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveContainerState createState() => _AdaptiveContainerState();
+}
+
+class _AdaptiveContainerState extends State<AdaptiveContainer> with AdaptiveElementMixin{
+
+
+// TODO implement verticalContentAlignment
+  List<Widget> children;
 
   Color backgroundColor;
 
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
     if(adaptiveMap["items"] != null) {
       children = List<Map>.from(adaptiveMap["items"]).map((child) {
         styleChild();
-        return widgetState.cardRegistry.getElement(child, widgetState);
+        return widgetState.cardRegistry.getElement(child);
       }).toList();
     } else {
       children = [];
@@ -318,102 +354,100 @@ class AdaptiveContainer extends AdaptiveElement
     [adaptiveMap["style"] ?? "default"]["backgroundColor"];
 
     backgroundColor = parseColor(colorString);
-
-
-  }
-
-  Widget build() {
-    return Builder(
-      builder: (context) {
-        return Container(
-          color: Theme.of(context).brightness == Brightness.dark && adaptiveMap["style"] == null? null:
-            backgroundColor,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Column(
-              children: children.map((it) => it.generateWidget()).toList(),
-            ),
-          ),
-        );
-      }
-    );
   }
 
   @override
-  void visitChildren(AdaptiveElementVisitor visitor) {
-    visitor(this);
-    children?.forEach((it) => it.visitChildren(visitor));
-    action?.visitChildren(visitor);
+  Widget build(BuildContext context) {
+    return Builder(
+        builder: (context) {
+          return Container(
+            color: Theme.of(context).brightness == Brightness.dark && adaptiveMap["style"] == null? null:
+            backgroundColor,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Column(
+                children: children.toList(),
+              ),
+            ),
+          );
+        }
+    );
   }
 }
 
-class AdaptiveColumnSet extends AdaptiveElement with TappableElementMixin {
-  AdaptiveColumnSet(Map adaptiveMap, RawAdaptiveCardState widgetState)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+class AdaptiveColumnSet extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveColumnSet({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveColumnSetState createState() => _AdaptiveColumnSetState();
+}
+
+class _AdaptiveColumnSetState extends State<AdaptiveColumnSet> with AdaptiveElementMixin{
+
 
   List<AdaptiveColumn> columns;
 
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
     columns = List<Map>.from(adaptiveMap["columns"] ?? [])
-        .map((child) => AdaptiveColumn(child, widgetState))
+        .map((child) => AdaptiveColumn(adaptiveMap: child))
         .toList();
   }
 
   @override
-  Widget build() {
+  Widget build(BuildContext context) {
     return Row(
-      children: columns.map((it) => it.generateWidget()).toList(),
+      children: columns.toList(),
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
     );
   }
-
-  @override
-  void visitChildren(AdaptiveElementVisitor visitor) {
-    visitor(this);
-    columns?.forEach((it) => it.visitChildren(visitor));
-    action?.visitChildren(visitor);
-  }
 }
 
-class AdaptiveColumn extends AdaptiveElement
-    with ChildStylerMixin {
-  AdaptiveColumn(Map adaptiveMap, RawAdaptiveCardState widgetState)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
-
-  List<AdaptiveElement> items;
 
 
-  /// Can be "auto", "stretch" or "manual"
+
+class AdaptiveColumn extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveColumn({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveColumnState createState() => _AdaptiveColumnState();
+}
+
+class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMixin{
+
+
+  List<Widget> items;
+    /// Can be "auto", "stretch" or "manual"
   String mode;
   int width;
 
 
+  Widget action;
   // Need to do the separator manually for this class
   // because the flexible needs to be applied to the class above
   double topSpacing;
   bool separator;
 
-
-  AdaptiveAction action;
-
   @override
-  void loadTree() {
-    super.loadTree();
-
+  void initState() {
+    super.initState();
 
     if (adaptiveMap.containsKey("selectAction")) {
-      action = widgetState.cardRegistry.getAction(adaptiveMap["selectAction"], widgetState,null);
+      action = widgetState.cardRegistry.getAction(adaptiveMap["selectAction"]);
     }
     topSpacing = widgetState.resolver.resolveSpacing(adaptiveMap["spacing"]);
     separator = adaptiveMap["separator"] ?? false;
 
     items = List<Map>.from(adaptiveMap["items"]).map((child) {
       styleChild();
-      return widgetState.cardRegistry.getElement(child, widgetState);
+      return widgetState.cardRegistry.getElement(child);
     }).toList();
 
     var toParseWidth = adaptiveMap["width"];
@@ -440,19 +474,19 @@ class AdaptiveColumn extends AdaptiveElement
   }
 
   @override
-  Widget build() {
+  Widget build(BuildContext context) {
     Widget result = InkWell(
       onTap: action?.onTapped,
       child: Column(
-      children: []
-        ..add(separator ? Divider(
-          height: topSpacing,
-        ) : SizedBox(
-          height: topSpacing,
-        ),)
-        ..addAll(items.map((it) => it.generateWidget()).toList()),
-      crossAxisAlignment: CrossAxisAlignment.start,
-    ),
+        children: []
+          ..add(separator ? Divider(
+            height: topSpacing,
+          ) : SizedBox(
+            height: topSpacing,
+          ),)
+          ..addAll(items.map((it) => it).toList()),
+        crossAxisAlignment: CrossAxisAlignment.start,
+      ),
     );
 
     assert(mode == "auto" || mode == "stretch" || mode == "manual");
@@ -465,40 +499,42 @@ class AdaptiveColumn extends AdaptiveElement
         child: result,
       );
     } else if(mode == "manual") {
-       result = Flexible(
+      result = Flexible(
         flex: width,
         child: result,
-       );
+      );
     }
 
     return result;
   }
-
-
-
-
-
-  @override
-  void visitChildren(AdaptiveElementVisitor visitor) {
-    visitor(this);
-    items?.forEach((it) => it.visitChildren(visitor));
-  }
 }
 
-class AdaptiveFactSet extends AdaptiveElement with SeparatorElementMixin {
-  AdaptiveFactSet(Map adaptiveMap, RawAdaptiveCardState widgetState)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+
+class AdaptiveFactSet extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveFactSet({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveFactSetState createState() => _AdaptiveFactSetState();
+}
+
+class _AdaptiveFactSetState extends State<AdaptiveFactSet> with AdaptiveElementMixin{
+
+
 
   List<Map> facts;
 
+
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
     facts = List<Map>.from(adaptiveMap["facts"]).toList();
+
   }
 
   @override
-  Widget build() {
+  Widget build(BuildContext context) {
     return Row(
       children: [
         Column(
@@ -523,9 +559,18 @@ class AdaptiveFactSet extends AdaptiveElement with SeparatorElementMixin {
   }
 }
 
-class AdaptiveImage extends AdaptiveElement with SeparatorElementMixin {
-  AdaptiveImage(Map adaptiveMap, RawAdaptiveCardState widgetState )
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+
+class AdaptiveImage extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveImage({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveImageState createState() => _AdaptiveImageState();
+}
+
+class _AdaptiveImageState extends State<AdaptiveImage> with AdaptiveElementMixin{
+
 
   Alignment horizontalAlignment;
   bool isPerson;
@@ -533,9 +578,11 @@ class AdaptiveImage extends AdaptiveElement with SeparatorElementMixin {
 
   String _sizeDesciption;
 
+
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
+
     horizontalAlignment = loadAlignment();
     isPerson = loadIsPerson();
     size = loadSize();
@@ -543,9 +590,9 @@ class AdaptiveImage extends AdaptiveElement with SeparatorElementMixin {
     _sizeDesciption = adaptiveMap["size"] ?? "auto";
   }
 
-  @override
-  Widget build() {
 
+  @override
+  Widget build(BuildContext context) {
     //TODO alt text
     Widget image = Image(image: NetworkImage(url), fit: BoxFit.contain,);
 
@@ -555,7 +602,7 @@ class AdaptiveImage extends AdaptiveElement with SeparatorElementMixin {
         child: image,
       );
     }
-    
+
 
     image = Align(
       alignment: horizontalAlignment,
@@ -577,6 +624,7 @@ class AdaptiveImage extends AdaptiveElement with SeparatorElementMixin {
       child: image,
     );
   }
+
 
   Alignment loadAlignment() {
     String alignmentString = adaptiveMap["horizontalAlignment"] ?? "left";
@@ -608,39 +656,50 @@ class AdaptiveImage extends AdaptiveElement with SeparatorElementMixin {
   }
 }
 
-class AdaptiveImageSet extends AdaptiveElement with SeparatorElementMixin {
-  AdaptiveImageSet(Map adaptiveMap, RawAdaptiveCardState widgetState)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+
+class AdaptiveImageSet extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveImageSet({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveImageSetState createState() => _AdaptiveImageSetState();
+}
+
+class _AdaptiveImageSetState extends State<AdaptiveImageSet> with AdaptiveElementMixin{
 
   List<AdaptiveImage> images;
 
   String imageSize;
   double maybeSize;
 
+
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
+
     images = List<Map>.from(adaptiveMap["images"])
         .map((child) =>
-        AdaptiveImage(child, widgetState))
+        AdaptiveImage(adaptiveMap: child))
         .toList();
 
     loadSize();
   }
-
   @override
-  Widget build() {
+  Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       return Wrap(
         //maxCrossAxisExtent: 200.0,
         children: images
             .map((img) => SizedBox(
-            width: calculateSize(constraints), child: img.generateWidget()))
+            width: calculateSize(constraints), child: img))
             .toList(),
         //shrinkWrap: true,
       );
     });
   }
+
+
 
   double calculateSize(BoxConstraints constraints) {
     if (maybeSize != null) return maybeSize;
@@ -669,18 +728,22 @@ class AdaptiveImageSet extends AdaptiveElement with SeparatorElementMixin {
     maybeSize = size.toDouble();
   }
 
-  @override
-  void visitChildren(AdaptiveElementVisitor visitor) {
-    visitor(this);
-    images?.forEach((it) => it.visitChildren(visitor));
-  }
+
 }
 
-class AdaptiveMedia extends AdaptiveElement with SeparatorElementMixin {
-  AdaptiveMedia(Map adaptiveMap, RawAdaptiveCardState widgetState)
-      : super(
-      adaptiveMap: adaptiveMap,
-      widgetState: widgetState);
+
+
+class AdaptiveMedia extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveMedia({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveMediaState createState() => _AdaptiveMediaState();
+}
+
+class _AdaptiveMediaState extends State<AdaptiveMedia> with AdaptiveElementMixin{
+
 
   VideoPlayerController videoPlayerController;
   ChewieController controller;
@@ -693,8 +756,9 @@ class AdaptiveMedia extends AdaptiveElement with SeparatorElementMixin {
   FadeAnimation(child: const Icon(Icons.play_arrow, size: 100.0));
 
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
+
     postUrl = adaptiveMap["poster"];
     sourceUrl = adaptiveMap["sources"][0]["url"];
     videoPlayerController = VideoPlayerController.network(sourceUrl);
@@ -713,13 +777,14 @@ class AdaptiveMedia extends AdaptiveElement with SeparatorElementMixin {
       controller.dispose();
       controller = null;
     });
-  }
 
+  }
   @override
-  Widget build() {
+  Widget build(BuildContext context) {
     return Chewie(controller: controller,);
   }
 }
+
 
 /// Element for an unknown type
 ///
@@ -728,26 +793,31 @@ class AdaptiveMedia extends AdaptiveElement with SeparatorElementMixin {
 /// When in production, these are blank elements which don't render anything.
 ///
 /// In debug mode these contain an error message describing the problem.
-class AdaptiveUnknown extends AdaptiveElement
-    with SeparatorElementMixin, TappableElementMixin, ChildStylerMixin {
-  AdaptiveUnknown (Map adaptiveMap, widgetState, this.type)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+class AdaptiveUnknown extends StatefulWidget with AdaptiveElementWidgetMixin {
 
+  AdaptiveUnknown({Key key, this.adaptiveMap, this.type}) : super(key: key);
 
-  /// Type of the unknown elements
+  final Map adaptiveMap;
+
   final String type;
+  @override
+  _AdaptiveUnknownState createState() => _AdaptiveUnknownState();
+}
+
+class _AdaptiveUnknownState extends State<AdaptiveUnknown> with AdaptiveElementMixin{
 
 
-  Widget build() {
+  @override
+  Widget build(BuildContext context) {
 
     Widget result = SizedBox();
 
     // Only do this in debug mode
     assert(() {
       result = ErrorWidget(
-        "Type $type not found. \n\n"
-        "Because of this, a portion of the tree was dropped: \n"
-        "$adaptiveMap"
+          "Type ${widget.type} not found. \n\n"
+              "Because of this, a portion of the tree was dropped: \n"
+              "$adaptiveMap"
       );
 
       return true;
@@ -756,21 +826,8 @@ class AdaptiveUnknown extends AdaptiveElement
     return result;
 
   }
-
 }
 
-class AdaptiveActionUnknown extends AdaptiveAction with IconButtonMixin {
-  AdaptiveActionUnknown (Map adaptiveMap, widgetState, String type)
-      : adaptiveUnknown = AdaptiveUnknown(adaptiveMap, widgetState, type),
-        super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
-  final AdaptiveUnknown adaptiveUnknown;
 
-  @override
-  Widget build() {
-    return adaptiveUnknown.build();
-  }
 
-  @override
-  void onTapped() {}
-}

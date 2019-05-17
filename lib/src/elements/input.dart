@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
 import 'package:flutter_adaptive_cards/src/elements/basics.dart';
 
+import 'fsadhfafd.dart';
+
 /// Text input elements
 
 abstract class AdaptiveInput extends AdaptiveElement {
@@ -35,26 +37,39 @@ abstract class AdaptiveTextualInput extends AdaptiveInput
   }
 }
 
-class AdaptiveTextInput extends AdaptiveTextualInput {
-  AdaptiveTextInput(Map adaptiveMap, widgetState,)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+
+class AdaptiveTextInput extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveTextInput({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveTextInputState createState() => _AdaptiveTextInputState();
+}
+
+class _AdaptiveTextInputState extends State<AdaptiveTextInput> with AdaptiveTextualInputMixin,
+    AdaptiveInputMixin, AdaptiveElementMixin{
+
 
   TextEditingController controller = TextEditingController();
   bool isMultiline;
   int maxLength;
   TextInputType style;
 
+
+
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
+
     isMultiline = adaptiveMap["isMultiline"] ?? false;
     maxLength = adaptiveMap["maxLength"];
     style = loadTextInputType();
     controller.text = value;
-  }
 
+  }
   @override
-  Widget build() {
+  Widget build(BuildContext context) {
     return TextField(
       controller: controller,
       maxLength: maxLength,
@@ -65,6 +80,7 @@ class AdaptiveTextInput extends AdaptiveTextualInput {
       ),
     );
   }
+
 
   @override
   void appendInput(Map map) {
@@ -93,25 +109,36 @@ class AdaptiveTextInput extends AdaptiveTextualInput {
   }
 }
 
-class AdaptiveNumberInput extends AdaptiveTextualInput {
-  AdaptiveNumberInput(Map adaptiveMap, widgetState)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+
+
+class AdaptiveNumberInput extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveNumberInput({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveNumberInputState createState() => _AdaptiveNumberInputState();
+}
+
+class _AdaptiveNumberInputState extends State<AdaptiveNumberInput> with AdaptiveTextualInputMixin, AdaptiveInputMixin, AdaptiveElementMixin{
+
 
   TextEditingController controller = TextEditingController();
 
   int min;
   int max;
 
+
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
+
     controller.text = value;
     min = adaptiveMap["min"];
     max = adaptiveMap["max"];
   }
-
   @override
-  Widget build() {
+  Widget build(BuildContext context) {
     return TextField(
       keyboardType: TextInputType.number,
       inputFormatters: [
@@ -129,32 +156,46 @@ class AdaptiveNumberInput extends AdaptiveTextualInput {
     );
   }
 
+
+
   @override
   void appendInput(Map map) {
     map[id] = controller.text;
   }
 }
 
-class AdaptiveDateInput extends AdaptiveTextualInput {
-  AdaptiveDateInput(Map adaptiveMap, widgetState)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+
+class AdaptiveDateInput extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveDateInput({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveDateInputState createState() => _AdaptiveDateInputState();
+}
+
+class _AdaptiveDateInputState extends State<AdaptiveDateInput> with AdaptiveTextualInputMixin,
+    AdaptiveElementMixin, AdaptiveInputMixin{
+
+
 
   DateTime selectedDateTime;
   DateTime min;
   DateTime max;
 
+
   @override
-  void loadTree() {
-    super.loadTree();
-    try {
+  void initState() {
+    super.initState();
+
+   try {
       selectedDateTime = DateTime.parse(value);
       min = DateTime.parse(adaptiveMap["min"]);
       max = DateTime.parse(adaptiveMap["max"]);
     } catch (formatException) {}
   }
-
   @override
-  Widget build() {
+  Widget build(BuildContext context) {
     return RaisedButton(
       onPressed: () async {
         selectedDateTime = await widgetState.pickDate(min, max);
@@ -166,27 +207,41 @@ class AdaptiveDateInput extends AdaptiveTextualInput {
     );
   }
 
+
   @override
   void appendInput(Map map) {
     map[id] = selectedDateTime.toIso8601String();
   }
 }
 
-class AdaptiveTimeInput extends AdaptiveTextualInput {
-  AdaptiveTimeInput(Map adaptiveMap, widgetState)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+
+class AdaptiveTimeInput extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveTimeInput({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveTimeInputState createState() => _AdaptiveTimeInputState();
+}
+
+class _AdaptiveTimeInputState extends State<AdaptiveTimeInput> with AdaptiveTextualInputMixin,
+    AdaptiveElementMixin, AdaptiveInputMixin{
+
 
   TimeOfDay selectedTime;
   TimeOfDay min;
   TimeOfDay max;
 
+
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
+
     selectedTime = parseTime(value) ?? TimeOfDay.now();
     min = parseTime(adaptiveMap["min"]) ?? TimeOfDay(minute: 0, hour: 0);
     max = parseTime(adaptiveMap["max"]) ?? TimeOfDay(minute: 59, hour: 23);
   }
+
 
   TimeOfDay parseTime(String time) {
     if (time == null) return null;
@@ -197,9 +252,8 @@ class AdaptiveTimeInput extends AdaptiveTextualInput {
       minute: int.parse(times[1]),
     );
   }
-
   @override
-  Widget build() {
+  Widget build(BuildContext context) {
     return RaisedButton(
       onPressed: () async {
         TimeOfDay result = await widgetState.pickTime();
@@ -218,15 +272,26 @@ class AdaptiveTimeInput extends AdaptiveTextualInput {
     );
   }
 
+
   @override
   void appendInput(Map map) {
     map[id] = selectedTime.toString();
   }
 }
 
-class AdaptiveToggle extends AdaptiveInput {
-  AdaptiveToggle(Map adaptiveMap, widgetState)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+
+class AdaptiveToggle extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveToggle({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveToggleState createState() => _AdaptiveToggleState();
+}
+
+class _AdaptiveToggleState extends State<AdaptiveToggle> with AdaptiveInputMixin,AdaptiveElementMixin{
+
+
 
   bool boolValue = false;
 
@@ -235,17 +300,21 @@ class AdaptiveToggle extends AdaptiveInput {
 
   String title;
 
+
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
+
     valueOff = adaptiveMap["valueOff"] ?? "false";
     valueOn = adaptiveMap["valueOn"] ?? "true";
     boolValue = value == valueOn;
     title = adaptiveMap["title"] ?? "";
   }
 
+
+
   @override
-  Widget build() {
+  Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
         Switch(
@@ -262,15 +331,27 @@ class AdaptiveToggle extends AdaptiveInput {
     );
   }
 
+
+
   @override
   void appendInput(Map map) {
     map[id] = boolValue ? valueOn : valueOff;
   }
 }
 
-class AdaptiveChoiceSet extends AdaptiveInput {
-  AdaptiveChoiceSet(Map adaptiveMap, widgetState,)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState);
+
+
+class AdaptiveChoiceSet extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveChoiceSet({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveChoiceSetState createState() => _AdaptiveChoiceSetState();
+}
+
+class _AdaptiveChoiceSetState extends State<AdaptiveChoiceSet> with AdaptiveInputMixin,AdaptiveElementMixin{
+
 
   // Map from title to value
   Map<String, String> choices;
@@ -281,9 +362,10 @@ class AdaptiveChoiceSet extends AdaptiveInput {
   bool isCompact;
   bool isMultiSelect;
 
+
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
     choices = Map();
     for (Map map in adaptiveMap["choices"]) {
       choices[map["title"]] = map["value"].toString();
@@ -291,7 +373,10 @@ class AdaptiveChoiceSet extends AdaptiveInput {
     isCompact = loadCompact();
     isMultiSelect = adaptiveMap["isMultiSelect"] ?? false;
     _selectedChoice.addAll(value.split(","));
+
   }
+
+
 
   @override
   void appendInput(Map map) {
@@ -299,11 +384,12 @@ class AdaptiveChoiceSet extends AdaptiveInput {
   }
 
   @override
-  Widget build() {
+  Widget build(BuildContext context) {
     return isCompact
         ? isMultiSelect ? _buildExpanded() : _buildCompact()
         : _buildExpanded();
   }
+
 
   /// This is built when multiSelect is false and isCompact is true
   Widget _buildCompact() {
@@ -355,4 +441,3 @@ class AdaptiveChoiceSet extends AdaptiveInput {
   }
 }
 
-///

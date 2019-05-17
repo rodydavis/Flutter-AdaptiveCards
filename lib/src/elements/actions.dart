@@ -2,16 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
 import 'package:flutter_adaptive_cards/src/elements/basics.dart';
 
+import 'fsadhfafd.dart';
 
 
-mixin IconButtonMixin on AdaptiveAction {
+
+class IconButtonAction extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  IconButtonAction({Key key, this.adaptiveMap, this.onTapped}) : super(key: key);
+
+  final Map adaptiveMap;
+
+  final VoidCallback onTapped;
+
+  @override
+  _IconButtonActionState createState() => _IconButtonActionState();
+}
+
+class _IconButtonActionState extends State<IconButtonAction> with AdaptiveActionMixin, AdaptiveElementMixin{
+
+
   String iconUrl;
-
-  void loadSeparator() {
+  @override
+  void initState() {
+    super.initState();
     iconUrl = adaptiveMap["iconUrl"];
+
   }
 
-  Widget getButton() {
+  @override
+  Widget build(BuildContext context) {
     Widget result = RaisedButton(
       onPressed: onTapped,
       child: Text(title),
@@ -29,36 +48,40 @@ mixin IconButtonMixin on AdaptiveAction {
     }
     return result;
   }
+
+  @override
+  void onTapped() => widget.onTapped();
 }
 
-abstract class AdaptiveAction extends AdaptiveElement {
-  AdaptiveAction({Map adaptiveMap, widgetState,})
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
-  String get title => adaptiveMap["title"];
 
-  void onTapped();
+
+class AdaptiveActionShowCard extends StatefulWidget with AdaptiveElementWidgetMixin  {
+
+  AdaptiveActionShowCard({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveActionShowCardState createState() => _AdaptiveActionShowCardState();
 }
 
-class AdaptiveActionShowCard extends AdaptiveAction {
-  AdaptiveActionShowCard(Map adaptiveMap, widgetState,this._adaptiveCardElement)
-      : super(
-      adaptiveMap: adaptiveMap, widgetState: widgetState,);
+class _AdaptiveActionShowCardState extends State<AdaptiveActionShowCard> with
+    AdaptiveActionMixin, AdaptiveElementMixin{
 
-  AdaptiveElement card;
+  Widget card;
 
-  final AdaptiveCardElement _adaptiveCardElement;
 
   bool expanded = false;
 
   @override
-  void loadTree() {
-    super.loadTree();
-    card = widgetState.cardRegistry.getElement(adaptiveMap["card"], widgetState);
+  void initState() {
+    super.initState();
+
+    card = widgetState.cardRegistry.getElement(adaptiveMap["card"]);
   }
 
   @override
-  Widget build() {
+  Widget build(BuildContext context) {
     return RaisedButton(
       onPressed: onTapped,
       child: Row(
@@ -72,23 +95,27 @@ class AdaptiveActionShowCard extends AdaptiveAction {
     );
   }
 
+
   @override
   void onTapped() {
+    var _adaptiveCardElement = AdaptiveCardElementState.of(context);
     if (_adaptiveCardElement != null) {
       _adaptiveCardElement.showCard(this);
     }
   }
-
-  @override
-  void visitChildren(AdaptiveElementVisitor visitor) {
-    card.visitChildren(visitor);
-  }
 }
 
-class AdaptiveActionSubmit extends AdaptiveAction {
-  AdaptiveActionSubmit(Map adaptiveMap, widgetState, {this.color})
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
+class AdaptiveActionSubmit extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveActionSubmit({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveActionSubmitState createState() => _AdaptiveActionSubmitState();
+}
+
+class _AdaptiveActionSubmitState extends State<AdaptiveActionSubmit> with AdaptiveActionMixin, AdaptiveElementMixin{
 
   Map data;
 
@@ -96,13 +123,14 @@ class AdaptiveActionSubmit extends AdaptiveAction {
   final Color color;
 
   @override
-  void loadTree() {
-    super.loadTree();
-    data = adaptiveMap["data"] ?? {};
-  }
+  void initState() {
+    super.initState();
 
+    data = adaptiveMap["data"] ?? {};
+
+  }
   @override
-  Widget build() {
+  Widget build(BuildContext context) {
     return RaisedButton(
       color: color,
       onPressed: onTapped,
@@ -110,33 +138,53 @@ class AdaptiveActionSubmit extends AdaptiveAction {
     );
   }
 
+
   @override
   void onTapped() {
     widgetState.submit(data);
   }
 }
 
-class AdaptiveActionOpenUrl extends AdaptiveAction with IconButtonMixin {
-  AdaptiveActionOpenUrl(Map adaptiveMap, widgetState,)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
+
+
+
+class AdaptiveActionOpenUrl extends StatefulWidget with AdaptiveElementWidgetMixin {
+
+  AdaptiveActionOpenUrl({Key key, this.adaptiveMap}) : super(key: key);
+
+  final Map adaptiveMap;
+  @override
+  _AdaptiveActionOpenUrlState createState() => _AdaptiveActionOpenUrlState();
+}
+
+class _AdaptiveActionOpenUrlState extends State<AdaptiveActionOpenUrl> with AdaptiveActionMixin, AdaptiveElementMixin{
+
 
   String url;
   String iconUrl;
 
+
+
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
+
     url = adaptiveMap["url"];
     iconUrl = adaptiveMap["iconUrl"];
   }
-
   @override
-  Widget build() {
-    return getButton();
+  Widget build(BuildContext context) {
+    // TODO
+    return IconButtonAction(
+      adaptiveMap: adaptiveMap,
+      onTapped: onTapped,
+    );
   }
+
 
   @override
   void onTapped() {
     widgetState.openUrl(url);
   }
 }
+
