@@ -4,6 +4,8 @@ import 'package:flutter_adaptive_cards/src/elements/actions.dart';
 import 'package:flutter_adaptive_cards/src/elements/input.dart';
 import 'package:flutter_adaptive_cards/src/flutter_adaptive_cards.dart';
 
+import 'elements/fsadhfafd.dart';
+
 typedef ElementCreator = Widget Function(
     Map<String, dynamic> map);
 
@@ -54,6 +56,21 @@ class CardRegistry {
       return _getBaseElement(map);
     }
   }
+
+  GenericAction getGenericAction(Map<String, dynamic> map, RawAdaptiveCardState state) {
+    String stringType = map["type"];
+
+    switch (stringType) {
+      case "Action.ShowCard":
+        //return Generica(adaptiveMap: map,);
+      case "Action.OpenUrl":
+        return GenericActionOpenUrl(map,state);
+      case "Action.Submit":
+        return GenericSubmitAction(map, state);
+    }
+    //return AdaptiveUnknown(adaptiveMap: map, type: stringType,);
+  }
+
 
   Widget getAction(
       Map<String, dynamic> map) {

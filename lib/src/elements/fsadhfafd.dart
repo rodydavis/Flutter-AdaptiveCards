@@ -81,3 +81,45 @@ mixin AdaptiveTextualInputMixin<T extends AdaptiveElementWidgetMixin> on State<T
 
   }
 }
+
+
+
+abstract class GenericAction {
+
+  GenericAction(this.adaptiveMap, this.rawAdaptiveCardState);
+
+  String get title => adaptiveMap["title"];
+  final Map adaptiveMap;
+  final RawAdaptiveCardState rawAdaptiveCardState;
+
+  void tap();
+
+}
+
+
+class GenericSubmitAction extends GenericAction {
+  GenericSubmitAction(Map adaptiveMap, RawAdaptiveCardState rawAdaptiveCardState) : super(adaptiveMap, rawAdaptiveCardState) {
+    data = adaptiveMap["data"] ?? {};
+  }
+
+  Map data;
+  @override
+  void tap() {
+    rawAdaptiveCardState.submit(data);
+  }
+
+}
+
+class GenericActionOpenUrl extends GenericAction {
+  GenericActionOpenUrl(Map adaptiveMap, RawAdaptiveCardState rawAdaptiveCardState) : super(adaptiveMap, rawAdaptiveCardState) {
+    url = adaptiveMap["url"];
+  }
+
+  String url;
+
+  @override
+  void tap() {
+    rawAdaptiveCardState.openUrl(url);
+  }
+
+}

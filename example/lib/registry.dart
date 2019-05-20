@@ -34,10 +34,11 @@ class _MyHomePageState extends State<MyHomePage> {
         child: AdaptiveCard.asset(
           assetPath: "sample",
           hostConfigPath: "host_config",
-          cardRegistry: CardRegistry(addedActions: {
+          // TODO fix this
+          /*cardRegistry: CardRegistry(addedActions: {
             "Action.Submit": (map, widgetState, card) =>
                 AdaptiveActionSubmit(map, widgetState, color: Colors.red)
-          }),
+          }),*/
         ),
       ),
     );

@@ -5,38 +5,7 @@ import 'package:flutter_adaptive_cards/src/elements/basics.dart';
 
 import 'fsadhfafd.dart';
 
-/// Text input elements
-
-abstract class AdaptiveInput extends AdaptiveElement {
-  AdaptiveInput({Map adaptiveMap, widgetState,})
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
-
-  String value;
-
-  void appendInput(Map map);
-
-  @override
-  void loadTree() {
-    super.loadTree();
-    value = adaptiveMap["value"].toString() == "null"
-        ? ""
-        : adaptiveMap["value"].toString();
-  }
-}
-
-abstract class AdaptiveTextualInput extends AdaptiveInput
-    with SeparatorElementMixin {
-  AdaptiveTextualInput({Map adaptiveMap, widgetState,})
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
-
-  String placeholder;
-  @override
-  void loadTree() {
-    super.loadTree();
-    placeholder = adaptiveMap["placeholder"] ?? "";
-  }
-}
-
+// TODO add separator for each
 
 class AdaptiveTextInput extends StatefulWidget with AdaptiveElementWidgetMixin {
 
@@ -61,7 +30,6 @@ class _AdaptiveTextInputState extends State<AdaptiveTextInput> with AdaptiveText
   @override
   void initState() {
     super.initState();
-
     isMultiline = adaptiveMap["isMultiline"] ?? false;
     maxLength = adaptiveMap["maxLength"];
     style = loadTextInputType();

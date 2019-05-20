@@ -40,8 +40,6 @@ class _SeparatorElementState extends State<SeparatorElement> with AdaptiveElemen
 
   @override
   Widget build(BuildContext context) {
-    assert(separator != null,
-    "Did you forget to call loadSeperator in this class?");
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
@@ -58,31 +56,48 @@ class _SeparatorElementState extends State<SeparatorElement> with AdaptiveElemen
   }
 }
 
-mixin TappableElementMixin on AdaptiveElement {
-  AdaptiveAction action;
+class AdaptiveTappable extends StatefulWidget with AdaptiveElementWidgetMixin{
+
+
+  AdaptiveTappable({Key key, this.child, this.adaptiveMap}) : super(key: key);
+
+  final Widget child;
+
+  final Map adaptiveMap;
 
   @override
-  void loadTree() {
-    super.loadTree();
+  _AdaptiveTappableState createState() => _AdaptiveTappableState();
+}
+
+class _AdaptiveTappableState extends State<AdaptiveTappable> with AdaptiveElementMixin{
+
+  GenericAction action;
+
+  @override
+  void initState() {
+    super.initState();
     if (adaptiveMap.containsKey("selectAction")) {
-      action = widgetState.cardRegistry.getAction(adaptiveMap["selectAction"]);
+      action = widgetState.cardRegistry.getGenericAction(adaptiveMap["selectAction"], widgetState);
     }
   }
 
+
   @override
-  Widget generateWidget() {
+  Widget build(BuildContext context) {
     return InkWell(
-      onTap: action?.onTapped,
-      child: super.generateWidget(),
+      onTap: action?.tap,
+      child: widget.child,
     );
   }
 }
-mixin ChildStylerMixin on AdaptiveElement {
+
+
+mixin ChildStylerMixin<T extends AdaptiveElementWidgetMixin> on AdaptiveElementMixin<T> {
   String style;
 
   @override
-  void loadTree() {
-    super.loadTree();
+  void initState() {
+    super.initState();
     style = adaptiveMap["style"];
   }
 
@@ -105,14 +120,14 @@ class AdaptiveCardElement extends StatefulWidget with AdaptiveElementWidgetMixin
   AdaptiveCardElementState createState() => AdaptiveCardElementState();
 }
 
-class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveElementMixin, SeparatorElementMixin{
+class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveElementMixin {
 
 
-  AdaptiveActionShowCard currentlyActiveShowCardAction;
+  AdaptiveActionShowCard currentCard;
 
-  List<AdaptiveElementWidgetMixin> children;
+  List<Widget> children;
 
-  List<AdaptiveElementWidgetMixin> allActions;
+  List<Widget> allActions;
 
   List<AdaptiveActionShowCard> showCardActions;
 
@@ -178,8 +193,9 @@ class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveE
     }
     widgetChildren.add(actionWidget);
 
-    if (currentlyActiveShowCardAction != null) {
-      widgetChildren.add(currentlyActiveShowCardAction.card.build());
+    if (currentCard != null) {
+      // TODO do dis
+      widgetChildren.add(currentCard);
     }
     Widget result = Padding(
       padding: const EdgeInsets.all(8.0),
@@ -200,23 +216,22 @@ class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveE
     }
 
 
-    return Provider<AdaptiveCardElementState>.value(
-      value: this,
-      child: result,
+    return SeparatorElement(
+      adaptiveMap: adaptiveMap,
+      child: Provider<AdaptiveCardElementState>.value(
+        value: this,
+        child: result,
+      ),
     );
   }
 
   /// This is called when an [_AdaptiveActionShowCard] triggers it.
-  void showCard(AdaptiveActionShowCard showCardAction) {
-    if (currentlyActiveShowCardAction == showCardAction) {
-      currentlyActiveShowCardAction = null;
+  void showCard(AdaptiveActionShowCard card) {
+    if (currentCard == card) {
+      currentCard= null;
     } else {
-      currentlyActiveShowCardAction = showCardAction;
+      currentCard = card;
     }
-    showCardAction.expanded = !showCardAction.expanded;
-    showCardActions.where((it) => it != showCardAction).forEach((it) => () {
-      it.expanded = false;
-    }());
     setState(() {});
   }
 
@@ -279,6 +294,12 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
     );
   }
 
+  // Probably want to pass context down the tree, until now -> this
+  Color getColor(Brightness brightness) {
+    Color color = widgetState.resolver.resolveColor(adaptiveMap["color"], adaptiveMap["isSubtle"]);
+    if(!widgetState.widget.approximateDarkThemeColors) return color;
+    return adjustColorToFitDarkTheme(color, brightness);
+  }
 
   Alignment loadAlignment() {
     String alignmentString = widget.adaptiveMap["horizontalAlignment"] ?? "left";
@@ -330,7 +351,7 @@ class AdaptiveContainer extends StatefulWidget with AdaptiveElementWidgetMixin {
   _AdaptiveContainerState createState() => _AdaptiveContainerState();
 }
 
-class _AdaptiveContainerState extends State<AdaptiveContainer> with AdaptiveElementMixin{
+class _AdaptiveContainerState extends State<AdaptiveContainer> with AdaptiveElementMixin, ChildStylerMixin{
 
 
 // TODO implement verticalContentAlignment
@@ -420,7 +441,7 @@ class AdaptiveColumn extends StatefulWidget with AdaptiveElementWidgetMixin {
   _AdaptiveColumnState createState() => _AdaptiveColumnState();
 }
 
-class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMixin{
+class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMixin, ChildStylerMixin {
 
 
   List<Widget> items;
@@ -429,7 +450,7 @@ class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMix
   int width;
 
 
-  Widget action;
+  GenericAction action;
   // Need to do the separator manually for this class
   // because the flexible needs to be applied to the class above
   double topSpacing;
@@ -440,7 +461,7 @@ class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMix
     super.initState();
 
     if (adaptiveMap.containsKey("selectAction")) {
-      action = widgetState.cardRegistry.getAction(adaptiveMap["selectAction"]);
+      action = widgetState.cardRegistry.getGenericAction(adaptiveMap["selectAction"], widgetState);
     }
     topSpacing = widgetState.resolver.resolveSpacing(adaptiveMap["spacing"]);
     separator = adaptiveMap["separator"] ?? false;
@@ -476,7 +497,7 @@ class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMix
   @override
   Widget build(BuildContext context) {
     Widget result = InkWell(
-      onTap: action?.onTapped,
+      onTap: action?.tap,
       child: Column(
         children: []
           ..add(separator ? Divider(

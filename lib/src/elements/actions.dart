@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
 import 'package:flutter_adaptive_cards/src/elements/basics.dart';
-
 import 'fsadhfafd.dart';
 
 
@@ -61,6 +60,8 @@ class AdaptiveActionShowCard extends StatefulWidget with AdaptiveElementWidgetMi
   AdaptiveActionShowCard({Key key, this.adaptiveMap}) : super(key: key);
 
   final Map adaptiveMap;
+
+
   @override
   _AdaptiveActionShowCardState createState() => _AdaptiveActionShowCardState();
 }
@@ -71,7 +72,6 @@ class _AdaptiveActionShowCardState extends State<AdaptiveActionShowCard> with
   Widget card;
 
 
-  bool expanded = false;
 
   @override
   void initState() {
@@ -87,7 +87,7 @@ class _AdaptiveActionShowCardState extends State<AdaptiveActionShowCard> with
       child: Row(
         children: <Widget>[
           Text(title),
-          expanded
+          AdaptiveCardElementState.of(context).currentCard == widget
               ? Icon(Icons.keyboard_arrow_up)
               : Icon(Icons.keyboard_arrow_down),
         ],
@@ -100,7 +100,7 @@ class _AdaptiveActionShowCardState extends State<AdaptiveActionShowCard> with
   void onTapped() {
     var _adaptiveCardElement = AdaptiveCardElementState.of(context);
     if (_adaptiveCardElement != null) {
-      _adaptiveCardElement.showCard(this);
+      _adaptiveCardElement.showCard(widget);
     }
   }
 }
@@ -108,31 +108,32 @@ class _AdaptiveActionShowCardState extends State<AdaptiveActionShowCard> with
 
 class AdaptiveActionSubmit extends StatefulWidget with AdaptiveElementWidgetMixin {
 
-  AdaptiveActionSubmit({Key key, this.adaptiveMap}) : super(key: key);
+  AdaptiveActionSubmit({Key key, this.adaptiveMap, this.color}) : super(key: key);
 
   final Map adaptiveMap;
+
+  // Native styling
+  final Color color;
+
   @override
   _AdaptiveActionSubmitState createState() => _AdaptiveActionSubmitState();
 }
 
 class _AdaptiveActionSubmitState extends State<AdaptiveActionSubmit> with AdaptiveActionMixin, AdaptiveElementMixin{
 
-  Map data;
 
-  // Native styling
-  final Color color;
+  GenericSubmitAction action;
 
   @override
   void initState() {
     super.initState();
-
-    data = adaptiveMap["data"] ?? {};
+    action = GenericSubmitAction(adaptiveMap, widgetState);
 
   }
   @override
   Widget build(BuildContext context) {
     return RaisedButton(
-      color: color,
+      color: widget.color,
       onPressed: onTapped,
       child: Text(title),
     );
@@ -141,7 +142,7 @@ class _AdaptiveActionSubmitState extends State<AdaptiveActionSubmit> with Adapti
 
   @override
   void onTapped() {
-    widgetState.submit(data);
+    action.tap();
   }
 }
 
@@ -160,7 +161,7 @@ class AdaptiveActionOpenUrl extends StatefulWidget with AdaptiveElementWidgetMix
 class _AdaptiveActionOpenUrlState extends State<AdaptiveActionOpenUrl> with AdaptiveActionMixin, AdaptiveElementMixin{
 
 
-  String url;
+  GenericActionOpenUrl action;
   String iconUrl;
 
 
@@ -169,7 +170,7 @@ class _AdaptiveActionOpenUrlState extends State<AdaptiveActionOpenUrl> with Adap
   void initState() {
     super.initState();
 
-    url = adaptiveMap["url"];
+    action = GenericActionOpenUrl(adaptiveMap, widgetState);
     iconUrl = adaptiveMap["iconUrl"];
   }
   @override
@@ -184,7 +185,7 @@ class _AdaptiveActionOpenUrlState extends State<AdaptiveActionOpenUrl> with Adap
 
   @override
   void onTapped() {
-    widgetState.openUrl(url);
+    action.tap();
   }
 }
 
