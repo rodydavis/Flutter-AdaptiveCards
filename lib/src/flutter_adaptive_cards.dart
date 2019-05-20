@@ -179,7 +179,7 @@ class _AdaptiveCardState extends State<AdaptiveCard> {
     if(widget.onSubmit != null) {
       onSubmit = widget.onSubmit;
     } else {
-      var foundOnSubmit = DefaultAdaptiveCardHandlers.of(context).onSubmit;
+      var foundOnSubmit = DefaultAdaptiveCardHandlers.of(context)?.onSubmit;
       if(foundOnSubmit != null) {
         onSubmit = foundOnSubmit;
       } else {
@@ -193,7 +193,7 @@ class _AdaptiveCardState extends State<AdaptiveCard> {
     if(widget.onOpenUrl != null) {
       onOpenUrl = widget.onOpenUrl;
     } else {
-      var foundOpenUrl = DefaultAdaptiveCardHandlers.of(context).onOpenUrl;
+      var foundOpenUrl = DefaultAdaptiveCardHandlers.of(context)?.onOpenUrl;
       if(foundOpenUrl  != null) {
         onOpenUrl = foundOpenUrl;
       } else {
@@ -238,7 +238,7 @@ class RawAdaptiveCard extends StatefulWidget {
     @required this.onOpenUrl,
     this.showDebugJson = true,
     this.approximateDarkThemeColors = true,
-  });
+  }) : assert(onSubmit != null, onOpenUrl != null);
 
   final Map map;
   final Map hostConfig;
@@ -295,14 +295,20 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   /// Submits all the inputs of this adaptive card, does it by recursively
   /// visiting the elements in the tree
   void submit(Map map) {
-    // TODO redo flutter way
-    context.visitChildElements((element) {
+
+
+    var visitor;
+    visitor = (element) {
       if(element is StatefulElement) {
         if(element.state is AdaptiveInputMixin) {
           (element.state as AdaptiveInputMixin).appendInput(map);
         }
       }
-    });
+      element.visitChildren(visitor);
+    };
+    // TODO redo flutter way
+    context.visitChildElements(visitor);
+
     widget.onSubmit(map);
   }
 

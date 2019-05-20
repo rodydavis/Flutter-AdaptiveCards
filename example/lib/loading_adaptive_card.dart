@@ -4,20 +4,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_cards/src/flutter_adaptive_cards.dart';
 
 class DemoAdaptiveCard extends StatefulWidget {
-
   final String assetPath;
 
   const DemoAdaptiveCard(this.assetPath, {Key key}) : super(key: key);
-
-
 
   @override
   _DemoAdaptiveCardState createState() => new _DemoAdaptiveCardState();
 }
 
-class _DemoAdaptiveCardState extends State<DemoAdaptiveCard> with AutomaticKeepAliveClientMixin<DemoAdaptiveCard>{
-
-
+class _DemoAdaptiveCardState extends State<DemoAdaptiveCard>
+    with AutomaticKeepAliveClientMixin<DemoAdaptiveCard> {
   Map adaptiveMap;
   Map hostConfig;
 
@@ -44,33 +40,38 @@ class _DemoAdaptiveCardState extends State<DemoAdaptiveCard> with AutomaticKeepA
 
   @override
   Widget build(BuildContext context) {
-    if(adaptiveMap == null || hostConfig == null) {
+    if (adaptiveMap == null || hostConfig == null) {
       return SizedBox();
     }
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: <Widget>[
-          RawAdaptiveCard
-              .fromMap(adaptiveMap, hostConfig, showDebugJson: false,),
+          AdaptiveCard.memory(
+            content: adaptiveMap,
+            hostConfigPath: "lib/host_config",
+            showDebugJson: false,
+          ),
           FlatButton(
             textColor: Colors.indigo,
             onPressed: () {
-              showDialog(context: context, builder: (context) {
-                return AlertDialog(
-                  title: Text("JSON"),
-                  content: SingleChildScrollView(child: Text(jsonFile)),
-                  actions: <Widget>[
-                    Center(
-                      child: FlatButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: Text("Thanks"),
-                      ),
-                    )
-                  ],
-                  contentPadding: EdgeInsets.all(8.0),
-                );
-              });
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text("JSON"),
+                      content: SingleChildScrollView(child: Text(jsonFile)),
+                      actions: <Widget>[
+                        Center(
+                          child: FlatButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Text("Thanks"),
+                          ),
+                        )
+                      ],
+                      contentPadding: EdgeInsets.all(8.0),
+                    );
+                  });
             },
             child: Text("Show the JSON"),
           ),
@@ -78,6 +79,4 @@ class _DemoAdaptiveCardState extends State<DemoAdaptiveCard> with AutomaticKeepA
       ),
     );
   }
-
-
 }
