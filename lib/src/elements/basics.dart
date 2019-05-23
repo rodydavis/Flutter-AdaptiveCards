@@ -14,7 +14,7 @@ import 'fsadhfafd.dart';
 
 class AdaptiveCardElement extends StatefulWidget with AdaptiveElementWidgetMixin {
 
-  AdaptiveCardElement({Key key, this.adaptiveMap}) : super(key: key);
+  AdaptiveCardElement({Key key, this.adaptiveMap}) : super(key: UniqueKey());
 
   final Map adaptiveMap;
 
@@ -29,9 +29,10 @@ class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveE
 
   List<Widget> children;
 
-  List<Widget> allActions;
+  List<Widget> allActions = [];
 
-  List<AdaptiveActionShowCard> showCardActions;
+  List<AdaptiveActionShowCard> showCardActions = [];
+  List<Widget> cards = [];
 
   Axis actionsOrientation;
 
@@ -45,18 +46,6 @@ class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveE
   @override
   void initState() {
     super.initState();
-    if (widget.adaptiveMap.containsKey("actions")) {
-      allActions = List<Map>.from(widget.adaptiveMap["actions"])
-          .map(
-              (map) => widgetState.cardRegistry.getAction(map))
-          .toList();
-      showCardActions = List<AdaptiveActionShowCard>.from(allActions
-          .where((action) => action is AdaptiveActionShowCard)
-          .toList());
-    } else {
-      allActions = [];
-      showCardActions = [];
-    }
 
     String stringAxis = widgetState.resolver.resolve("actions", "actionsOrientation");
     if (stringAxis == "Horizontal")
@@ -72,15 +61,30 @@ class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveE
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> widgetChildren =
-    children.map((element) => element).toList();
+
+
+    if (widget.adaptiveMap.containsKey("actions")) {
+      allActions = List<Map>.from(widget.adaptiveMap["actions"])
+          .map((adaptiveMap) => widgetState.cardRegistry.getAction(adaptiveMap))
+          .toList();
+      showCardActions = List<AdaptiveActionShowCard>.from(allActions
+          .where((action) => action is AdaptiveActionShowCard)
+          .toList());
+      cards = List<Widget>.from(showCardActions
+          .map((action) => widgetState.cardRegistry.getElement(action.adaptiveMap["card"])).toList()
+      );
+    }
+
+
+    List<Widget> widgetChildren = children.map((element) => element).toList();
 
     // Adds the actions
-    List<Widget> actionWidgets =
-    allActions.map((action) => Padding(
+    List<Widget> actionWidgets = allActions.map((action) => Padding(
       padding: EdgeInsets.only(right: 8),
       child: action,
     )).toList();
+
+
     Widget actionWidget;
     if (actionsOrientation == Axis.vertical) {
       actionWidget = Column(
@@ -96,8 +100,11 @@ class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveE
     widgetChildren.add(actionWidget);
 
     if (currentCard != null) {
-      // TODO do dis
-      widgetChildren.add(currentCard);
+      // TODO the problem is if the instance is the same -> not being rebuilt
+      // Now I moved the instatiation in the build method and the instances are not
+      // the same anymore -> fix this
+      var index = showCardActions.indexOf(currentCard);
+      widgetChildren.add(cards[index]);
     }
     Widget result = Padding(
       padding: const EdgeInsets.all(8.0),
@@ -118,12 +125,9 @@ class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveE
     }
 
 
-    return SeparatorElement(
-      adaptiveMap: adaptiveMap,
-      child: Provider<AdaptiveCardElementState>.value(
-        value: this,
-        child: result,
-      ),
+    return Provider<AdaptiveCardElementState>.value(
+      value: this,
+      child: result,
     );
   }
 
@@ -174,25 +178,24 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
   // TODO create own widget that parses _basic_ markdown. This might help: https://docs.flutter.io/flutter/widgets/Wrap-class.html
   @override
   Widget build(BuildContext context) {
-    return Builder(
-        builder: (context) {
-          return Align(
-              alignment: horizontalAlignment,
-              child: Text(
-                text,
-                style: TextStyle(
-                  fontWeight: fontWeight,
-                  fontSize: fontSize,
-                  color: getColor(Theme.of(context).brightness),
-                ),
-                maxLines: maxLines,
-              )
-            /* child: MarkdownBody(
-            data: text,
-            styleSheet: markdownStyleSheet,
-          )*/
-          );
-        }
+    return SeparatorElement(
+      adaptiveMap: adaptiveMap,
+      child: Align(
+          alignment: horizontalAlignment,
+          child: Text(
+            text,
+            style: TextStyle(
+              fontWeight: fontWeight,
+              fontSize: fontSize,
+              color: getColor(Theme.of(context).brightness),
+            ),
+            maxLines: maxLines,
+          )
+        /* child: MarkdownBody(
+              data: text,
+              styleSheet: markdownStyleSheet,
+            )*/
+      ),
     );
   }
 
@@ -281,19 +284,21 @@ class _AdaptiveContainerState extends State<AdaptiveContainer> with AdaptiveElem
 
   @override
   Widget build(BuildContext context) {
-    return Builder(
-        builder: (context) {
-          return Container(
-            color: Theme.of(context).brightness == Brightness.dark && adaptiveMap["style"] == null? null:
-            backgroundColor,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Column(
-                children: children.toList(),
-              ),
+    return AdaptiveTappable(
+      adaptiveMap: adaptiveMap,
+      child: SeparatorElement(
+        adaptiveMap: adaptiveMap,
+        child: Container(
+          color: Theme.of(context).brightness == Brightness.dark && adaptiveMap["style"] == null? null:
+          backgroundColor,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Column(
+              children: children.toList(),
             ),
-          );
-        }
+          ),
+        ),
+      ),
     );
   }
 }
@@ -322,11 +327,14 @@ class _AdaptiveColumnSetState extends State<AdaptiveColumnSet> with AdaptiveElem
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: columns.toList(),
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
+    return AdaptiveTappable(
+      adaptiveMap: adaptiveMap,
+      child: Row(
+        children: columns.toList(),
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+      ),
     );
   }
 }
@@ -458,26 +466,29 @@ class _AdaptiveFactSetState extends State<AdaptiveFactSet> with AdaptiveElementM
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Column(
-          children: facts
-              .map((fact) => Text(
-            fact["title"],
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ))
-              .toList(),
-          crossAxisAlignment: CrossAxisAlignment.start,
-        ),
-        SizedBox(
-          width: 8.0,
-        ),
-        Column(
-          children: facts.map((fact) => Text(fact["value"])).toList(),
-          crossAxisAlignment: CrossAxisAlignment.start,
-        ),
-      ],
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return SeparatorElement(
+      adaptiveMap: adaptiveMap,
+      child: Row(
+        children: [
+          Column(
+            children: facts
+                .map((fact) => Text(
+              fact["title"],
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ))
+                .toList(),
+            crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          SizedBox(
+            width: 8.0,
+          ),
+          Column(
+            children: facts.map((fact) => Text(fact["value"])).toList(),
+            crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+        ],
+        crossAxisAlignment: CrossAxisAlignment.start,
+      ),
     );
   }
 }
@@ -542,9 +553,12 @@ class _AdaptiveImageState extends State<AdaptiveImage> with AdaptiveElementMixin
         child: image,
       );
     }
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: image,
+    return SeparatorElement(
+      adaptiveMap: adaptiveMap,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: image,
+      ),
     );
   }
 
@@ -610,16 +624,19 @@ class _AdaptiveImageSetState extends State<AdaptiveImageSet> with AdaptiveElemen
   }
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return Wrap(
-        //maxCrossAxisExtent: 200.0,
-        children: images
-            .map((img) => SizedBox(
-            width: calculateSize(constraints), child: img))
-            .toList(),
-        //shrinkWrap: true,
-      );
-    });
+    return SeparatorElement(
+      adaptiveMap: adaptiveMap,
+      child: LayoutBuilder(builder: (context, constraints) {
+        return Wrap(
+          //maxCrossAxisExtent: 200.0,
+          children: images
+              .map((img) => SizedBox(
+              width: calculateSize(constraints), child: img))
+              .toList(),
+          //shrinkWrap: true,
+        );
+      }),
+    );
   }
 
 
@@ -704,7 +721,10 @@ class _AdaptiveMediaState extends State<AdaptiveMedia> with AdaptiveElementMixin
   }
   @override
   Widget build(BuildContext context) {
-    return Chewie(controller: controller,);
+    return SeparatorElement(
+      adaptiveMap: adaptiveMap,
+      child: Chewie(controller: controller,)
+    );
   }
 }
 

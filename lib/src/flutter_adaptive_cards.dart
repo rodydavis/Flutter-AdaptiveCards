@@ -306,7 +306,6 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
       }
       element.visitChildren(visitor);
     };
-    // TODO redo flutter way
     context.visitChildElements(visitor);
 
     widget.onSubmit(map);

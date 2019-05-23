@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
 import 'package:flutter_adaptive_cards/src/elements/basics.dart';
 
+import 'additional.dart';
 import 'fsadhfafd.dart';
 
 // TODO add separator for each
@@ -38,13 +39,16 @@ class _AdaptiveTextInputState extends State<AdaptiveTextInput> with AdaptiveText
   }
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      maxLength: maxLength,
-      keyboardType: style,
-      maxLines: isMultiline ? null : 1,
-      decoration: InputDecoration(
-        labelText: placeholder,
+    return SeparatorElement(
+      adaptiveMap: adaptiveMap,
+      child: TextField(
+        controller: controller,
+        maxLength: maxLength,
+        keyboardType: style,
+        maxLines: isMultiline ? null : 1,
+        decoration: InputDecoration(
+          labelText: placeholder,
+        ),
       ),
     );
   }
@@ -107,19 +111,22 @@ class _AdaptiveNumberInputState extends State<AdaptiveNumberInput> with Adaptive
   }
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      keyboardType: TextInputType.number,
-      inputFormatters: [
-        TextInputFormatter.withFunction((oldVal, newVal) {
-          if (newVal.text == "") return newVal;
-          int newNumber = int.parse(newVal.text);
-          if (newNumber >= min && newNumber <= max) return newVal;
-          return oldVal;
-        })
-      ],
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: placeholder,
+    return SeparatorElement(
+      adaptiveMap: adaptiveMap,
+      child: TextField(
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          TextInputFormatter.withFunction((oldVal, newVal) {
+            if (newVal.text == "") return newVal;
+            int newNumber = int.parse(newVal.text);
+            if (newNumber >= min && newNumber <= max) return newVal;
+            return oldVal;
+          })
+        ],
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: placeholder,
+        ),
       ),
     );
   }
@@ -164,14 +171,17 @@ class _AdaptiveDateInputState extends State<AdaptiveDateInput> with AdaptiveText
   }
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
-      onPressed: () async {
-        selectedDateTime = await widgetState.pickDate(min, max);
-        widgetState.rebuild();
-      },
-      child: Text(selectedDateTime == null
-          ? placeholder
-          : selectedDateTime.toIso8601String()),
+    return SeparatorElement(
+      adaptiveMap: adaptiveMap,
+      child: RaisedButton(
+        onPressed: () async {
+          selectedDateTime = await widgetState.pickDate(min, max);
+          widgetState.rebuild();
+        },
+        child: Text(selectedDateTime == null
+            ? placeholder
+            : selectedDateTime.toIso8601String()),
+      ),
     );
   }
 
@@ -222,21 +232,24 @@ class _AdaptiveTimeInputState extends State<AdaptiveTimeInput> with AdaptiveText
   }
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
-      onPressed: () async {
-        TimeOfDay result = await widgetState.pickTime();
-        if (result.hour >= min.hour && result.hour <= max.hour) {
-          widgetState
-              .showError("Time must be after ${min.format(widgetState.context)}"
-              " and before ${max.format(widgetState.context)}");
-        } else {
-          selectedTime = result;
-          widgetState.rebuild();
-        }
-      },
-      child: Text(selectedTime == null
-          ? placeholder
-          : selectedTime.format(widgetState.context)),
+    return SeparatorElement(
+      adaptiveMap: adaptiveMap,
+      child: RaisedButton(
+        onPressed: () async {
+          TimeOfDay result = await widgetState.pickTime();
+          if (result.hour >= min.hour && result.hour <= max.hour) {
+            widgetState
+                .showError("Time must be after ${min.format(widgetState.context)}"
+                " and before ${max.format(widgetState.context)}");
+          } else {
+            selectedTime = result;
+            widgetState.rebuild();
+          }
+        },
+        child: Text(selectedTime == null
+            ? placeholder
+            : selectedTime.format(widgetState.context)),
+      ),
     );
   }
 
@@ -283,19 +296,22 @@ class _AdaptiveToggleState extends State<AdaptiveToggle> with AdaptiveInputMixin
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        Switch(
-          value: boolValue,
-          onChanged: (newValue) {
-            boolValue = newValue;
-            widgetState.rebuild();
-          },
-        ),
-        Expanded(
-          child: Text(title),
-        ),
-      ],
+    return SeparatorElement(
+      adaptiveMap: adaptiveMap,
+      child: Row(
+        children: <Widget>[
+          Switch(
+            value: boolValue,
+            onChanged: (newValue) {
+              boolValue = newValue;
+              widgetState.rebuild();
+            },
+          ),
+          Expanded(
+            child: Text(title),
+          ),
+        ],
+      ),
     );
   }
 
@@ -353,9 +369,14 @@ class _AdaptiveChoiceSetState extends State<AdaptiveChoiceSet> with AdaptiveInpu
 
   @override
   Widget build(BuildContext context) {
-    return isCompact
+    var widget = isCompact
         ? isMultiSelect ? _buildExpanded() : _buildCompact()
         : _buildExpanded();
+
+    return SeparatorElement(
+      adaptiveMap: adaptiveMap,
+      child: widget,
+    );
   }
 
 

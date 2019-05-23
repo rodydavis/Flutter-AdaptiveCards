@@ -3,8 +3,6 @@ import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
 import 'package:flutter_adaptive_cards/src/elements/basics.dart';
 import 'fsadhfafd.dart';
 
-
-
 class IconButtonAction extends StatefulWidget with AdaptiveElementWidgetMixin {
 
   IconButtonAction({Key key, this.adaptiveMap, this.onTapped}) : super(key: key);
@@ -71,8 +69,6 @@ class _AdaptiveActionShowCardState extends State<AdaptiveActionShowCard> with
 
   Widget card;
 
-
-
   @override
   void initState() {
     super.initState();
@@ -82,6 +78,9 @@ class _AdaptiveActionShowCardState extends State<AdaptiveActionShowCard> with
 
   @override
   Widget build(BuildContext context) {
+    print("HERE");
+    print(AdaptiveCardElementState.of(context).currentCard );
+    print(widget);
     return RaisedButton(
       onPressed: onTapped,
       child: Row(
@@ -121,15 +120,14 @@ class AdaptiveActionSubmit extends StatefulWidget with AdaptiveElementWidgetMixi
 
 class _AdaptiveActionSubmitState extends State<AdaptiveActionSubmit> with AdaptiveActionMixin, AdaptiveElementMixin{
 
-
   GenericSubmitAction action;
 
   @override
   void initState() {
     super.initState();
     action = GenericSubmitAction(adaptiveMap, widgetState);
-
   }
+
   @override
   Widget build(BuildContext context) {
     return RaisedButton(
@@ -139,14 +137,11 @@ class _AdaptiveActionSubmitState extends State<AdaptiveActionSubmit> with Adapti
     );
   }
 
-
   @override
   void onTapped() {
     action.tap();
   }
 }
-
-
 
 
 class AdaptiveActionOpenUrl extends StatefulWidget with AdaptiveElementWidgetMixin {
@@ -164,8 +159,6 @@ class _AdaptiveActionOpenUrlState extends State<AdaptiveActionOpenUrl> with Adap
   GenericActionOpenUrl action;
   String iconUrl;
 
-
-
   @override
   void initState() {
     super.initState();
@@ -181,7 +174,6 @@ class _AdaptiveActionOpenUrlState extends State<AdaptiveActionOpenUrl> with Adap
       onTapped: onTapped,
     );
   }
-
 
   @override
   void onTapped() {
