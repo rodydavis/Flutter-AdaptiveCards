@@ -25,16 +25,16 @@ void main() {
 
   testWidgets('Basic types return', (tester) async {
     CardRegistry cardRegistry = CardRegistry();
-    AdaptiveElement adaptiveElement = cardRegistry.getElement({
+    Widget adaptiveElement = cardRegistry.getElement({
       "type": "TextBlock",
       "text": "Adaptive Card design session",
       "size": "large",
       "weight": "bolder"
-    }, state);
+    });
 
     expect(adaptiveElement.runtimeType, equals(AdaptiveTextBlock));
 
-    AdaptiveElement second = cardRegistry.getElement({
+    Widget second = cardRegistry.getElement({
       "type": "Media",
       "poster":
           "https://docs.microsoft.com/en-us/adaptive-cards/content/videoposter.png",
@@ -45,7 +45,7 @@ void main() {
               "https://adaptivecardsblob.blob.core.windows.net/assets/AdaptiveCardsOverviewVideo.mp4"
         }
       ]
-    }, state);
+    });
 
     expect(second.runtimeType, equals(AdaptiveMedia));
   });
@@ -54,9 +54,9 @@ void main() {
   testWidgets('Unknown element', (tester) async {
     CardRegistry cardRegistry = CardRegistry();
 
-    AdaptiveElement adaptiveElement = cardRegistry.getElement({
+    Widget adaptiveElement = cardRegistry.getElement({
       'type': "NoType"
-    }, state);
+    });
 
     expect(adaptiveElement.runtimeType, equals(AdaptiveUnknown));
 
@@ -71,12 +71,12 @@ void main() {
       removedElements: ['TextBlock']
     );
 
-    AdaptiveElement adaptiveElement = cardRegistry.getElement({
+    Widget adaptiveElement = cardRegistry.getElement({
       "type": "TextBlock",
       "text": "Adaptive Card design session",
       "size": "large",
       "weight": "bolder"
-    }, state);
+    });
 
     expect(adaptiveElement.runtimeType, equals(AdaptiveUnknown));
 
@@ -90,29 +90,29 @@ void main() {
   testWidgets('Add element', (tester) async {
     CardRegistry cardRegistry = CardRegistry(
       addedElements: {
-        'Test': (map, state) => _AdaptiveTest(map, state)
+        'Test': (map) => _TestAddition()
       }
     );
 
    var element = cardRegistry.getElement({
      'type': "Test"
-   }, state);
+   });
 
-   expect(element.runtimeType, equals(_AdaptiveTest));
+   expect(element.runtimeType, equals(_TestAddition));
 
-   await tester.pumpWidget(element.build());
+   await tester.pumpWidget(element);
 
    expect(find.text('Test'), findsOneWidget);
   });
 }
-class _AdaptiveTest extends AdaptiveElement
-    with SeparatorElementMixin, TappableElementMixin, ChildStylerMixin {
-  _AdaptiveTest(Map adaptiveMap, widgetState)
-      : super(adaptiveMap: adaptiveMap, widgetState: widgetState,);
 
-
-  Widget build() => MaterialApp(
-    home: Text("Test"),
-  );
-
+class _TestAddition extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Container(
+        child: Text('Test'),
+      ),
+    );
+  }
 }
