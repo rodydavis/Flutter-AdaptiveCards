@@ -27,7 +27,6 @@ class _SeparatorElementState extends State<SeparatorElement> with AdaptiveElemen
 
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -36,8 +35,7 @@ class _SeparatorElementState extends State<SeparatorElement> with AdaptiveElemen
         separator
             ? Divider(
           height: topSpacing,
-        )
-            : SizedBox(
+        ) : SizedBox(
           height: topSpacing,
         ),
         widget.child
@@ -45,8 +43,6 @@ class _SeparatorElementState extends State<SeparatorElement> with AdaptiveElemen
     );
   }
 }
-
-
 
 class AdaptiveTappable extends StatefulWidget with AdaptiveElementWidgetMixin{
 
@@ -73,7 +69,6 @@ class _AdaptiveTappableState extends State<AdaptiveTappable> with AdaptiveElemen
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -83,10 +78,8 @@ class _AdaptiveTappableState extends State<AdaptiveTappable> with AdaptiveElemen
   }
 }
 
-
 mixin ChildStylerMixin<T extends AdaptiveElementWidgetMixin> on AdaptiveElementMixin<T> {
   String style;
-
   @override
   void initState() {
     super.initState();

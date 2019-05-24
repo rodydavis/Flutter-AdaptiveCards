@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class SamplesPage extends StatelessWidget {
 
-  var items = [
+  /*var items = [
     Text("Example1"),
     DemoAdaptiveCard("lib/samples/example1",),
     Text("Example2"),
@@ -36,7 +36,7 @@ class SamplesPage extends StatelessWidget {
     DemoAdaptiveCard("lib/samples/example14",),
     Text("Example15"),
     DemoAdaptiveCard("lib/samples/example15",),
-  ];
+  ];*/
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +45,11 @@ class SamplesPage extends StatelessWidget {
         title: Text("Samples"),
       ),
       body: ListView.builder(
-        itemCount: items.length,
+        itemCount: 15,
         itemBuilder: (context, index) {
-          return items[index];
+          return DemoAdaptiveCard("lib/samples/example${index + 1}");
         },
+
       ),
     );
   }

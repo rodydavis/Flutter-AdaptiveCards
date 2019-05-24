@@ -327,13 +327,16 @@ class _AdaptiveColumnSetState extends State<AdaptiveColumnSet> with AdaptiveElem
 
   @override
   Widget build(BuildContext context) {
-    return AdaptiveTappable(
+    return SeparatorElement(
       adaptiveMap: adaptiveMap,
-      child: Row(
-        children: columns.toList(),
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
+      child: AdaptiveTappable(
+        adaptiveMap: adaptiveMap,
+        child: Row(
+          children: columns.toList(),
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+        ),
       ),
     );
   }
@@ -363,7 +366,7 @@ class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMix
   GenericAction action;
   // Need to do the separator manually for this class
   // because the flexible needs to be applied to the class above
-  double topSpacing;
+  double precedingSpacing;
   bool separator;
 
   @override
@@ -373,7 +376,7 @@ class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMix
     if (adaptiveMap.containsKey("selectAction")) {
       action = widgetState.cardRegistry.getGenericAction(adaptiveMap["selectAction"], widgetState);
     }
-    topSpacing = widgetState.resolver.resolveSpacing(adaptiveMap["spacing"]);
+    precedingSpacing = widgetState.resolver.resolveSpacing(adaptiveMap["spacing"]);
     separator = adaptiveMap["separator"] ?? false;
 
     items = List<Map>.from(adaptiveMap["items"]).map((child) {
@@ -408,15 +411,14 @@ class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMix
   Widget build(BuildContext context) {
     Widget result = InkWell(
       onTap: action?.tap,
-      child: Column(
-        children: []
-          ..add(separator ? Divider(
-            height: topSpacing,
-          ) : SizedBox(
-            height: topSpacing,
-          ),)
-          ..addAll(items.map((it) => it).toList()),
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Padding(
+        padding: EdgeInsets.only(left: precedingSpacing),
+        child: Column(
+          children: []
+            ..add(separator ? Divider() : SizedBox(),)
+            ..addAll(items.map((it) => it).toList()),
+          crossAxisAlignment: CrossAxisAlignment.start,
+        ),
       ),
     );
 
@@ -555,10 +557,7 @@ class _AdaptiveImageState extends State<AdaptiveImage> with AdaptiveElementMixin
     }
     return SeparatorElement(
       adaptiveMap: adaptiveMap,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: image,
-      ),
+      child: image,
     );
   }
 

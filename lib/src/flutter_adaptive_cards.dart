@@ -340,13 +340,13 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
 
     assert(() {
       if(widget.showDebugJson) {
-        JsonEncoder encoder = new JsonEncoder.withIndent('  ');
-        String prettyprint = encoder.convert(widget.map);
         child = Column(
           children: <Widget>[
             FlatButton(
               textColor: Colors.indigo,
               onPressed: () {
+                JsonEncoder encoder = new JsonEncoder.withIndent('  ');
+                String prettyprint = encoder.convert(widget.map);
                 showDialog(context: context, builder: (context) {
                   return AlertDialog(
                     title: Text("JSON (only added in debug mode, you can also turn"

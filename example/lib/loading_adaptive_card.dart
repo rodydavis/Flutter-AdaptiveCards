@@ -12,11 +12,7 @@ class DemoAdaptiveCard extends StatefulWidget {
   _DemoAdaptiveCardState createState() => new _DemoAdaptiveCardState();
 }
 
-class _DemoAdaptiveCardState extends State<DemoAdaptiveCard>
-    with AutomaticKeepAliveClientMixin<DemoAdaptiveCard> {
-  Map adaptiveMap;
-  Map hostConfig;
-
+class _DemoAdaptiveCardState extends State<DemoAdaptiveCard> with AutomaticKeepAliveClientMixin{
   String jsonFile;
 
   @override
@@ -24,31 +20,18 @@ class _DemoAdaptiveCardState extends State<DemoAdaptiveCard>
     super.initState();
     rootBundle.loadString(widget.assetPath).then((string) {
       jsonFile = string;
-      setState(() {
-        adaptiveMap = json.decode(string);
-      });
-    });
-    rootBundle.loadString("lib/host_config").then((string) {
-      setState(() {
-        hostConfig = json.decode(string);
-      });
     });
   }
 
   @override
-  bool get wantKeepAlive => true;
-
-  @override
   Widget build(BuildContext context) {
-    if (adaptiveMap == null || hostConfig == null) {
-      return SizedBox();
-    }
+    super.build(context);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: <Widget>[
-          AdaptiveCard.memory(
-            content: adaptiveMap,
+          AdaptiveCard.asset(
+            assetPath: widget.assetPath,
             hostConfigPath: "lib/host_config",
             showDebugJson: false,
           ),
@@ -79,4 +62,7 @@ class _DemoAdaptiveCardState extends State<DemoAdaptiveCard>
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
