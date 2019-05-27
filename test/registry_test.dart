@@ -19,7 +19,6 @@ void main() {
   RawAdaptiveCardState state;
   setUp(() {
     state = MockAdaptiveCardState();
-    when(state.resolver).thenReturn(ReferenceResolver(getDefaultHostConfig()));
     when(state.idGenerator).thenReturn(UUIDGenerator());
   });
 
