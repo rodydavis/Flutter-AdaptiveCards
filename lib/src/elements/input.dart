@@ -4,7 +4,7 @@ import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
 import 'package:flutter_adaptive_cards/src/elements/basics.dart';
 
 import 'additional.dart';
-import 'fsadhfafd.dart';
+import 'base.dart';
 
 // TODO add separator for each
 
@@ -176,7 +176,7 @@ class _AdaptiveDateInputState extends State<AdaptiveDateInput> with AdaptiveText
       child: RaisedButton(
         onPressed: () async {
           selectedDateTime = await widgetState.pickDate(min, max);
-          widgetState.rebuild();
+          setState((){});
         },
         child: Text(selectedDateTime == null
             ? placeholder
@@ -242,8 +242,9 @@ class _AdaptiveTimeInputState extends State<AdaptiveTimeInput> with AdaptiveText
                 .showError("Time must be after ${min.format(widgetState.context)}"
                 " and before ${max.format(widgetState.context)}");
           } else {
-            selectedTime = result;
-            widgetState.rebuild();
+            setState((){
+              selectedTime = result;
+            });
           }
         },
         child: Text(selectedTime == null
@@ -303,8 +304,9 @@ class _AdaptiveToggleState extends State<AdaptiveToggle> with AdaptiveInputMixin
           Switch(
             value: boolValue,
             onChanged: (newValue) {
-              boolValue = newValue;
-              widgetState.rebuild();
+              setState(() {
+                boolValue = newValue;
+              });
             },
           ),
           Expanded(
@@ -338,7 +340,7 @@ class _AdaptiveChoiceSetState extends State<AdaptiveChoiceSet> with AdaptiveInpu
 
 
   // Map from title to value
-  Map<String, String> choices;
+  Map<String, String> choices = Map();
 
   // Contains the values (the things to send as request)
   Set<String> _selectedChoice = Set();
@@ -350,7 +352,6 @@ class _AdaptiveChoiceSetState extends State<AdaptiveChoiceSet> with AdaptiveInpu
   @override
   void initState() {
     super.initState();
-    choices = Map();
     for (Map map in adaptiveMap["choices"]) {
       choices[map["title"]] = map["value"].toString();
     }
@@ -369,9 +370,21 @@ class _AdaptiveChoiceSetState extends State<AdaptiveChoiceSet> with AdaptiveInpu
 
   @override
   Widget build(BuildContext context) {
-    var widget = isCompact
-        ? isMultiSelect ? _buildExpanded() : _buildCompact()
-        : _buildExpanded();
+    var widget;
+
+    if(isCompact) {
+      if(isMultiSelect) {
+        widget = _buildExpandedMultiSelect();
+      } else {
+        widget = _buildCompact();
+      }
+    } else {
+      if(isMultiSelect) {
+        widget = _buildExpandedMultiSelect();
+      } else {
+        widget = _buildExpandedSingleSelect();
+      }
+    }
 
     return SeparatorElement(
       adaptiveMap: adaptiveMap,
@@ -394,15 +407,30 @@ class _AdaptiveChoiceSetState extends State<AdaptiveChoiceSet> with AdaptiveInpu
     );
   }
 
-  Widget _buildExpanded() {
+  Widget _buildExpandedSingleSelect() {
     return Column(
       children: choices.keys.map((key) {
         return RadioListTile<String>(
             value: choices[key],
-            groupValue:
-            _selectedChoice.contains(choices[key]) ? choices[key] : null,
+            onChanged: select,
+            groupValue: _selectedChoice.contains(choices[key]) ? choices[key] : null,
             title: Text(key),
-            onChanged: select);
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildExpandedMultiSelect() {
+    return Column(
+      children: choices.keys.map((key) {
+        return CheckboxListTile(
+          controlAffinity: ListTileControlAffinity.leading,
+          value: _selectedChoice.contains(choices[key]),
+          onChanged: (_){
+            select(choices[key]);
+          },
+          title: Text(key),
+        );
       }).toList(),
     );
   }
@@ -418,7 +446,7 @@ class _AdaptiveChoiceSetState extends State<AdaptiveChoiceSet> with AdaptiveInpu
         _selectedChoice.add(choice);
       }
     }
-    widgetState.rebuild();
+    setState((){});
   }
 
   bool loadCompact() {

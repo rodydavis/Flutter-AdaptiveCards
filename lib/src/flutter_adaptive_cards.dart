@@ -12,7 +12,7 @@ import 'package:flutter_adaptive_cards/src/utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-import 'elements/fsadhfafd.dart';
+import 'elements/base.dart';
 
 abstract class AdaptiveCardContentProvider {
   AdaptiveCardContentProvider({@required this.hostConfigPath});

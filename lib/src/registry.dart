@@ -4,12 +4,10 @@ import 'package:flutter_adaptive_cards/src/elements/actions.dart';
 import 'package:flutter_adaptive_cards/src/elements/input.dart';
 import 'package:flutter_adaptive_cards/src/flutter_adaptive_cards.dart';
 
-import 'elements/fsadhfafd.dart';
+import 'elements/base.dart';
 
 typedef ElementCreator = Widget Function(
     Map<String, dynamic> map);
-
-typedef ActionCreator = Widget Function(Map<String, dynamic> map);
 
 /// Entry point for registering adaptive cards
 ///
@@ -35,7 +33,7 @@ class CardRegistry {
   /// When providing an element which is already defined, it is overwritten
   final Map<String, ElementCreator> addedElements;
 
-  final Map<String, ActionCreator> addedActions;
+  final Map<String, ElementCreator> addedActions;
 
   /// Remove specific elements from the list
   final List<String> removedElements;

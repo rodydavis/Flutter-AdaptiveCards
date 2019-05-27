@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_adaptive_cards/src/elements/fsadhfafd.dart';
+import 'package:flutter_adaptive_cards/src/elements/base.dart';
 
 /// TODO lokk which classe used this before
 class SeparatorElement extends StatefulWidget with AdaptiveElementWidgetMixin {

@@ -4,7 +4,6 @@ import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
 import 'package:provider/provider.dart';
 
 mixin AdaptiveElementWidgetMixin on StatefulWidget {
-
   Map get adaptiveMap;
 }
 

@@ -9,7 +9,7 @@ import 'package:video_player/video_player.dart';
 import 'package:tinycolor/tinycolor.dart';
 
 import 'additional.dart';
-import 'fsadhfafd.dart';
+import 'base.dart';
 
 
 class AdaptiveCardElement extends StatefulWidget with AdaptiveElementWidgetMixin {
