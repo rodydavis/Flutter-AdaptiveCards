@@ -25,7 +25,7 @@ class AdaptiveCardElement extends StatefulWidget with AdaptiveElementWidgetMixin
 class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveElementMixin {
 
 
-  AdaptiveActionShowCard currentCard;
+  String currentCardId;
 
   List<Widget> children;
 
@@ -37,6 +37,14 @@ class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveE
   Axis actionsOrientation;
 
   String backgroundImage;
+
+
+  Map<String, Widget> _registeredCards = Map();
+
+
+  void registerCard(String id, Widget it) {
+    _registeredCards[id] = it;
+  }
 
 
   static AdaptiveCardElementState of(BuildContext context) {
@@ -59,10 +67,8 @@ class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveE
     backgroundImage = adaptiveMap['backgroundImage'];
   }
 
-  @override
-  Widget build(BuildContext context) {
 
-
+  void loadChildren() {
     if (widget.adaptiveMap.containsKey("actions")) {
       allActions = List<Map>.from(widget.adaptiveMap["actions"])
           .map((adaptiveMap) => widgetState.cardRegistry.getAction(adaptiveMap))
@@ -74,7 +80,12 @@ class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveE
           .map((action) => widgetState.cardRegistry.getElement(action.adaptiveMap["card"])).toList()
       );
     }
+  }
 
+  @override
+  Widget build(BuildContext context) {
+
+    loadChildren();
 
     List<Widget> widgetChildren = children.map((element) => element).toList();
 
@@ -99,12 +110,8 @@ class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveE
     }
     widgetChildren.add(actionWidget);
 
-    if (currentCard != null) {
-      // TODO the problem is if the instance is the same -> not being rebuilt
-      // Now I moved the instatiation in the build method and the instances are not
-      // the same anymore -> fix this
-      var index = showCardActions.indexOf(currentCard);
-      widgetChildren.add(cards[index]);
+    if (currentCardId != null) {
+      widgetChildren.add(_registeredCards[currentCardId]);
     }
     Widget result = Padding(
       padding: const EdgeInsets.all(8.0),
@@ -132,11 +139,11 @@ class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveE
   }
 
   /// This is called when an [_AdaptiveActionShowCard] triggers it.
-  void showCard(AdaptiveActionShowCard card) {
-    if (currentCard == card) {
-      currentCard= null;
+  void showCard(String id) {
+    if (currentCardId == id) {
+      currentCardId = null;
     } else {
-      currentCard = card;
+      currentCardId = id;
     }
     setState(() {});
   }

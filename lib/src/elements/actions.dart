@@ -67,26 +67,27 @@ class AdaptiveActionShowCard extends StatefulWidget with AdaptiveElementWidgetMi
 class _AdaptiveActionShowCardState extends State<AdaptiveActionShowCard> with
     AdaptiveActionMixin, AdaptiveElementMixin{
 
-  Widget card;
-
   @override
   void initState() {
     super.initState();
 
-    card = widgetState.cardRegistry.getElement(adaptiveMap["card"]);
+    Widget card = widgetState.cardRegistry.getElement(adaptiveMap["card"]);
+
+
+    var _adaptiveCardElement = AdaptiveCardElementState.of(context);
+    if (_adaptiveCardElement != null) {
+      _adaptiveCardElement.registerCard(id, card);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    print("HERE");
-    print(AdaptiveCardElementState.of(context).currentCard );
-    print(widget);
     return RaisedButton(
       onPressed: onTapped,
       child: Row(
         children: <Widget>[
           Text(title),
-          AdaptiveCardElementState.of(context).currentCard == widget
+          AdaptiveCardElementState.of(context).currentCardId == id
               ? Icon(Icons.keyboard_arrow_up)
               : Icon(Icons.keyboard_arrow_down),
         ],
@@ -99,7 +100,7 @@ class _AdaptiveActionShowCardState extends State<AdaptiveActionShowCard> with
   void onTapped() {
     var _adaptiveCardElement = AdaptiveCardElementState.of(context);
     if (_adaptiveCardElement != null) {
-      _adaptiveCardElement.showCard(widget);
+      _adaptiveCardElement.showCard(id);
     }
   }
 }
