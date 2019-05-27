@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_cards/src/elements/base.dart';
 
-/// TODO lokk which classe used this before
 class SeparatorElement extends StatefulWidget with AdaptiveElementWidgetMixin {
 
   final Map adaptiveMap;
   final Widget child;
+
 
   SeparatorElement({Key key, this.adaptiveMap, this.child}) : super(key: key);
 
@@ -22,7 +22,7 @@ class _SeparatorElementState extends State<SeparatorElement> with AdaptiveElemen
   @override
   void initState() {
     super.initState();
-    topSpacing = widgetState.resolver.resolveSpacing(adaptiveMap["spacing"]);
+    topSpacing = resolver.resolveSpacing(adaptiveMap["spacing"]);
     separator = adaptiveMap["separator"] ?? false;
 
   }
@@ -78,18 +78,18 @@ class _AdaptiveTappableState extends State<AdaptiveTappable> with AdaptiveElemen
   }
 }
 
-mixin ChildStylerMixin<T extends AdaptiveElementWidgetMixin> on AdaptiveElementMixin<T> {
-  String style;
-  @override
-  void initState() {
-    super.initState();
-    style = adaptiveMap["style"];
-  }
+class ChildStyler extends StatelessWidget {
 
-  void styleChild() {
-    // The container needs to set the style in every iteration
-    if (style != null) {
-      widgetState.resolver.setContainerStyle(style);
-    }
+  final Widget child;
+
+  final Map adaptiveMap;
+
+  const ChildStyler({Key key, this.child, this.adaptiveMap}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return InheritedReferenceResolver(
+      resolver: InheritedReferenceResolver.of(context).copyWith(style: adaptiveMap["style"]),
+      child: child,
+    );
   }
 }

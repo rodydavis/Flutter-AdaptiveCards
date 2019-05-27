@@ -256,7 +256,7 @@ class RawAdaptiveCard extends StatefulWidget {
 
 class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   // Wrapper around the host config
-  ReferenceResolver resolver;
+  ReferenceResolver _resolver;
   UUIDGenerator idGenerator;
   CardRegistry cardRegistry;
 
@@ -268,7 +268,9 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
   @override
   void initState() {
     super.initState();
-    resolver = ReferenceResolver(widget.hostConfig);
+    _resolver = ReferenceResolver(
+      hostConfig: widget.hostConfig,
+    );
     idGenerator = UUIDGenerator();
     cardRegistry = widget.cardRegistry;
 
@@ -375,8 +377,11 @@ class RawAdaptiveCardState extends State<RawAdaptiveCard> {
     }());
     return Provider<RawAdaptiveCardState>.value(
       value: this,
-      child: Card(
-        child: child,
+      child: InheritedReferenceResolver(
+        resolver: _resolver,
+        child: Card(
+          child: child,
+        ),
       ),
     );
   }
@@ -490,19 +495,18 @@ abstract class AdaptiveElement {
 
 
 
-
-
-
-
 /// Resolves values based on the host config.
 ///
 /// All values can also be null, in that case the default is used
 class ReferenceResolver {
-  ReferenceResolver(this.hostConfig);
+  ReferenceResolver({
+    this.hostConfig,
+    this.currentStyle,
+});
 
   final Map hostConfig;
 
-  String _currentStyle;
+  final String currentStyle;
 
   dynamic resolve(String key, String value) {
     dynamic res =  hostConfig[key][firstCharacterToLowerCase(value)];
@@ -554,23 +558,22 @@ class ReferenceResolver {
   Color resolveColor(String color, bool isSubtle) {
     String myColor = color ?? "default";
     String subtleOrDefault = isSubtle ?? false ? "subtle" : "default";
-    _currentStyle = _currentStyle ?? "default";
+    final style = currentStyle ?? "default";
     // Make it case insensitive
-    String colorValue = hostConfig["containerStyles"][_currentStyle]
+    String colorValue = hostConfig["containerStyles"][style]
             ["foregroundColors"][firstCharacterToLowerCase(myColor)]
         [subtleOrDefault];
     return parseColor(colorValue);
   }
 
-  /// This is to correctly resolve corresponding styles in a container
-  ///
-  /// Before a container loads its children it first needs to set its style here
-  /// IMPORTANT, is needs to be called after every child iteration because a container down the tree might have
-  /// overwritten it for its portion
-  void setContainerStyle(String style) {
+
+  ReferenceResolver copyWith({String style}) {
     assert(style == null || style == "default" || style == "emphasis");
     String myStyle = style ?? "default";
-    _currentStyle = myStyle;
+    return ReferenceResolver(
+      hostConfig: this.hostConfig,
+      currentStyle: myStyle,
+    );
   }
 
   double resolveSpacing(String spacing) {

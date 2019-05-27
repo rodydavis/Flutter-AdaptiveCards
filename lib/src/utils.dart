@@ -116,6 +116,7 @@ Color adjustColorToFitDarkTheme(Color color, Brightness brightness) {
     TinyColor tinyColor = TinyColor(color);
     if(tinyColor.isDark()) {
       double luminance = tinyColor.getLuminance();
+      // TODO turns red colors to red which it is not supposed to do
       return tinyColor.lighten(((1-luminance) * 100).round()).color;
     }
     return color;

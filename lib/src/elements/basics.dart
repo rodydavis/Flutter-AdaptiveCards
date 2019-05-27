@@ -47,7 +47,7 @@ class AdaptiveCardElementState extends State<AdaptiveCardElement> with AdaptiveE
   void initState() {
     super.initState();
 
-    String stringAxis = widgetState.resolver.resolve("actions", "actionsOrientation");
+    String stringAxis = resolver.resolve("actions", "actionsOrientation");
     if (stringAxis == "Horizontal")
       actionsOrientation = Axis.horizontal;
     else if (stringAxis == "Vertical") actionsOrientation = Axis.vertical;
@@ -165,8 +165,8 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
   @override
   void initState() {
     super.initState();
-    fontSize = widgetState.resolver.resolveFontSize(adaptiveMap["size"]);
-    fontWeight = widgetState.resolver.resolveFontWeight(adaptiveMap["weight"]);
+    fontSize = resolver.resolveFontSize(adaptiveMap["size"]);
+    fontWeight = resolver.resolveFontWeight(adaptiveMap["weight"]);
     horizontalAlignment = loadAlignment();
     maxLines = loadMaxLines();
     markdownStyleSheet = loadMarkdownStyleSheet();
@@ -201,7 +201,7 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
 
   // Probably want to pass context down the tree, until now -> this
   Color getColor(Brightness brightness) {
-    Color color = widgetState.resolver.resolveColor(adaptiveMap["color"], adaptiveMap["isSubtle"]);
+    Color color = resolver.resolveColor(adaptiveMap["color"], adaptiveMap["isSubtle"]);
     if(!widgetState.widget.approximateDarkThemeColors) return color;
     return adjustColorToFitDarkTheme(color, brightness);
   }
@@ -256,7 +256,7 @@ class AdaptiveContainer extends StatefulWidget with AdaptiveElementWidgetMixin {
   _AdaptiveContainerState createState() => _AdaptiveContainerState();
 }
 
-class _AdaptiveContainerState extends State<AdaptiveContainer> with AdaptiveElementMixin, ChildStylerMixin{
+class _AdaptiveContainerState extends State<AdaptiveContainer> with AdaptiveElementMixin {
 
 
 // TODO implement verticalContentAlignment
@@ -269,14 +269,13 @@ class _AdaptiveContainerState extends State<AdaptiveContainer> with AdaptiveElem
     super.initState();
     if(adaptiveMap["items"] != null) {
       children = List<Map>.from(adaptiveMap["items"]).map((child) {
-        styleChild();
         return widgetState.cardRegistry.getElement(child);
       }).toList();
     } else {
       children = [];
     }
 
-    String colorString = widgetState.resolver.hostConfig["containerStyles"]
+    String colorString = resolver.hostConfig["containerStyles"]
     [adaptiveMap["style"] ?? "default"]["backgroundColor"];
 
     backgroundColor = parseColor(colorString);
@@ -284,17 +283,20 @@ class _AdaptiveContainerState extends State<AdaptiveContainer> with AdaptiveElem
 
   @override
   Widget build(BuildContext context) {
-    return AdaptiveTappable(
+    return ChildStyler(
       adaptiveMap: adaptiveMap,
-      child: SeparatorElement(
+      child: AdaptiveTappable(
         adaptiveMap: adaptiveMap,
-        child: Container(
-          color: Theme.of(context).brightness == Brightness.dark && adaptiveMap["style"] == null? null:
-          backgroundColor,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Column(
-              children: children.toList(),
+        child: SeparatorElement(
+          adaptiveMap: adaptiveMap,
+          child: Container(
+            color: Theme.of(context).brightness == Brightness.dark && adaptiveMap["style"] == null? null:
+            backgroundColor,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Column(
+                children: children.toList(),
+              ),
             ),
           ),
         ),
@@ -354,7 +356,7 @@ class AdaptiveColumn extends StatefulWidget with AdaptiveElementWidgetMixin {
   _AdaptiveColumnState createState() => _AdaptiveColumnState();
 }
 
-class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMixin, ChildStylerMixin {
+class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMixin {
 
 
   List<Widget> items;
@@ -376,11 +378,10 @@ class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMix
     if (adaptiveMap.containsKey("selectAction")) {
       action = widgetState.cardRegistry.getGenericAction(adaptiveMap["selectAction"], widgetState);
     }
-    precedingSpacing = widgetState.resolver.resolveSpacing(adaptiveMap["spacing"]);
+    precedingSpacing = resolver.resolveSpacing(adaptiveMap["spacing"]);
     separator = adaptiveMap["separator"] ?? false;
 
     items = List<Map>.from(adaptiveMap["items"]).map((child) {
-      styleChild();
       return widgetState.cardRegistry.getElement(child);
     }).toList();
 
@@ -417,7 +418,7 @@ class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMix
           children: []
             ..add(separator ? Divider() : SizedBox(),)
             ..addAll(items.map((it) => it).toList()),
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
         ),
       ),
     );
@@ -438,7 +439,7 @@ class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMix
       );
     }
 
-    return result;
+    return ChildStyler(adaptiveMap: adaptiveMap, child: result);
   }
 }
 
@@ -587,7 +588,7 @@ class _AdaptiveImageState extends State<AdaptiveImage> with AdaptiveElementMixin
   Tuple<double, double> loadSize() {
     String sizeDescription = adaptiveMap["size"] ?? "auto";
     if(sizeDescription == "auto" || sizeDescription == "stretch") return null;
-    int size = widgetState.resolver.resolve("imageSizes", sizeDescription);
+    int size = resolver.resolve("imageSizes", sizeDescription);
     return Tuple(size.toDouble(), size.toDouble());
   }
 }
@@ -663,7 +664,7 @@ class _AdaptiveImageSetState extends State<AdaptiveImageSet> with AdaptiveElemen
       imageSize = "stretch";
       return;
     }
-    int size = widgetState.resolver.resolve("imageSizes", sizeDescription);
+    int size = resolver.resolve("imageSizes", sizeDescription);
     maybeSize = size.toDouble();
   }
 
