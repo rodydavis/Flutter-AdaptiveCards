@@ -4,9 +4,6 @@
 
 A Flutter implementation of Adaptive Cards.
 
-```
-Give examples
-```
 
 ### Installing
 
