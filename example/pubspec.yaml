@@ -16,6 +16,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  url_launcher: ^5.0.2
+
   flutter_adaptive_cards:
     path: ../
 
@@ -103,6 +105,9 @@ flutter:
     - lib/samples/example13
     - lib/samples/example14
     - lib/samples/example15
+    - assets/neo_logo.png
+    - assets/neo_logo_light.png
+    - assets/norbert.jpg
 
 
 
