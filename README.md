@@ -15,6 +15,42 @@ dependencies:
       url: https://github.com/Norbert515/flutter_adaptive_cards.git
 ```
 
+## Using
+
+Using adaptive cards coudn't be simpler. All you need is the `AdaptiveCard` widget.
+
+There are several constructors which handle data loading from different sources.
+
+`AdaptiveCard.network` takes a url to download the payload and display it.
+`AdaptiveCard.asset` takes an asset path to load the payload from the local data.
+`AdaptiveCard.memory` takes a map (which can be obtained but decoding a string using the json class) and displays it.
+
+An example:
+
+```
+Adaptiveard.network(
+  placeholder: Text("Loading, please wait"),
+  url: "www.someUrlThatPointsToAJson",
+  hostConfigPath: "assets/host_config.json",
+  onSubmit: (map) {
+    // Send to server or handle locally
+  },
+  onOpenUrl: (url) {
+    // Open url using the browser or handle differently
+  },
+  // If this is set, a button will appear next to each adaptive card which when clicked shows the payload.
+  // NOTE: this will only be shown in debug mode, this attribute does change nothing for realease builds.
+  // This is very useful for debugging purposes
+  showDebuJason: true,
+  // If you have not implemented explicit dark theme, adaptive cards will try to approximate its colors to match the dark theme
+  // so the contrast and color meaning stays the same.
+  // Turn this off, if you want to have full control over the colors when using the dark theme.
+  // NOTE: This is currently still under development
+  approximateDarkThemeColors: true,
+);
+```
+
+
 ## Running the tests
 
 Simply type 
