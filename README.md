@@ -41,7 +41,7 @@ AdaptivCard.network(
   // If this is set, a button will appear next to each adaptive card which when clicked shows the payload.
   // NOTE: this will only be shown in debug mode, this attribute does change nothing for realease builds.
   // This is very useful for debugging purposes
-  showDebuJason: true,
+  showDebugJson: true,
   // If you have not implemented explicit dark theme, adaptive cards will try to approximate its colors to match the dark theme
   // so the contrast and color meaning stays the same.
   // Turn this off, if you want to have full control over the colors when using the dark theme.
