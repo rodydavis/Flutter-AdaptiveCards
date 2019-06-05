@@ -60,13 +60,15 @@ class CardRegistry {
 
     switch (stringType) {
       case "Action.ShowCard":
-        //return Generica(adaptiveMap: map,);
+        assert(false, "Action.ShowCard can only be used directly by the root card");
+        return null;
       case "Action.OpenUrl":
         return GenericActionOpenUrl(map,state);
       case "Action.Submit":
         return GenericSubmitAction(map, state);
     }
-    //return AdaptiveUnknown(adaptiveMap: map, type: stringType,);
+    assert(false, "No action found with type $stringType");
+    return null;
   }
 
 
