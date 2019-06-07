@@ -16,6 +16,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  dynamic_theme: ^1.0.1
   url_launcher: any
   flutter_adaptive_cards:
     path: ../

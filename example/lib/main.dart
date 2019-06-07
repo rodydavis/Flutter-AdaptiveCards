@@ -1,30 +1,27 @@
-import 'dart:convert';
-
-import 'package:example/action_open_url/action_open_url_examples_page.dart';
-import 'package:example/action_show_card/action_show_card_examples_page.dart';
-import 'package:example/action_submit/action_submit_examples_page.dart';
-import 'package:example/column/column_examples_page.dart';
-import 'package:example/column_set/column_set_examples_page.dart';
-import 'package:example/container/container_examples_page.dart';
-import 'package:example/fact_set/fact_set_examples_page.dart';
-import 'package:example/image/image_examples_page.dart';
-import 'package:example/image_set/image_set_examples_page.dart';
-import 'package:example/inputs/input_choice_set/input_choice_set.dart';
-import 'package:example/inputs/input_date/input_date.dart';
-import 'package:example/inputs/input_number/input_number.dart';
-import 'package:example/inputs/input_text/input_text.dart';
-import 'package:example/inputs/input_time/input_time.dart';
-import 'package:example/inputs/input_toggle/input_toggle.dart';
-import 'package:example/media/media.dart';
 import 'package:example/samples/samples.dart';
 import 'package:example/text_block/text_block_examples_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_adaptive_cards/src/flutter_adaptive_cards.dart';
 import 'package:flutter/foundation.dart'
     show debugDefaultTargetPlatformOverride;
+import 'package:dynamic_theme/dynamic_theme.dart';
 
 import 'about_page.dart';
+import 'action_open_url/action_open_url_examples_page.dart';
+import 'action_show_card/action_show_card_examples_page.dart';
+import 'action_submit/action_submit_examples_page.dart';
+import 'column/column_examples_page.dart';
+import 'column_set/column_set_examples_page.dart';
+import 'container/container_examples_page.dart';
+import 'fact_set/fact_set_examples_page.dart';
+import 'image/image_examples_page.dart';
+import 'image_set/image_set_examples_page.dart';
+import 'inputs/input_choice_set/input_choice_set.dart';
+import 'inputs/input_date/input_date.dart';
+import 'inputs/input_number/input_number.dart';
+import 'inputs/input_text/input_text.dart';
+import 'inputs/input_time/input_time.dart';
+import 'inputs/input_toggle/input_toggle.dart';
+import 'media/media.dart';
 void main() {
   debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
   runApp(new MyApp());
@@ -33,33 +30,39 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'Flutter Adaptive Cards',
-      theme: new ThemeData(
+    return DynamicTheme(
+      defaultBrightness: Brightness.dark,
+      data: (brightness) => new ThemeData(
         primarySwatch: Colors.blue,
-        brightness: Brightness.light,
+        brightness: brightness,
       ),
-      home: new MyHomePage(),
-      routes: {
-        "Samples": (context) => SamplesPage(),
-        "TextBlock": (context) => TextBlockPage(),
-        "Image": (context) => ImagePage(),
-        "Container": (context) => ContainerPage(),
-        "ColumnSet": (context) => ColumnSetPage(),
-        "Column": (context) => ColumnPage(),
-        "FactSet": (context) => FactSetPage(),
-        "ImageSet": (context) => ImageSetPage(),
-        "Action.OpenUrl": (context) => ActionOpenUrlPage(),
-        "Action.Submit": (context) => ActionSubmitPage(),
-        "Action.ShowCard": (context) => ActionShowCardPage(),
-        "Input.Text": (context) => InputText(),
-        "Input.Number": (context) => InputNumber(),
-        "Media": (context) => MediaPage(),
-        "Input.Date": (context) => InputDatePage(),
-        "Input.Time": (context) => InputTimePage(),
-        "Input.Toggle": (context) => InputTogglePage(),
-        "Input.ChoiceSet": (context) => InputChoiceSetPage(),
-        "about": (context) => AboutPage(),
+      themedWidgetBuilder: (context, theme) {
+        return new MaterialApp(
+          title: 'Flutter Adaptive Cards',
+          theme: theme,
+          home: new MyHomePage(),
+          routes: {
+            "Samples": (context) => SamplesPage(),
+            "TextBlock": (context) => TextBlockPage(),
+            "Image": (context) => ImagePage(),
+            "Container": (context) => ContainerPage(),
+            "ColumnSet": (context) => ColumnSetPage(),
+            "Column": (context) => ColumnPage(),
+            "FactSet": (context) => FactSetPage(),
+            "ImageSet": (context) => ImageSetPage(),
+            "Action.OpenUrl": (context) => ActionOpenUrlPage(),
+            "Action.Submit": (context) => ActionSubmitPage(),
+            "Action.ShowCard": (context) => ActionShowCardPage(),
+            "Input.Text": (context) => InputText(),
+            "Input.Number": (context) => InputNumber(),
+            "Media": (context) => MediaPage(),
+            "Input.Date": (context) => InputDatePage(),
+            "Input.Time": (context) => InputTimePage(),
+            "Input.Toggle": (context) => InputTogglePage(),
+            "Input.ChoiceSet": (context) => InputChoiceSetPage(),
+            "about": (context) => AboutPage(),
+          },
+        );
       },
     );
   }

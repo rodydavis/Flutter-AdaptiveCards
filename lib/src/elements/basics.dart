@@ -168,7 +168,6 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
   double fontSize;
   Alignment horizontalAlignment;
   int maxLines;
-  MarkdownStyleSheet markdownStyleSheet;
   String text;
 
   @override
@@ -178,7 +177,6 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
     fontWeight = resolver.resolveFontWeight(adaptiveMap["weight"]);
     horizontalAlignment = loadAlignment();
     maxLines = loadMaxLines();
-    markdownStyleSheet = loadMarkdownStyleSheet();
 
     text = parseTextString(adaptiveMap['text']);
   }
@@ -206,7 +204,7 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
           // this is in here.
           //maxLines: maxLines,
           data: text,
-          styleSheet: markdownStyleSheet,
+          styleSheet: loadMarkdownStyleSheet(),
           onTapLink: (href) {
             RawAdaptiveCardState.of(context).openUrl(href);
           },
@@ -252,7 +250,7 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
   /// TODO Markdown still has some problems
   MarkdownStyleSheet loadMarkdownStyleSheet() {
     TextStyle style =
-    TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: getColor(Brightness.light));
+    TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: getColor(Theme.of(context).brightness));
     return MarkdownStyleSheet(
       a: style,
       blockquote: style,

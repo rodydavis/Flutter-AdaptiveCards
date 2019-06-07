@@ -1,5 +1,7 @@
+import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:dynamic_theme/theme_switcher_widgets.dart';
 
 class AboutPage extends StatelessWidget {
   @override
@@ -11,6 +13,16 @@ class AboutPage extends StatelessWidget {
       body: ListView(
         padding: EdgeInsets.all(8),
         children: <Widget>[
+          ListTile(
+            title: Text("Change brightness"),
+            onTap: () {
+              showDialog(context: context, builder: (_) => BrightnessSwitcherDialog(
+                onSelectedTheme: (it) {
+                  DynamicTheme.of(context).setBrightness(it);
+                },
+              ));
+            },
+          ),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
