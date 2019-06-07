@@ -23,6 +23,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_cards/src/flutter_adaptive_cards.dart';
 import 'package:flutter/foundation.dart'
     show debugDefaultTargetPlatformOverride;
+
+import 'about_page.dart';
 void main() {
   debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
   runApp(new MyApp());
@@ -57,6 +59,7 @@ class MyApp extends StatelessWidget {
         "Input.Time": (context) => InputTimePage(),
         "Input.Toggle": (context) => InputTogglePage(),
         "Input.ChoiceSet": (context) => InputChoiceSetPage(),
+        "about": (context) => AboutPage(),
       },
     );
   }
@@ -75,6 +78,14 @@ class _MyHomePageState extends State<MyHomePage> {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Flutter Adaptive Cards"),
+        actions: <Widget>[
+          MaterialButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed("about");
+            },
+            child: Text("About"),
+          ),
+        ],
       ),
       body: ListView(
         padding: EdgeInsets.all(16.0),
