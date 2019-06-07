@@ -22,20 +22,23 @@ class AboutPage extends StatelessWidget {
                     child: Image.asset("assets/neo_logo_light.png"),
                   ),
                   Divider(),
-                  Text("Digital Chat Assistance for Business", style: Theme.of(context).textTheme.title,),
+                  Text("Neo: AI-Assistant for Enterprise", style: Theme.of(context).textTheme.title,),
                   SizedBox(height: 8,),
-                  Text("Neohelden is building a digital chat assistant"
-                      "which intigrates into businees system and provides"
-                      "a convenient abstraction to all of those systems"
-                      "using an easy to use chat interface. \n\n"
-                      "Neo has been using AdaptiveCards for a while now and is heavily investing"
-                      "into Flutter for the next major release. ", style: Theme.of(context).textTheme.body1,),
+                  Text('''
+Neohelden is a startup from Germany developing a digital assistant for enterprise use-cases.
+
+Users can interact with Neo using voice and text and request information from third-party systems or trigger actions – essentially, they're having a conversation with B2B software systems.
+Our Conversational Platform allows for easy configuration and extension of Neo's functionalities and integrations, which enables customization of Neo to individual needs and requirements.
+
+Neo has been using Adaptive Cards for a while now, and we're excited to bring them to Flutter!
+                  
+                  ''', style: Theme.of(context).textTheme.body1,),
                   SizedBox(height: 8,),
                   Align(
                     alignment: Alignment.center,
                     child: OutlineButton(
                       onPressed: () {
-                        launch("https://neohelden.com");
+                        launch("https://neohelden.com/?utm_source=flutter&utm_medium=aboutButton&utm_campaign=flutterDemoApp");
                       },
                       child: Text("Check out the website"),
                     ),
