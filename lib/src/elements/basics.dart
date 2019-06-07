@@ -733,6 +733,7 @@ class _AdaptiveMediaState extends State<AdaptiveMedia> with AdaptiveElementMixin
   @override
   void dispose() {
     super.dispose();
+    controller.pause();
     controller.dispose();
   }
 
@@ -740,7 +741,9 @@ class _AdaptiveMediaState extends State<AdaptiveMedia> with AdaptiveElementMixin
   Widget build(BuildContext context) {
     return SeparatorElement(
       adaptiveMap: adaptiveMap,
-      child: Chewie(controller: controller,)
+      child: Chewie(
+        controller: controller,
+      )
     );
   }
 }
