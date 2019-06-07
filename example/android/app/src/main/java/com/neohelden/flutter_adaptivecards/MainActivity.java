@@ -1,4 +1,4 @@
-package com.neohelden.example;
+package com.neohelden.flutter_adaptivecards;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
