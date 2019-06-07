@@ -28,7 +28,7 @@ There are several constructors which handle data loading from different sources.
 An example:
 
 ```
-AdaptivCard.network(
+AdaptiveCard.network(
   placeholder: Text("Loading, please wait"),
   url: "www.someUrlThatPointsToAJson",
   hostConfigPath: "assets/host_config.json",
