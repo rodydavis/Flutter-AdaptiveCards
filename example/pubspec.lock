@@ -32,9 +32,11 @@ packages:
   chewie:
     dependency: transitive
     description:
-      name: chewie
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "5605d8d4ec3697c56f11219d2dd4ef15968767f6"
+      url: "https://github.com/brianegan/chewie.git"
+    source: git
     version: "0.9.7"
   collection:
     dependency: transitive

@@ -520,18 +520,14 @@ class _AdaptiveImageState extends State<AdaptiveImage> with AdaptiveElementMixin
   bool isPerson;
   Tuple<double, double> size;
 
-  String _sizeDesciption;
-
 
   @override
   void initState() {
     super.initState();
-
     horizontalAlignment = loadAlignment();
     isPerson = loadIsPerson();
     size = loadSize();
 
-    _sizeDesciption = adaptiveMap["size"] ?? "auto";
   }
 
 
@@ -594,6 +590,7 @@ class _AdaptiveImageState extends State<AdaptiveImage> with AdaptiveElementMixin
 
   Tuple<double, double> loadSize() {
     String sizeDescription = adaptiveMap["size"] ?? "auto";
+    sizeDescription = sizeDescription.toLowerCase();
     if(sizeDescription == "auto" || sizeDescription == "stretch") return null;
     int size = resolver.resolve("imageSizes", sizeDescription);
     return Tuple(size.toDouble(), size.toDouble());
@@ -719,13 +716,15 @@ class _AdaptiveMediaState extends State<AdaptiveMedia> with AdaptiveElementMixin
       postUrl != null ? Center(child: Image.network(postUrl)) : SizedBox(),
       videoPlayerController: videoPlayerController,
     );
-
-    widgetState.addDeactivateListener(() {
-      controller.dispose();
-      controller = null;
-    });
-
   }
+
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SeparatorElement(

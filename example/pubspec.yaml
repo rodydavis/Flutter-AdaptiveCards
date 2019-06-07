@@ -16,6 +16,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  url_launcher: any
   flutter_adaptive_cards:
     path: ../
 

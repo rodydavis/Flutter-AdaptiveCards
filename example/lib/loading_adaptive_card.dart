@@ -3,6 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_adaptive_cards/src/flutter_adaptive_cards.dart';
 
+class LabAdaptiveCard extends StatelessWidget {
+  const LabAdaptiveCard({Key key, this.payload}) : super(key: key);
+
+  final String payload;
+
+  @override
+  Widget build(BuildContext context) {
+    return AdaptiveCard.memory(
+      hostConfigPath: "lib/host_config",
+      content: json.decode(payload),
+      showDebugJson: true,
+    );
+  }
+}
+
+
+
 class DemoAdaptiveCard extends StatefulWidget {
   final String assetPath;
 
