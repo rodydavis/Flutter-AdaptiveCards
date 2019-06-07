@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
@@ -180,16 +182,7 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
 
     text = parseTextString(adaptiveMap['text']);
   }
-
-
-  // TODO create own widget that parses _basic_ markdown. This might help: https://docs.flutter.io/flutter/widgets/Wrap-class.html
-  @override
-  Widget build(BuildContext context) {
-    return SeparatorElement(
-      adaptiveMap: adaptiveMap,
-      child: Align(
-          alignment: horizontalAlignment,
-          /*child: Text(
+  /*child: Text(
             text,
             style: TextStyle(
               fontWeight: fontWeight,
@@ -198,16 +191,35 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
             ),
             maxLines: maxLines,
           )*/
-         child: MarkdownBody(
-              data: text,
-              styleSheet: markdownStyleSheet,
-           onTapLink: (href) {
-                RawAdaptiveCardState.of(context).openUrl(href);
-           },
-            )
+
+  // TODO create own widget that parses _basic_ markdown. This might help: https://docs.flutter.io/flutter/widgets/Wrap-class.html
+  @override
+  Widget build(BuildContext context) {
+    return SeparatorElement(
+      adaptiveMap: adaptiveMap,
+      child: IntrinsicWidth(
+        child: Align(
+          alignment: horizontalAlignment,
+          child: MarkdownBody(
+            // TODO the markdown library does currently not support max lines
+            // As markdown support is more important than maxLines right now
+            // this is in here.
+            //maxLines: maxLines,
+            data: text,
+            styleSheet: markdownStyleSheet,
+            onTapLink: (href) {
+              RawAdaptiveCardState.of(context).openUrl(href);
+            },
+          ),
+        ),
       ),
     );
   }
+
+  /*String textCappedWithMaxLines() {
+    if(text.split("\n").length <= maxLines) return text;
+    return text.split("\n").take(maxLines).reduce((o,t) => "$o\n$t") + "...";
+  }*/
 
   // Probably want to pass context down the tree, until now -> this
   Color getColor(Brightness brightness) {
@@ -232,7 +244,7 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
 
   /// This also takes care of the wrap property, because maxLines = 1 => no wrap
   int loadMaxLines() {
-    bool wrap = widget.adaptiveMap["wrap"] ?? true;
+    bool wrap = widget.adaptiveMap["wrap"] ?? false;
     if (!wrap) return 1;
     // can be null, but that's okay for the text widget.
     return widget.adaptiveMap["maxLines"];
@@ -252,10 +264,6 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
     );
   }
 }
-
-
-
-
 
 class AdaptiveContainer extends StatefulWidget with AdaptiveElementWidgetMixin {
 

@@ -41,7 +41,96 @@ class _MyHomePageState extends State<MyHomePage> {
       body: new Center(
        child: SingleChildScrollView(child: LabAdaptiveCard(
          payload: '''
-
+{  
+                  "type":"AdaptiveCard",
+                  "body":[  
+                     {  
+                        "type":"Container",
+                        "items":[  
+                           {  
+                              "type":"TextBlock",
+                              "size":"Medium",
+                              "weight":"Bolder",
+                              "text":"Open inspections points"
+                           }
+                        ]
+                     },
+                     {  
+                        "type":"ColumnSet",
+                        "separator":true,
+                        "spacing":"medium",
+                        "columns":[  
+                           {  
+                              "type":"Column",
+                              "width":"auto",
+                              "items":[  
+                                 {  
+                                    "type":"TextBlock",
+                                    "text":"Id",
+                                    "isSubtle":true,
+                                    "weight":"bolder"
+                                 },
+                                 {  
+                                    "type":"TextBlock",
+                                    "text":"1",
+                                    "spacing":"small"
+                                 },
+                                 {  
+                                    "type":"TextBlock",
+                                    "text":"2",
+                                    "spacing":"small"
+                                 },
+                                 {  
+                                    "type":"TextBlock",
+                                    "text":"3",
+                                    "spacing":"small"
+                                 },
+                                 {  
+                                    "type":"TextBlock",
+                                    "text":"4",
+                                    "spacing":"small"
+                                 }
+                              ]
+                           },
+                           {  
+                              "type":"Column",
+                              "width":"auto",
+                              "items":[  
+                                 {  
+                                    "type":"TextBlock",
+                                    "text":"Inspection Point",
+                                    "isSubtle":true,
+                                    "weight":"bolder"
+                                 },
+                                 {  
+                                    "type":"TextBlock",
+                                    "text":"H turbine - Rotor - Seal strips : Loss",
+                                    "spacing":"small"
+                                 },
+                                 {  
+                                    "type":"TextBlock",
+                                    "text":"H turbine - Rotor - Seal strips : Shear of shroud",
+                                    "spacing":"small"
+                                 },
+                                 {  
+                                    "type":"TextBlock",
+                                    "text":"Bearing casing MAD11 - Journal bearing - Bearing shell : Damage",
+                                    "spacing":"small"
+                                 },
+                                 {  
+                                    "type":"TextBlock",
+                                    "text":"Bearing casing MAD11 - Sensors - Thermocouples (bearing) : Damage",
+                                    "spacing":"small"
+                                 }
+                              ]
+                           }
+                        ]
+                     }
+                  ],
+                  "\$schema":"http://adaptivecards.io/schemas/adaptive-card.json",
+                  "version":"1.0"
+               }
+            
          ''',
        )),
       ),
