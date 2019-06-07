@@ -189,7 +189,7 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
       adaptiveMap: adaptiveMap,
       child: Align(
           alignment: horizontalAlignment,
-          child: Text(
+          /*child: Text(
             text,
             style: TextStyle(
               fontWeight: fontWeight,
@@ -197,11 +197,14 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
               color: getColor(Theme.of(context).brightness),
             ),
             maxLines: maxLines,
-          )
-        /* child: MarkdownBody(
+          )*/
+         child: MarkdownBody(
               data: text,
               styleSheet: markdownStyleSheet,
-            )*/
+           onTapLink: (href) {
+                RawAdaptiveCardState.of(context).openUrl(href);
+           },
+            )
       ),
     );
   }
