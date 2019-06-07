@@ -197,20 +197,19 @@ class _AdaptiveTextBlockState extends State<AdaptiveTextBlock> with AdaptiveElem
   Widget build(BuildContext context) {
     return SeparatorElement(
       adaptiveMap: adaptiveMap,
-      child: IntrinsicWidth(
-        child: Align(
-          alignment: horizontalAlignment,
-          child: MarkdownBody(
-            // TODO the markdown library does currently not support max lines
-            // As markdown support is more important than maxLines right now
-            // this is in here.
-            //maxLines: maxLines,
-            data: text,
-            styleSheet: markdownStyleSheet,
-            onTapLink: (href) {
-              RawAdaptiveCardState.of(context).openUrl(href);
-            },
-          ),
+      child: Align(
+        // TODO IntrinsicWidth finxed a few things, but breaks more
+        alignment: horizontalAlignment,
+        child: MarkdownBody(
+          // TODO the markdown library does currently not support max lines
+          // As markdown support is more important than maxLines right now
+          // this is in here.
+          //maxLines: maxLines,
+          data: text,
+          styleSheet: markdownStyleSheet,
+          onTapLink: (href) {
+            RawAdaptiveCardState.of(context).openUrl(href);
+          },
         ),
       ),
     );
@@ -443,9 +442,7 @@ class _AdaptiveColumnState extends State<AdaptiveColumn> with AdaptiveElementMix
 
     assert(mode == "auto" || mode == "stretch" || mode == "manual");
     if(mode == "auto") {
-      result = Flexible(
-        child: result,
-      );
+      result = Flexible(child: result);
     } else if(mode == "stretch") {
       result = Expanded(
         child: result,
