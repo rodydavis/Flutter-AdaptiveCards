@@ -7,8 +7,8 @@ A Flutter implementation of Adaptive Cards.
 
 ### Installing
 
-Put this into your pubspec.yaml
-```
+Put this into your `pubspec.yaml`
+```yml
 dependencies:
   flutter_adaptive_cards:
     git:
@@ -27,7 +27,7 @@ There are several constructors which handle data loading from different sources.
 
 An example:
 
-```
+```dart
 AdaptiveCard.network(
   placeholder: Text("Loading, please wait"),
   url: "www.someUrlThatPointsToAJson",
@@ -54,13 +54,13 @@ AdaptiveCard.network(
 ## Running the tests
 
 Simply type 
-```
+```sh
 flutter test
 ```
 
 and to update the golden files run 
 
-```
+```sh
 flutter test --update-goldens test/sample_golden_test.dart
 ```
 This updates the golden files for the sample cards.
@@ -79,4 +79,3 @@ See also the list of [contributors](https://github.com/Norbert515/flutter_adapti
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
-
