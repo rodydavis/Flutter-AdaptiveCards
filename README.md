@@ -11,7 +11,7 @@ Put this into your `pubspec.yaml`
 dependencies:
   flutter_adaptive_cards:
     git:
-      url: https://github.com/Norbert515/flutter_adaptive_cards.git
+      url: https://github.com/neohelden/flutter_adaptive_cards.git
 ```
 
 ## Using
@@ -72,7 +72,7 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 
 * **Norbert Kozsir** (@Norbert515) – *Initial work*, Head of Flutter development @Neohelden
 
-See also the list of [contributors](https://github.com/Norbert515/flutter_adaptive_cards/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/neohelden/flutter_adaptive_cards/contributors) who participated in this project.
 
 ## About this project
 We decided to build a Flutter implementation of Adaptive Cards because we believe in the future of both technologies. With Flutter, we found an exciting framework for ultra-fast and cross-platform UI development. And with Adaptive Cards, we can combine that with an industry standard for exchanging card content in a structured way. At Neohelden, we're building on both of these technologies with our AI-assistant for business – and you can learn more about why we built this in our [blog-post on the release of our Adaptive Cards in Flutter library](https://neohelden.com/blog/tech/using-adaptive-cards-in-flutter/).
