@@ -1,9 +1,8 @@
-![AdaptiveCards for Flutter](docs/adaptivecards_for_flutter.png?raw=true "AdaptiveCards for Flutter")
+![AdaptiveCards for Flutter](docs/neohelden-flutter-adaptive-cards-lib.jpg?raw=true "Adaptive Cards for Flutter")
 
-# AdaptiveCards for Flutter
+# Adaptive Cards for Flutter
 
 A Flutter implementation of Adaptive Cards.
-
 
 ### Installing
 
@@ -17,7 +16,7 @@ dependencies:
 
 ## Using
 
-Using adaptive cards coudn't be simpler. All you need is the `AdaptiveCard` widget.
+Using Adaptive Cards in Flutter coudn't be simpler: All you need is the `AdaptiveCard` widget.
 
 There are several constructors which handle data loading from different sources.
 
@@ -30,7 +29,7 @@ An example:
 ```dart
 AdaptiveCard.network(
   placeholder: Text("Loading, please wait"),
-  url: "www.someUrlThatPointsToAJson",
+  url: "www.someUrlThatPoints.To/A.json",
   hostConfigPath: "assets/host_config.json",
   onSubmit: (map) {
     // Send to server or handle locally
@@ -42,7 +41,7 @@ AdaptiveCard.network(
   // NOTE: this will only be shown in debug mode, this attribute does change nothing for realease builds.
   // This is very useful for debugging purposes
   showDebugJson: true,
-  // If you have not implemented explicit dark theme, adaptive cards will try to approximate its colors to match the dark theme
+  // If you have not implemented explicit dark theme, Adaptive Cards will try to approximate its colors to match the dark theme
   // so the contrast and color meaning stays the same.
   // Turn this off, if you want to have full control over the colors when using the dark theme.
   // NOTE: This is currently still under development
@@ -75,6 +74,8 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 
 See also the list of [contributors](https://github.com/Norbert515/flutter_adaptive_cards/contributors) who participated in this project.
 
+## About this project
+We decided to build a Flutter implementation of Adaptive Cards because we believe in the future of both technologies. With Flutter, we found an exciting framework for ultra-fast and cross-platform UI development. And with Adaptive Cards, we can combine that with an industry standard for exchanging card content in a structured way. At Neohelden, we're building on both of these technologies with our AI-assistant for business – and you can learn more about why we built this in our [blog-post on the release of our Adaptive Cards in Flutter library](https://neohelden.com/blog/tech/using-adaptive-cards-in-flutter/).
 
 ## License
 
