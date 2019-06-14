@@ -42,6 +42,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/
     - lib/easy_card
     - lib/adaptive_card_string
     - lib/host_config
@@ -105,7 +106,6 @@ flutter:
     - lib/samples/example13
     - lib/samples/example14
     - lib/samples/example15
-
 
 
   # To add assets to your application, add an assets section, like this:
