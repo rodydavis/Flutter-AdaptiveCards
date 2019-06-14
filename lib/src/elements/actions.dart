@@ -1,33 +1,66 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
 import 'package:flutter_adaptive_cards/src/elements/basics.dart';
 import 'base.dart';
+import 'package:flutter/cupertino.dart';
 
 class IconButtonAction extends StatefulWidget with AdaptiveElementWidgetMixin {
-
-  IconButtonAction({Key key, this.adaptiveMap, this.onTapped}) : super(key: key);
+  IconButtonAction({
+    Key key,
+    this.adaptiveMap,
+    this.onTapped,
+    this.adaptiveOS = true,
+  }) : super(key: key);
 
   final Map adaptiveMap;
 
   final VoidCallback onTapped;
 
+  final bool adaptiveOS;
+
   @override
   _IconButtonActionState createState() => _IconButtonActionState();
 }
 
-class _IconButtonActionState extends State<IconButtonAction> with AdaptiveActionMixin, AdaptiveElementMixin{
-
-
+class _IconButtonActionState extends State<IconButtonAction>
+    with AdaptiveActionMixin, AdaptiveElementMixin {
   String iconUrl;
   @override
   void initState() {
     super.initState();
     iconUrl = adaptiveMap["iconUrl"];
-
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.adaptiveOS) {
+      if (Platform.isIOS || Platform.isMacOS) {
+        Widget result = CupertinoButton(
+          padding: EdgeInsets.all(4.0),
+          onPressed: onTapped,
+          child: Text(title),
+        );
+
+        if (iconUrl != null) {
+          result = CupertinoButton(
+            padding: EdgeInsets.all(4.0),
+            onPressed: onTapped,
+            child: Row(
+              children: <Widget>[
+                Image.network(
+                  iconUrl,
+                  height: 36.0,
+                ),
+                Text(title),
+              ],
+            ),
+          );
+        }
+        return result;
+      }
+    }
     Widget result = RaisedButton(
       onPressed: onTapped,
       child: Text(title),
@@ -50,29 +83,29 @@ class _IconButtonActionState extends State<IconButtonAction> with AdaptiveAction
   void onTapped() => widget.onTapped();
 }
 
-
-
-
-class AdaptiveActionShowCard extends StatefulWidget with AdaptiveElementWidgetMixin  {
-
-  AdaptiveActionShowCard({Key key, this.adaptiveMap}) : super(key: key);
+class AdaptiveActionShowCard extends StatefulWidget
+    with AdaptiveElementWidgetMixin {
+  AdaptiveActionShowCard({
+    Key key,
+    this.adaptiveMap,
+    this.adaptiveOS = true,
+  }) : super(key: key);
 
   final Map adaptiveMap;
 
+  final bool adaptiveOS;
 
   @override
   _AdaptiveActionShowCardState createState() => _AdaptiveActionShowCardState();
 }
 
-class _AdaptiveActionShowCardState extends State<AdaptiveActionShowCard> with
-    AdaptiveActionMixin, AdaptiveElementMixin{
-
+class _AdaptiveActionShowCardState extends State<AdaptiveActionShowCard>
+    with AdaptiveActionMixin, AdaptiveElementMixin {
   @override
   void initState() {
     super.initState();
 
     Widget card = widgetState.cardRegistry.getElement(adaptiveMap["card"]);
-
 
     var _adaptiveCardElement = AdaptiveCardElementState.of(context);
     if (_adaptiveCardElement != null) {
@@ -82,6 +115,22 @@ class _AdaptiveActionShowCardState extends State<AdaptiveActionShowCard> with
 
   @override
   Widget build(BuildContext context) {
+    if (widget.adaptiveOS) {
+      if (Platform.isIOS || Platform.isMacOS) {
+        return CupertinoButton(
+          padding: EdgeInsets.all(4.0),
+          onPressed: onTapped,
+          child: Row(
+            children: <Widget>[
+              Text(title),
+              AdaptiveCardElementState.of(context).currentCardId == id
+                  ? Icon(Icons.keyboard_arrow_up)
+                  : Icon(Icons.keyboard_arrow_down),
+            ],
+          ),
+        );
+      }
+    }
     return RaisedButton(
       onPressed: onTapped,
       child: Row(
@@ -95,7 +144,6 @@ class _AdaptiveActionShowCardState extends State<AdaptiveActionShowCard> with
     );
   }
 
-
   @override
   void onTapped() {
     var _adaptiveCardElement = AdaptiveCardElementState.of(context);
@@ -105,22 +153,28 @@ class _AdaptiveActionShowCardState extends State<AdaptiveActionShowCard> with
   }
 }
 
-
-class AdaptiveActionSubmit extends StatefulWidget with AdaptiveElementWidgetMixin {
-
-  AdaptiveActionSubmit({Key key, this.adaptiveMap, this.color}) : super(key: key);
+class AdaptiveActionSubmit extends StatefulWidget
+    with AdaptiveElementWidgetMixin {
+  AdaptiveActionSubmit({
+    Key key,
+    this.adaptiveMap,
+    this.color,
+    this.adaptiveOS = true,
+  }) : super(key: key);
 
   final Map adaptiveMap;
 
   // Native styling
   final Color color;
 
+  final bool adaptiveOS;
+
   @override
   _AdaptiveActionSubmitState createState() => _AdaptiveActionSubmitState();
 }
 
-class _AdaptiveActionSubmitState extends State<AdaptiveActionSubmit> with AdaptiveActionMixin, AdaptiveElementMixin{
-
+class _AdaptiveActionSubmitState extends State<AdaptiveActionSubmit>
+    with AdaptiveActionMixin, AdaptiveElementMixin {
   GenericSubmitAction action;
 
   @override
@@ -131,6 +185,16 @@ class _AdaptiveActionSubmitState extends State<AdaptiveActionSubmit> with Adapti
 
   @override
   Widget build(BuildContext context) {
+    if (widget.adaptiveOS) {
+      if (Platform.isIOS || Platform.isMacOS) {
+        return CupertinoButton(
+          padding: EdgeInsets.all(4.0),
+          color: widget.color,
+          onPressed: onTapped,
+          child: Text(title),
+        );
+      }
+    }
     return RaisedButton(
       color: widget.color,
       onPressed: onTapped,
@@ -144,9 +208,8 @@ class _AdaptiveActionSubmitState extends State<AdaptiveActionSubmit> with Adapti
   }
 }
 
-
-class AdaptiveActionOpenUrl extends StatefulWidget with AdaptiveElementWidgetMixin {
-
+class AdaptiveActionOpenUrl extends StatefulWidget
+    with AdaptiveElementWidgetMixin {
   AdaptiveActionOpenUrl({Key key, this.adaptiveMap}) : super(key: key);
 
   final Map adaptiveMap;
@@ -154,9 +217,8 @@ class AdaptiveActionOpenUrl extends StatefulWidget with AdaptiveElementWidgetMix
   _AdaptiveActionOpenUrlState createState() => _AdaptiveActionOpenUrlState();
 }
 
-class _AdaptiveActionOpenUrlState extends State<AdaptiveActionOpenUrl> with AdaptiveActionMixin, AdaptiveElementMixin{
-
-
+class _AdaptiveActionOpenUrlState extends State<AdaptiveActionOpenUrl>
+    with AdaptiveActionMixin, AdaptiveElementMixin {
   GenericActionOpenUrl action;
   String iconUrl;
 
@@ -167,6 +229,7 @@ class _AdaptiveActionOpenUrlState extends State<AdaptiveActionOpenUrl> with Adap
     action = GenericActionOpenUrl(adaptiveMap, widgetState);
     iconUrl = adaptiveMap["iconUrl"];
   }
+
   @override
   Widget build(BuildContext context) {
     // TODO
@@ -181,4 +244,3 @@ class _AdaptiveActionOpenUrlState extends State<AdaptiveActionOpenUrl> with Adap
     action.tap();
   }
 }
-

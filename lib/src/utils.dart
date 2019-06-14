@@ -55,15 +55,15 @@ class _FadeAnimationState extends State<FadeAnimation>
   Widget build(BuildContext context) {
     return animationController.isAnimating
         ? Opacity(
-      opacity: 1.0 - animationController.value,
-      child: widget.child,
-    )
+            opacity: 1.0 - animationController.value,
+            child: widget.child,
+          )
         : Container();
   }
 }
 
-String firstCharacterToLowerCase(String s) => s.isNotEmpty? s[0].toLowerCase() + s.substring(1): "";
-
+String firstCharacterToLowerCase(String s) =>
+    s.isNotEmpty ? s[0].toLowerCase() + s.substring(1) : "";
 
 class Tuple<A, B> {
   final A a;
@@ -82,6 +82,12 @@ class FullCircleClipper extends CustomClipper<Rect> {
   bool shouldReclip(CustomClipper<Rect> oldClipper) => false;
 }
 
+DateTime dateTimeFromTimeOfDay(TimeOfDay value) {
+  TimeOfDay t = value ?? TimeOfDay.now();
+  final now = new DateTime.now();
+  return new DateTime(now.year, now.month, now.day, t.hour, t.minute);
+}
+
 Color parseColor(String colorValue) {
   // No alpha
   if (colorValue.length == 7) {
@@ -93,31 +99,32 @@ Color parseColor(String colorValue) {
   }
 }
 
-
-
 String getDayOfMonthSuffix(final int n) {
   assert(n >= 1 && n <= 31, "illegal day of month: " + n.toString());
   if (n >= 11 && n <= 13) {
     return "th";
   }
   switch (n % 10) {
-    case 1:  return "st";
-    case 2:  return "nd";
-    case 3:  return "rd";
-    default: return "th";
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
   }
 }
 
-
 Color adjustColorToFitDarkTheme(Color color, Brightness brightness) {
-  if(brightness == Brightness.light) {
+  if (brightness == Brightness.light) {
     return color;
   } else {
     TinyColor tinyColor = TinyColor(color);
-    if(tinyColor.isDark()) {
+    if (tinyColor.isDark()) {
       double luminance = tinyColor.getLuminance();
       // TODO turns red colors to red which it is not supposed to do
-      return tinyColor.lighten(((1-luminance) * 100).round()).color;
+      return tinyColor.lighten(((1 - luminance) * 100).round()).color;
     }
     return color;
   }
@@ -128,66 +135,65 @@ Color adjustColorToFitDarkTheme(Color color, Brightness brightness) {
 String parseTextString(String text) {
   return text.replaceAllMapped(RegExp(r'{{.*}}'), (match) {
     String res = match.group(0);
-    String input = res.substring(2, res.length -2);
+    String input = res.substring(2, res.length - 2);
     input = input.replaceAll(" ", "");
 
     String type = input.substring(0, 4);
-    if(type == "DATE") {
+    if (type == "DATE") {
       String dateFunction = input.substring(5, input.length - 1);
       List<String> items = dateFunction.split(",");
-      if(items.length == 1) {
+      if (items.length == 1) {
         items.add("COMPACT");
       }
       //if(items.length != 2) throw StateError("$dateFunction is not valid");
       // Wrong format
-      if(items.length != 2) return res;
+      if (items.length != 2) return res;
 
       DateTime dateTime = DateTime.tryParse(items[0]);
 
       // TODO use locale
       DateFormat dateFormat;
 
-      if(dateTime == null) return res;
-      if(items[1] == "COMPACT") {
+      if (dateTime == null) return res;
+      if (items[1] == "COMPACT") {
         dateFormat = DateFormat.yMd();
         return dateFormat.format(dateTime);
-      } else if(items[1] == "SHORT") {
+      } else if (items[1] == "SHORT") {
         dateFormat = DateFormat("E, MMM d{n}, y");
-        return dateFormat.format(dateTime).replaceFirst('{n}', getDayOfMonthSuffix(dateTime.day));
-      } else if(items[1] == "LONG") {
+        return dateFormat
+            .format(dateTime)
+            .replaceFirst('{n}', getDayOfMonthSuffix(dateTime.day));
+      } else if (items[1] == "LONG") {
         dateFormat = DateFormat("EEEE, MMMM d{n}, y");
-        return dateFormat.format(dateTime).replaceFirst('{n}', getDayOfMonthSuffix(dateTime.day));
+        return dateFormat
+            .format(dateTime)
+            .replaceFirst('{n}', getDayOfMonthSuffix(dateTime.day));
       } else {
         // Wrong format
         return res;
       }
-
-
-    } else if(type == "TIME") {
+    } else if (type == "TIME") {
       String time = input.substring(5, input.length - 1);
       DateTime dateTime = DateTime.tryParse(time);
-      if(dateTime == null) return res;
+      if (dateTime == null) return res;
 
       DateFormat dateFormat = DateFormat("jm");
 
       return dateFormat.format(dateTime);
-
     } else {
       // Wrong format
       return res;
       //throw StateError("Function $type not found");
     }
   });
-
 }
 
 class UUIDGenerator {
-
-  UUIDGenerator(): uuid = Uuid();
+  UUIDGenerator() : uuid = Uuid();
 
   final Uuid uuid;
 
   String getId() {
-   return uuid.v1();
+    return uuid.v1();
   }
 }
