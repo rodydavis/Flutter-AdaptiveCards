@@ -612,7 +612,7 @@ class _AdaptiveChoiceSetState extends State<AdaptiveChoiceSet>
       }
     }
     setState(() {
-      print('Selected -> $choice');
+      // print('Selected -> $choice');
     });
   }
 
