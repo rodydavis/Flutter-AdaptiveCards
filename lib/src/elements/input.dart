@@ -53,16 +53,10 @@ class _AdaptiveTextInputState extends State<AdaptiveTextInput>
             controller: controller,
             maxLength: maxLength,
             keyboardType: style,
+            clearButtonMode: OverlayVisibilityMode.editing,
             maxLines: isMultiline ? null : 1,
             placeholder: placeholder,
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  width: 0.0,
-                  color: CupertinoColors.inactiveGray,
-                ),
-              ),
-            ),
+            decoration: CupertinoWidgets.decoration(context),
           ),
         );
       }
@@ -110,9 +104,16 @@ class _AdaptiveTextInputState extends State<AdaptiveTextInput>
 
 class AdaptiveNumberInput extends StatefulWidget
     with AdaptiveElementWidgetMixin {
-  AdaptiveNumberInput({Key key, this.adaptiveMap}) : super(key: key);
+  AdaptiveNumberInput({
+    Key key,
+    this.adaptiveMap,
+    this.adaptiveOS = true,
+  }) : super(key: key);
 
   final Map adaptiveMap;
+
+  final bool adaptiveOS;
+
   @override
   _AdaptiveNumberInputState createState() => _AdaptiveNumberInputState();
 }
@@ -135,6 +136,20 @@ class _AdaptiveNumberInputState extends State<AdaptiveNumberInput>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.adaptiveOS) {
+      if (Platform.isIOS || Platform.isMacOS) {
+        return SeparatorElement(
+          adaptiveMap: adaptiveMap,
+          child: CupertinoTextField(
+            padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 12.0),
+            clearButtonMode: OverlayVisibilityMode.editing,
+            keyboardType: TextInputType.number,
+            decoration: CupertinoWidgets.decoration(context),
+            placeholder: placeholder,
+          ),
+        );
+      }
+    }
     return SeparatorElement(
       adaptiveMap: adaptiveMap,
       child: TextField(
@@ -216,10 +231,12 @@ class _AdaptiveDateInputState extends State<AdaptiveDateInput>
                 },
               );
             },
-            child: CupertinoWidgets.buildMenu(context, <Widget>[
-              Text(placeholder),
+            child: CupertinoWidgets.buildMenu(context, children: <Widget>[
+              Text(placeholder ?? 'Date'),
               Text(
-                DateFormat.yMMMMd().format(selectedDateTime),
+                selectedDateTime == null
+                    ? 'Not Set'
+                    : DateFormat.yMMMMd().format(selectedDateTime),
                 style: const TextStyle(color: CupertinoColors.inactiveGray),
               ),
             ]),
@@ -324,7 +341,7 @@ class _AdaptiveTimeInputState extends State<AdaptiveTimeInput>
             },
             child: CupertinoWidgets.buildMenu(
               context,
-              <Widget>[
+              children: <Widget>[
                 Text(placeholder),
                 Text(
                   selectedTime.format(widgetState.context),
@@ -518,17 +535,14 @@ class _AdaptiveChoiceSetState extends State<AdaptiveChoiceSet>
   Widget _buildCompact() {
     if (widget.adaptiveOS) {
       if ((Platform.isIOS || Platform.isMacOS) && choices.keys.length < 4) {
-        final _items = <String, Widget>{};
-        for (var _key in choices.keys) {
-          _items[choices[_key]] = Container(
-            padding: EdgeInsets.symmetric(horizontal: 4.0),
-            child: Text(_key),
-          );
-        }
-        return CupertinoSegmentedControl<String>(
-          children: _items,
-          onValueChanged: select,
-          groupValue: _selectedChoice.single,
+        return CupertinoWidgets.buildPicker(
+          context,
+          items: choices,
+          selectedIndex: choices.keys.toList().indexOf(_selectedChoice.single),
+          placeholder: 'Make a Selection',
+          onChanged: select,
+          multiSelect: false,
+          trySegmentedControl: true,
         );
       }
     }
@@ -545,6 +559,19 @@ class _AdaptiveChoiceSetState extends State<AdaptiveChoiceSet>
   }
 
   Widget _buildExpandedSingleSelect() {
+    if (widget.adaptiveOS) {
+      if ((Platform.isIOS || Platform.isMacOS) && choices.keys.length < 4) {
+        return CupertinoWidgets.buildPicker(
+          context,
+          items: choices,
+          selectedIndex: choices.keys.toList().indexOf(_selectedChoice.single),
+          placeholder: 'Make a Selection',
+          onChanged: select,
+          multiSelect: false,
+          trySegmentedControl: false,
+        );
+      }
+    }
     return Column(
       children: choices.keys.map((key) {
         return RadioListTile<String>(
@@ -584,7 +611,9 @@ class _AdaptiveChoiceSetState extends State<AdaptiveChoiceSet>
         _selectedChoice.add(choice);
       }
     }
-    setState(() {});
+    setState(() {
+      print('Selected -> $choice');
+    });
   }
 
   bool loadCompact() {
