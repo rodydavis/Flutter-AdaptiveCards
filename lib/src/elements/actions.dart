@@ -1,10 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
-import 'package:flutter_adaptive_cards/src/elements/basics.dart';
-import 'base.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+import '../../flutter_adaptive_cards.dart';
+import 'base.dart';
+import 'basics.dart';
 
 class IconButtonAction extends StatefulWidget with AdaptiveElementWidgetMixin {
   IconButtonAction({

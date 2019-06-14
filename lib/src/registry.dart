@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_adaptive_cards/src/elements/basics.dart';
-import 'package:flutter_adaptive_cards/src/elements/actions.dart';
-import 'package:flutter_adaptive_cards/src/elements/input.dart';
-import 'package:flutter_adaptive_cards/src/flutter_adaptive_cards.dart';
 
+import 'elements/actions.dart';
 import 'elements/base.dart';
+import 'elements/basics.dart';
+import 'elements/input.dart';
+import 'flutter_adaptive_cards.dart';
 
 typedef ElementCreator = Widget Function(
     Map<String, dynamic> map);

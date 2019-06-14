@@ -1,15 +1,12 @@
-import 'dart:io';
-
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_adaptive_cards/flutter_adaptive_cards.dart';
-import 'package:flutter_adaptive_cards/src/elements/actions.dart';
-import 'package:flutter_adaptive_cards/src/utils.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
-import 'package:tinycolor/tinycolor.dart';
 
+import '../../flutter_adaptive_cards.dart';
+import '../utils.dart';
+import 'actions.dart';
 import 'additional.dart';
 import 'base.dart';
 

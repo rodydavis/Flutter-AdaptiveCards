@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_adaptive_cards/src/elements/base.dart';
+
+import 'base.dart';
 
 class SeparatorElement extends StatefulWidget with AdaptiveElementWidgetMixin {
 
