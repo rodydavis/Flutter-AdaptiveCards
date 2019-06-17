@@ -601,7 +601,9 @@ class _AdaptiveChoiceSetState extends State<AdaptiveChoiceSet>
   }
 
   void select(String choice) {
-    if (!isMultiSelect) {
+  if (mounted)
+    setState(() {
+      if (!isMultiSelect) {
       _selectedChoice.clear();
       _selectedChoice.add(choice);
     } else {
@@ -611,8 +613,6 @@ class _AdaptiveChoiceSetState extends State<AdaptiveChoiceSet>
         _selectedChoice.add(choice);
       }
     }
-    setState(() {
-      // print('Selected -> $choice');
     });
   }
 

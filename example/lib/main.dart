@@ -23,7 +23,7 @@ import 'inputs/input_time/input_time.dart';
 import 'inputs/input_toggle/input_toggle.dart';
 import 'media/media.dart';
 void main() {
-  debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+  // debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
   runApp(new MyApp());
 }
 
